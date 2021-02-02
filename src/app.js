@@ -8,10 +8,8 @@ app.use(cors());
 app.use(express.json());
 
 
-const teste = require('./routers/teste');
+const usersRouter = require('./routers/users');
 
-
-app.use('/teste', teste);
-
+app.use('/users', usersRouter);
 
 module.exports = app;
