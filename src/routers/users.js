@@ -1,10 +1,14 @@
 const router = require('express').Router();
 
+const usersController = require('../controllers/users');
+
 router.post('/sign-in', async (req, res) => {
-	const { email } = req.body;
+	const { email, password } = req.body;
 	
 	try {
-		res.status(200).send('Deu bom!');
+		const session = usersController.createSession(email, password);
+
+		res.status(201).send(session);
 	}
 	catch {
 		res.sendStatus(500);
