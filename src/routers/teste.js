@@ -2,13 +2,13 @@ const router = require('express').Router();
 
 router.get('/', async (req, res) => {
     
-    try {
+	try {
       
-        res.status(200).send('Deu bom!');
-    }
-    catch {
-        res.sendStatus(500);
-    }
+		res.status(200).send('Deu bom!');
+	}
+	catch {
+		res.sendStatus(500);
+	}
 });
 
 module.exports = router;
