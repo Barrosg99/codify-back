@@ -4,9 +4,9 @@ const User = require('../models/User');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
 
-class UserController {
+class UsersController {
 	async createSession(email, password) {
-		const user = await this._findByEmail(email);
+		const user = await this.findEmail(email);
 		if (!user) throw new NotFoundError('User not found');
 
 		if (user.password !== password) {
@@ -18,14 +18,10 @@ class UserController {
 		return { userId: user.id, token };
 	}
 
-	_findByEmail(email) {
-		return User.findOne({
-			where: { email },
-			attributes: {
-				exclude: ['createdAt', 'updatedAt']
-			}
-		});
+	async findEmail(email) {
+		const user = await User.findOne({ where: { email } });
+		return user;
 	}
 }
 
-module.exports = new UserController();
+module.exports = new UsersController();
