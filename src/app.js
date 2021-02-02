@@ -9,12 +9,10 @@ app.use(cors());
 app.use(express.json());
 
 
-const teste = require('./routers/teste');
 const usersRouter = require('./routers/usersRouter');
 const NotFoundError = require('./errors/NotFoundError');
 const WrongPasswordError = require('./errors/WrongPasswordError');
 
-app.use('/teste', teste);
 app.use('/users', usersRouter);
 
 app.use((error, req, res, next) => {

@@ -18,7 +18,7 @@ router
 		if (error) return res.status(422).send({ error: error.details[0].message });
 
 		const { email, password } = req.body;		
-		const session = usersController.createSession(email, password);
+		const session = await usersController.createSession(email, password);
 
 		res.status(201).send(session);
 	});
