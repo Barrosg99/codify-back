@@ -16,7 +16,7 @@ app.use('/teste', teste);
 app.use('/users', usersRouter);
 
 app.use((error, req, res, next) => {
-	console.log(error);
+	console.error(error);
 	res.status(500).json(error);
 });
 
