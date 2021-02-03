@@ -1,7 +1,12 @@
-async function createCourses(db, title, description, color) {
-  await db.query('INSERT INTO courses (title, description, color) values ($1, $2, $3);', [title, description, color]);
+async function createCoursesUtils(db, title, description, color, imageUrl) {
+  await db.query('INSERT INTO courses (title, description, color, "imageUrl") values ($1, $2, $3, $4);', [
+    title,
+    description,
+    color,
+    imageUrl,
+  ]);
 }
 
 module.exports = {
-  createCourses,
+  createCoursesUtils,
 };

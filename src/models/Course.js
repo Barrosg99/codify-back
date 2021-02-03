@@ -23,9 +23,14 @@ Course.init(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    imageUrl: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
   },
   {
     sequelize,
+    timestamps: false,
     modelName: 'course',
   },
 );

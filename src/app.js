@@ -7,11 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const { verifyJWT } = require('./midllewares/validation');
+const coursesRouter = require('./routers/coursesRouter');
+const adminRouter = require('./routers/admin/adminRouter');
 
-const teste = require('./routers/teste');
-
-
-app.use('/teste', teste);
-
+app.use('/courses', coursesRouter);
+app.use('/admin', verifyJWT, adminRouter);
 
 module.exports = app;

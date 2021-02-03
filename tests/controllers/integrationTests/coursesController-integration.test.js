@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
@@ -15,15 +15,8 @@ const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const token = 'iyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
-
-jest.mock('jsonwebtoken', () => {
-  return {
-    verify: () => {
-      auth: true, token;
-    },
-  };
-});
+const id = 1991;
+const token = jwt.sign({ id }, process.env.SECRET);
 
 beforeAll(async () => {
   await db.query('DELETE FROM courses;');
@@ -73,7 +66,10 @@ describe('POST /course', () => {
       imageUrl: 'https://i.imgur.com/lWUs38z.png',
     };
 
-    const response = await agent.post('/admin/courses/').set('Authorization', `Bearer ${token}`).send(body);
+    const response = await agent
+      .post('/admin/courses/')
+      .set('Authorization', `Bearer ${token}`)
+      .send(body);
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(
@@ -97,7 +93,10 @@ describe('PUT /course', () => {
       imageUrl: 'https://i.imgur.com/lWUs38z.png',
     };
 
-    const response = await agent.put('/admin/courses/2').set('Authorization', `Bearer ${token}`).send(body);
+    const response = await agent
+      .put('/admin/courses/2')
+      .set('Authorization', `Bearer ${token}`)
+      .send(body);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
