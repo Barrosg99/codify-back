@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
 const NotFoundError = require('../errors/NotFoundError');
@@ -9,13 +10,19 @@ class UsersController {
 		const user = await this.findEmail(email);
 		if (!user) throw new NotFoundError('User not found');
 
-		if (user.password !== password) {
+		const passwordComparison = bcrypt.compareSync(password, user.password);
+		if (!passwordComparison) {
 			throw new WrongPasswordError('Password is incorrect');
 		}
 
 		const token = jwt.sign({ id: user.id }, process.env.SECRET);
 
-		return { userId: user.id, token };
+		return {
+			userId: user.id,
+			name: user.name,
+			avatarUrl: user.avatarUrl,
+			token
+		};
 	}
 
 	async findEmail(email) {
