@@ -6,9 +6,9 @@ dotenv.config();
 const { Pool } = require('pg');
 const supertest = require('supertest');
 
-const { createCoursesUtils } = require('../../utils');
+const { createCoursesUtils } = require('../utils');
 
-const app = require('../../../src/app');
+const app = require('../../src/app');
 
 const agent = supertest(app);
 const db = new Pool({
