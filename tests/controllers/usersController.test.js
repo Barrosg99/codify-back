@@ -135,13 +135,11 @@ describe('Testing postAdminSignIn of usersController', () => {
   });
 
   it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
-    process.env.ADMIN_USERNAME = 'admin';
-    process.env.ADMIN_PASSWORD = 'admin';
-
-    const login = await usersController.postAdminSignIn('admin', 'admin');
-    console.log(login);
+		const login = await usersController.postAdminSignIn(
+			process.env.ADMIN_USERNAME,
+			process.env.ADMIN_PASSWORD
+		);
 
     expect(login).toEqual(expect.any(String));
-    expect(login.length).toBeGreaterThanOrEqual(121);
   });
 });

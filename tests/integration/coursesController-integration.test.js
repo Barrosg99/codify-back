@@ -1,7 +1,6 @@
-const dotenv = require('dotenv');
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
-dotenv.config();
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
