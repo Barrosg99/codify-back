@@ -4,6 +4,6 @@ module.exports = joi.object({
 	name: joi.string().required(),
 	email: joi.string().email().required(),
 	password: joi.string().required(),
-	repeatPassword: joi.ref('password'),
+	passwordConfirmation: joi.string().valid(joi.ref('password')).required(),
 	avatarUrl: joi.string().uri()
 });

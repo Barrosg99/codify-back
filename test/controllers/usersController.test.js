@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const usersController = require('../../src/controllers/usersController');
 const Session = require('../../src/models/Session');
+const User = require('../../src/models/User');
 const NotFoundError = require('../../src/errors/NotFoundError');
 const WrongPasswordError = require('../../src/errors/WrongPasswordError');
 
@@ -15,8 +16,48 @@ jest.mock('jsonwebtoken', () => {
 
 jest.mock('bcrypt', () => {
 	return {
-		compareSync: (password, hashPassword) => password === hashPassword
+		compareSync: (password, hashPassword) => password === hashPassword,
+		hashSync: (password, salt) => 'password'
 	};
+});
+
+describe('findByEmail', () => {
+	it('should call with the right parameters and return an object', async () => {
+		jest.spyOn(User, 'findOne');
+		User.findOne.mockImplementation((obj) => ({ name: 'fulano', email: obj.where.email }));
+
+		const email = 'joao@mail.com';
+		const result = await usersController.findByEmail(email);
+
+		expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
+		expect(result).toEqual({ name: 'fulano', email });
+	});
+});
+
+describe('create', () => {
+	it('should call with the right parameters and return an object', async () => {
+		jest.spyOn(User, 'create');
+
+		const user = {
+			name: 'joao',
+			email: 'joao@mail.com',
+			password: 'banana123',
+			avatarUrl: 'url.com.br'
+		};
+
+		User.create.mockImplementation(() => ({ dataValues: { ...user } }));
+
+		const result = await usersController.create(user);
+		
+		expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
+			...user,
+			password: expect.any(String),
+		}), { 'raw': true, 'returning': true });
+
+		delete user.password;
+
+		expect(result.dataValues).toEqual(user);
+	});
 });
 
 describe('creating new session', () => {
@@ -26,8 +67,8 @@ describe('creating new session', () => {
 		const email = 'teste@gmail.com';
 		const password = 'password';
 
-		const spy = jest.spyOn(usersController, 'findEmail');
-		usersController.findEmail.mockImplementationOnce(email => (
+		const spy = jest.spyOn(usersController, 'findByEmail');
+		usersController.findByEmail.mockImplementationOnce(email => (
 			{ id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com' }
 		));
 
@@ -35,8 +76,8 @@ describe('creating new session', () => {
 		
 		const response = await usersController.createSession(email, password);
 
-		expect(usersController.findEmail).toHaveBeenCalled();
-		expect(usersController.findEmail).toHaveBeenCalledWith(email);
+		expect(usersController.findByEmail).toHaveBeenCalled();
+		expect(usersController.findByEmail).toHaveBeenCalledWith(email);
 		expect(response).toMatchObject({
 			userId: 1,
 			name: 'Teste',
@@ -51,13 +92,13 @@ describe('creating new session', () => {
 		const email = 'teste@gmail.com';
 		const password = 'password';
 
-		const spy = jest.spyOn(usersController, 'findEmail');
-		usersController.findEmail.mockImplementationOnce(() => false);
+		const spy = jest.spyOn(usersController, 'findByEmail');
+		usersController.findByEmail.mockImplementationOnce(() => false);
 		
 		const createFunction = usersController.createSession(email, password);
 
-		expect(usersController.findEmail).toHaveBeenCalled();
-		expect(usersController.findEmail).toHaveBeenCalledWith(email);
+		expect(usersController.findByEmail).toHaveBeenCalled();
+		expect(usersController.findByEmail).toHaveBeenCalledWith(email);
 		expect(createFunction).rejects.toThrow(NotFoundError);
 
 		spy.mockRestore();
@@ -67,13 +108,13 @@ describe('creating new session', () => {
 		const email = 'teste@gmail.com';
 		const password = 'password';
 
-		const spy = jest.spyOn(usersController, 'findEmail');
-		usersController.findEmail.mockImplementationOnce(() => ({ password: 'anotherPassword' }));
+		const spy = jest.spyOn(usersController, 'findByEmail');
+		usersController.findByEmail.mockImplementationOnce(() => ({ password: 'anotherPassword' }));
 		
 		const createFunction = usersController.createSession(email, password);
 
-		expect(usersController.findEmail).toHaveBeenCalled();
-		expect(usersController.findEmail).toHaveBeenCalledWith(email);
+		expect(usersController.findByEmail).toHaveBeenCalled();
+		expect(usersController.findByEmail).toHaveBeenCalledWith(email);
 		expect(createFunction).rejects.toThrow(WrongPasswordError);
 
 		spy.mockRestore();

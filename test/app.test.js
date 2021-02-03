@@ -11,11 +11,13 @@ const db = new Pool({
 	connectionString: process.env.DATABASE_URL,
 });
 
-beforeAll(async () => {
+beforeEach(async () => {
+	await db.query('DELETE FROM sessions');
 	await db.query('DELETE FROM users');
 });
 
 afterAll(async () => {
+	await db.query('DELETE FROM sessions');
 	await db.query('DELETE FROM users');
 
 	await db.end();
@@ -26,35 +28,59 @@ describe('POST /users', () => {
 	it('should return 422 when missing data', async () => {
 		const body = {
 			email: 'joao@gmail.com',
-			password: 'dahoralek123'
+			password: 'dahoralek123',
+			passwordConfirmation: 'dahoralek123'
 		};
 		const response = await agent.post('/users/register').send(body);
 		expect(response.status).toBe(422);
 	});
+
 	it('should return 409 when email already exist', async () => {
-		db.query('INSERT INTO users (email) VALUES ($1) ', ['joao@gmail.com']);
+		db.query('INSERT INTO users (name,password,email) VALUES ($1,$2,$3) ', ['gabriel', 'zeze123', 'joao@gmail.com']);
 
 		const body = {
 			name: 'joao',
 			email: 'joao@gmail.com',
-			password: 'dahoralek123'
+			password: 'dahoralek123',
+			passwordConfirmation: 'dahoralek123'
 		};
-		
+
 		const response = await agent.post('/users/register').send(body);
 		expect(response.status).toBe(409);
+	});
+
+	it('should return 201 and the created user', async () => {
+		const body = {
+			name: 'joao',
+			email: 'joao@gmail.com.br',
+			password: 'dahoralek123',
+			passwordConfirmation: 'dahoralek123'
+		};
+		const response = await agent.post('/users/register').send(body);
+		expect(response.status).toBe(201);
+		expect(response.body).toEqual(expect.objectContaining({
+			id: expect.any(Number),
+			name: 'joao',
+			email: 'joao@gmail.com.br',
+			avatarUrl: null
+		}));
 	});
 });
 
 describe('POST /users/sign-in', () => {
 	it('should create user session if correct email and password is sent', async () => {
-		const testUserData = await db.query(
-			'INSERT INTO users (name, email, password, "avatarUrl") VALUES ($1, $2, $3, $4) RETURNING *',
-			['Osvaldo', 'o@gmail.com', 'password', 'https://google.com']
-		);
-
-		const body = { email: 'o@gmail.com', password: 'password' };
-		const { id } = testUserData.rows[0];
-
+		let body = {
+			name: 'Osvaldo',
+			email: 'o@gmail.com',
+			password: 'password',
+			passwordConfirmation: 'password',
+			avatarUrl: 'https://google.com',
+		};
+		
+		const testUserData = await agent.post('/users/register').send(body);
+		const { id } = testUserData.body;		
+		
+		body = { email: 'o@gmail.com', password: 'password' };
 		const response = await agent.post('/users/sign-in').send(body);
 
 		expect(response.status).toBe(201);
