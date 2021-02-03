@@ -55,7 +55,6 @@ describe('POST /users', () => {
 			id: expect.any(Number),
 			name: 'joao',
 			email: 'joao@gmail.com.br',
-			password: 'dahoralek123',
 			avatarUrl: null
 		}));
 	});
