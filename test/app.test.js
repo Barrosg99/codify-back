@@ -24,7 +24,8 @@ describe('POST /users', () => {
 	it('should return 422 when missing data', async () => {
 		const body = {
 			email: 'joao@gmail.com',
-			password: 'dahoralek123'
+			password: 'dahoralek123',
+			passwordConfirmation: 'dahoralek123'
 		};
 		const response = await agent.post('/users/register').send(body);
 		expect(response.status).toBe(422);
@@ -36,7 +37,8 @@ describe('POST /users', () => {
 		const body = {
 			name: 'joao',
 			email: 'joao@gmail.com',
-			password: 'dahoralek123'
+			password: 'dahoralek123',
+			passwordConfirmation: 'dahoralek123'
 		};
 
 		const response = await agent.post('/users/register').send(body);
@@ -47,7 +49,8 @@ describe('POST /users', () => {
 		const body = {
 			name: 'joao',
 			email: 'joao@gmail.com.br',
-			password: 'dahoralek123'
+			password: 'dahoralek123',
+			passwordConfirmation: 'dahoralek123'
 		};
 		const response = await agent.post('/users/register').send(body);
 		expect(response.status).toBe(201);
