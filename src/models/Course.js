@@ -30,6 +30,7 @@ Course.init(
   },
   {
     sequelize,
+    timestamps: false,
     modelName: 'course',
   },
 );

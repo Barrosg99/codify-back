@@ -1,52 +1,65 @@
-const dotenv = require('dotenv');
+require('dotenv').config();
 
-dotenv.config();
+const coursesController = require('../../src/controllers/coursesController');
+const ConflictError = require('../../src/errors/ConflictError');
+const NotFoundError = require('../../src/errors/NotFoundError');
 
-const { Pool } = require('pg');
-const supertest = require('supertest');
+jest.mock('../../src/models/Course.js');
 
-const { createCourses } = require('../utils');
+describe('POST /course', () => {
+  it('createCourse - should return an throw error trying to create a course that already exists.', async () => {
+    const Course = require('../../src/models/Course');
 
-const app = require('../../src/app');
+    Course.findOne.mockResolvedValue({
+      id: 1,
+      title: 'JavaScript do zero ao avançado',
+      description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
+      color: 'amarelo',
+      imageUrl: 'https://i.imgur.com/lWUs38z.png',
+    });
 
-const agent = supertest(app);
-const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
+    async function course() {
+      return await coursesController.createCourse(
+        'JavaScript do zero ao avançado',
+        'Curso para vc ficar voando mesmo tipo mostrão no JS',
+        'amarelo',
+        'https://i.imgur.com/lWUs38z.png',
+      );
+    }
+
+    expect(course).rejects.toThrow(ConflictError);
+  });
 });
 
-beforeAll(async () => {
-  await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
-  await db.query('DELETE FROM courses;');
+describe('PUT /course', () => {
+  it('editCourse - should return an throw error trying to edit a course that not exists.', async () => {
+    const Course = require('../../src/models/Course');
+
+    Course.findByPk.mockResolvedValue(null);
+
+    async function course() {
+      return await coursesController.editCourse(
+        'Python é bom demais',
+        'Curso para vc ficar voando mesmo tipo mostrão no PY',
+        'azul',
+        'https://i.imgur.com/lWUs38z.png',
+      );
+    }
+
+    expect(course).rejects.toThrow(NotFoundError);
+  });
 });
 
-afterAll(async () => {
-  await db.end();
-});
+describe('DELETE /course', () => {
+  it('deleteCourse- should return a throw error if the category does not exist.', async () => {
+    const Course = require('../../src/models/Course');
 
-describe('GET /cursos', () => {
-  it('Should return 200 with list of courses', async () => {
-    createCourses(
-      db,
-      'JavaScript do zero ao avançado',
-      'Curso para vc ficar voando mesmo tipo mostrão no JS',
-      'amarelo',
-    );
+    Course.findByPk.mockResolvedValue(null);
 
-    const response = await agent.get('/cursos');
+    async function course() {
+      return await coursesController.deleteCourse(2);
+    }
 
-    const allCourses = response.body;
-
-    expect(response.status).toBe(200);
-
-    expect(allCourses).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-          title: 'JavaScript do zero ao avançado',
-          description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
-          color: 'amarelo',
-        }),
-      ]),
-    );
+    expect(course).rejects.toThrow(NotFoundError);
   });
 });
