@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
+const Session = require('../models/Session');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
 
@@ -14,7 +15,8 @@ class UsersController {
 		if (!passwordComparison) {
 			throw new WrongPasswordError('Password is incorrect');
 		}
-
+		
+		await Session.create({ userId: user.id });
 		const token = jwt.sign({ id: user.id }, process.env.SECRET);
 
 		return {

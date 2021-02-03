@@ -60,6 +60,8 @@ describe('POST /users/sign-in', () => {
 		expect(response.status).toBe(201);
 		expect(response.body).toMatchObject({
 			userId: id,
+			name: 'Osvaldo',
+			avatarUrl: 'https://google.com',
 			token: expect.any(String)
 		});
 	});
@@ -75,10 +77,10 @@ describe('POST /users/sign-in', () => {
 	it('should return status code 401 if wrong password is sent', async () => {
 		await db.query(
 			'INSERT INTO users (name, email, password, "avatarUrl") VALUES ($1, $2, $3, $4) RETURNING *',
-			['Osvaldo', 'o@gmail.com', 'password', 'https://google.com']
+			['Amaraldo', 'a@gmail.com', 'password', 'https://google.com']
 		);
 
-		const body = { email: 'o@gmail.com', password: 'wrongPassword' };
+		const body = { email: 'a@gmail.com', password: 'wrongPassword' };
 
 		const response = await agent.post('/users/sign-in').send(body);
 
