@@ -3,6 +3,11 @@ const router = require('express').Router();
 const coursesController = require('../../controllers/coursesController');
 const coursesSchemas = require('../../schemas/coursesSchemas');
 
+router.get('/', async (req, res) => {
+  const courses = await coursesController.getAll();
+  res.send(courses);
+});
+
 router.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
 

@@ -11,7 +11,7 @@ app.use(express.json());
 
 require('./utils/loadRelationships');
 
-const { verifyJWT } = require('./midllewares/validation');
+const { verifyJWT } = require('./middlewares/validation');
 const coursesRouter = require('./routers/coursesRouter');
 const adminRouter = require('./routers/admin/adminRouter');
 const usersRouter = require('./routers/usersRouter');
