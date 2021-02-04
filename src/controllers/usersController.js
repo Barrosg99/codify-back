@@ -53,7 +53,14 @@ class UsersController {
 
     const id = process.env.ADMIN_ID;
     const token = jwt.sign({ id }, process.env.SECRET);
+
+    await Session.create({ userId: process.env.ADMIN_ID });
+
     return token;
+  }
+
+  async postAdminSignOut(userId) {
+    await Session.destroy({ where: { userId } });
   }
 }
 
