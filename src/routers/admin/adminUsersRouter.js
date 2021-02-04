@@ -1,5 +1,4 @@
 const router = require('express').Router();
-
 const userSchemas = require('../../schemas/usersSchemas');
 const usersController = require('../../controllers/usersController');
 const AuthError = require('../../errors/AuthError');

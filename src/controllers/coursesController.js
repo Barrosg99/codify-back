@@ -1,6 +1,6 @@
 const Course = require('../models/Course');
-const ConflictError = require('../../src/errors/ConflictError');
-const NotFoundError = require('../../src/errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
 
 async function getAll() {
   return Course.findAll();
@@ -10,7 +10,9 @@ async function createCourse(title, description, color, imageUrl) {
   const curso = await Course.findOne({ where: { title } });
   if (curso !== null) throw new ConflictError('There is already a course with this title');
 
-  const createdCurso = await Course.create({ title, description, color, imageUrl });
+  const createdCurso = await Course.create({
+    title, description, color, imageUrl,
+  });
 
   return createdCurso;
 }
@@ -34,4 +36,6 @@ async function deleteCourse(id) {
 
   await course.destroy({ where: { id } });
 }
-module.exports = { getAll, createCourse, editCourse, deleteCourse };
+module.exports = {
+  getAll, createCourse, editCourse, deleteCourse,
+};

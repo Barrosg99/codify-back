@@ -1,3 +1,5 @@
+/* eslint-disable global-require */
+/* eslint-disable no-undef */
 require('dotenv').config();
 
 const coursesController = require('../../src/controllers/coursesController');
@@ -19,7 +21,7 @@ describe('POST /course', () => {
     });
 
     async function course() {
-      return await coursesController.createCourse(
+      return coursesController.createCourse(
         'JavaScript do zero ao avançado',
         'Curso para vc ficar voando mesmo tipo mostrão no JS',
         'amarelo',
@@ -38,7 +40,7 @@ describe('PUT /course', () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
-      return await coursesController.editCourse(
+      return coursesController.editCourse(
         'Python é bom demais',
         'Curso para vc ficar voando mesmo tipo mostrão no PY',
         'azul',
@@ -57,7 +59,7 @@ describe('DELETE /course', () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
-      return await coursesController.deleteCourse(2);
+      return coursesController.deleteCourse(2);
     }
 
     expect(course).rejects.toThrow(NotFoundError);
