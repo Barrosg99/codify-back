@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
+const sequelize = require('../../src/utils/database');
 
 const { createCoursesUtils } = require('../utils');
 
@@ -19,23 +20,24 @@ const token = jwt.sign({ id }, process.env.SECRET);
 
 beforeAll(async () => {
   await db.query('DELETE FROM courses;');
-  await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
+	await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
+	
+	await createCoursesUtils(
+		db,
+		'JavaScript do zero ao avançado',
+		'Curso para vc ficar voando mesmo tipo mostrão no JS',
+		'amarelo',
+		'https://i.imgur.com/lWUs38z.png',
+	);
 });
 
 afterAll(async () => {
-  await db.end();
+	await db.end();
+	await sequelize.close();
 });
 
-describe('GET /cursos', () => {
+describe('GET /courses', () => {
   it('Should return 200 with list of courses', async () => {
-    createCoursesUtils(
-      db,
-      'JavaScript do zero ao avançado',
-      'Curso para vc ficar voando mesmo tipo mostrão no JS',
-      'amarelo',
-      'https://i.imgur.com/lWUs38z.png',
-    );
-
     const response = await agent.get('/courses');
 
     const allCourses = response.body;
@@ -56,7 +58,7 @@ describe('GET /cursos', () => {
   });
 });
 
-describe('POST /course', () => {
+describe('POST /courses', () => {
   it('Should return 201 status and a object with criated course', async () => {
     const body = {
       title: 'Python do zero ao avançado',
@@ -83,7 +85,7 @@ describe('POST /course', () => {
   });
 });
 
-describe('PUT /course', () => {
+describe('PUT /courses/:id', () => {
   it('Should return 200 status and a object with edited course', async () => {
     const body = {
       title: 'Python é bom demais',
@@ -110,9 +112,24 @@ describe('PUT /course', () => {
   });
 });
 
-describe('DELETE /course', () => {
+describe('DELETE /courses/:id', () => {
   it('Should return 204 status if was successfully deleted ', async () => {
     const response = await agent.delete('/admin/courses/2').set('Authorization', `Bearer ${token}`);
     expect(response.status).toBe(204);
   });
+});
+
+describe('GET /courses/:id', () => {
+	it('Should return status code 200 and requested course data', async () => {
+		const response = await agent.get('/courses/1');
+
+		expect(response.status).toBe(200);
+		expect(response.body).toMatchObject({
+			id: 1,
+			title: 'JavaScript do zero ao avançado',
+			description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
+			color: 'amarelo',
+			imageUrl: 'https://i.imgur.com/lWUs38z.png',
+		});
+	});
 });
