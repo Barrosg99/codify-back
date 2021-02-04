@@ -1,38 +1,38 @@
 const { Sequelize } = require('sequelize');
 const sequelize = require('../utils/database');
 
-class Course extends Sequelize.Model {}
+class User extends Sequelize.Model {}
 
-Course.init(
+User.init(
   {
     id: {
-      type: Sequelize.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
       allowNull: false,
-      autoIncrement: true,
+      type: Sequelize.INTEGER,
     },
-    title: {
+    name: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    description: {
+    password: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    color: {
+    email: {
       type: Sequelize.STRING,
       allowNull: false,
+      unique: true,
     },
-    imageUrl: {
+    avatarUrl: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
-  },
-  {
+  }, {
     sequelize,
     timestamps: false,
-    modelName: 'course',
+    modelName: 'user',
   },
 );
 
-module.exports = Course;
+module.exports = User;

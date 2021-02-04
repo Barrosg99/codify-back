@@ -1,28 +1,35 @@
+/* eslint-disable no-unused-vars */
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('courses', {
+    await queryInterface.createTable('users', {
       id: {
-        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
         allowNull: false,
-        autoIncrement: true,
+        type: Sequelize.INTEGER,
       },
-      title: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      description: {
+      password: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      color: {
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
+      },
+      avatarUrl: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('courses');
+    await queryInterface.dropTable('users');
   },
 };
