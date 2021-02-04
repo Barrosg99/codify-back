@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn('users',
@@ -12,7 +13,7 @@ module.exports = {
       });
   },
 
-  down: async (queryInterface) => {
+  down: async (queryInterface, Sequelize) => {
     await queryInterface.removeColumn('users', 'createdAt');
     await queryInterface.removeColumn('users', 'updatedAt');
   },

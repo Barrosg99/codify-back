@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 const sequelize = require('../utils/database');
 
-class User extends Sequelize.Model {}
+class User extends Sequelize.Model { }
 
 User.init(
   {
@@ -29,10 +29,10 @@ User.init(
       allowNull: true,
     },
   }, {
-    sequelize,
-    timestamps: false,
-    modelName: 'user',
-  },
+  sequelize,
+  timestamps: false,
+  modelName: 'user',
+},
 );
 
 module.exports = User;
