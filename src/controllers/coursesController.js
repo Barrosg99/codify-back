@@ -14,14 +14,14 @@ async function getOne(id) {
 }
 
 async function createCourse(title, description, color, imageUrl) {
-  const curso = await Course.findOne({ where: { title } });
-  if (curso !== null) throw new ConflictError('There is already a course with this title');
+  const course = await Course.findOne({ where: { title } });
+  if (course !== null) throw new ConflictError('There is already a course with this title');
 
-  const createdCurso = await Course.create({
+  const createdCourse = await Course.create({
     title, description, color, imageUrl,
   });
 
-  return createdCurso;
+  return createdCourse;
 }
 
 async function editCourse(id, title, description, color, imageUrl) {

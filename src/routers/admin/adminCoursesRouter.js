@@ -5,6 +5,13 @@ const ConflictError = require('../../errors/ConflictError');
 const NotFoundError = require('../../errors/NotFoundError');
 const coursesSchemas = require('../../schemas/coursesSchemas');
 
+router.get('/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const course = await coursesController.getOne(id);
+  res.send(course);
+});
+
 router.post('/', async (req, res) => {
   const { error } = coursesSchemas.courseSchema.validate(req.body);
   if (error) return res.sendStatus(422);
