@@ -3,13 +3,12 @@ require('dotenv').config();
 const coursesController = require('../../src/controllers/coursesController');
 const ConflictError = require('../../src/errors/ConflictError');
 const NotFoundError = require('../../src/errors/NotFoundError');
+const Course = require('../../src/models/Course');
 
 jest.mock('../../src/models/Course.js');
 
 describe('POST /course', () => {
   it('createCourse - should return an throw error trying to create a course that already exists.', async () => {
-    const Course = require('../../src/models/Course');
-
     Course.findOne.mockResolvedValue({
       id: 1,
       title: 'JavaScript do zero ao avançado',
@@ -33,8 +32,6 @@ describe('POST /course', () => {
 
 describe('PUT /course', () => {
   it('editCourse - should return an throw error trying to edit a course that not exists.', async () => {
-    const Course = require('../../src/models/Course');
-
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
@@ -52,8 +49,6 @@ describe('PUT /course', () => {
 
 describe('DELETE /course', () => {
   it('deleteCourse- should return a throw error if the category does not exist.', async () => {
-    const Course = require('../../src/models/Course');
-
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
@@ -62,4 +57,34 @@ describe('DELETE /course', () => {
 
     expect(course).rejects.toThrow(NotFoundError);
   });
+});
+
+describe('function getOne - gets one course data', () => {
+	it('should return course data if it exists in database', async () => {
+		Course.findByPk.mockResolvedValueOnce({
+			id: 1,
+			title: 'JavaScript',
+			description: 'JS course',
+			color: 'yellow',
+			imageUrl: 'https://google.com'
+		});
+
+		const response = await coursesController.getOne(1);
+
+		expect(response).toMatchObject({
+			id: 1,
+			title: 'JavaScript',
+			description: 'JS course',
+			color: 'yellow',
+			imageUrl: 'https://google.com'
+		});
+	});
+
+	it('should throw NotFoundError if required course is not on database', async () => {
+		Course.findByPk.mockResolvedValueOnce(null);
+
+		const response = coursesController.getOne(1);
+
+		expect(response).rejects.toThrow(NotFoundError);
+	});
 });
