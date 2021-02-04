@@ -19,7 +19,7 @@ const NotFoundError = require('./errors/NotFoundError');
 const WrongPasswordError = require('./errors/WrongPasswordError');
 
 app.use('/courses', coursesRouter);
-app.use('/admin', verifyJWT, adminRouter);
+app.use('/admin', adminRouter);
 app.use('/users', usersRouter);
 
 app.use((error, req, res, next) => {
