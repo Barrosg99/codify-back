@@ -6,6 +6,13 @@ async function getAll() {
   return Course.findAll();
 }
 
+async function getOne(id) {
+	const course = await Course.findByPk(id);
+	if (!course) throw new NotFoundError('Course not found');
+
+	return course;
+}
+
 async function createCourse(title, description, color, imageUrl) {
   const curso = await Course.findOne({ where: { title } });
   if (curso !== null) throw new ConflictError('There is already a course with this title');
@@ -34,4 +41,6 @@ async function deleteCourse(id) {
 
   await course.destroy({ where: { id } });
 }
-module.exports = { getAll, createCourse, editCourse, deleteCourse };
+
+
+module.exports = { getAll, createCourse, editCourse, deleteCourse, getOne };

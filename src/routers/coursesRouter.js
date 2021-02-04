@@ -10,4 +10,11 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+const id = parseInt(req.params.id);
+const course = await coursesController.getOne(id);
+
+	res.send(course);
+});
+
 module.exports = router;
