@@ -9,137 +9,131 @@ const AuthError = require('../../src/errors/AuthError');
 const WrongPasswordError = require('../../src/errors/WrongPasswordError');
 
 jest.mock('../../src/models/Session');
-jest.mock('jsonwebtoken', () => {
-	return {
-		sign: () => 'token'
-	};
-});
+jest.mock('jsonwebtoken', () => ({
+  sign: () => 'token',
+}));
 
-jest.mock('bcrypt', () => {
-	return {
-		compareSync: (password, hashPassword) => password === hashPassword,
-		hashSync: (password, salt) => 'password'
-	};
-});
+jest.mock('bcrypt', () => ({
+  compareSync: (password, hashPassword) => password === hashPassword,
+  hashSync: () => 'password',
+}));
 
 describe('findByEmail', () => {
-	it('should call with the right parameters and return an object', async () => {
-		jest.spyOn(User, 'findOne');
-		User.findOne.mockImplementation((obj) => ({ name: 'fulano', email: obj.where.email }));
+  it('should call with the right parameters and return an object', async () => {
+    jest.spyOn(User, 'findOne');
+    User.findOne.mockImplementation((obj) => ({ name: 'fulano', email: obj.where.email }));
 
-		const email = 'joao@mail.com';
-		const result = await usersController.findByEmail(email);
+    const email = 'joao@mail.com';
+    const result = await usersController.findByEmail(email);
 
-		expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
-		expect(result).toEqual({ name: 'fulano', email });
-	});
+    expect(User.findOne).toHaveBeenCalledWith({ where: { email } });
+    expect(result).toEqual({ name: 'fulano', email });
+  });
 });
 
 describe('create', () => {
-	it('should call with the right parameters and return an object', async () => {
-		jest.spyOn(User, 'create');
+  it('should call with the right parameters and return an object', async () => {
+    jest.spyOn(User, 'create');
 
-		const user = {
-			name: 'joao',
-			email: 'joao@mail.com',
-			password: 'banana123',
-			avatarUrl: 'url.com.br'
-		};
+    const user = {
+      name: 'joao',
+      email: 'joao@mail.com',
+      password: 'banana123',
+      avatarUrl: 'url.com.br',
+    };
 
-		User.create.mockImplementation(() => ({ dataValues: { ...user } }));
+    User.create.mockImplementation(() => ({ dataValues: { ...user } }));
 
-		const result = await usersController.create(user);
+    const result = await usersController.create(user);
 
-		expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
-			...user,
-			password: expect.any(String),
-		}), { 'raw': true, 'returning': true });
+    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
+      ...user,
+      password: expect.any(String),
+    }), { raw: true, returning: true });
 
-		delete user.password;
+    delete user.password;
 
-		expect(result.dataValues).toEqual(user);
-	});
+    expect(result.dataValues).toEqual(user);
+  });
 });
 
 describe('creating new session', () => {
-	it('should create session if email is valid and password is correct', async () => {
+  it('should create session if email is valid and password is correct', async () => {
+    const email = 'teste@gmail.com';
+    const password = 'password';
 
+    const spy = jest.spyOn(usersController, 'findByEmail');
+    usersController.findByEmail.mockImplementationOnce(email => (
+      { id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com' }
+    ));
 
-		const email = 'teste@gmail.com';
-		const password = 'password';
+    Session.create.mockResolvedValue(() => true);
 
-		const spy = jest.spyOn(usersController, 'findByEmail');
-		usersController.findByEmail.mockImplementationOnce(email => (
-			{ id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com' }
-		));
+    const response = await usersController.createSession(email, password);
 
-		Session.create.mockResolvedValue(() => true);
+    expect(usersController.findByEmail).toHaveBeenCalled();
+    expect(usersController.findByEmail).toHaveBeenCalledWith(email);
+    expect(response).toMatchObject({
+      userId: 1,
+      name: 'Teste',
+      avatarUrl: 'https://avatar.com',
+      token: 'token',
+    });
 
-		const response = await usersController.createSession(email, password);
+    spy.mockRestore();
+  });
 
-		expect(usersController.findByEmail).toHaveBeenCalled();
-		expect(usersController.findByEmail).toHaveBeenCalledWith(email);
-		expect(response).toMatchObject({
-			userId: 1,
-			name: 'Teste',
-			avatarUrl: 'https://avatar.com',
-			token: 'token',
-		});
+  it('should throw NotFoundError if sent sent email is not on database', async () => {
+    const email = 'teste@gmail.com';
+    const password = 'password';
 
-		spy.mockRestore();
-	});
+    const spy = jest.spyOn(usersController, 'findByEmail');
+    usersController.findByEmail.mockImplementationOnce(() => false);
 
-	it('should throw NotFoundError if sent sent email is not on database', async () => {
-		const email = 'teste@gmail.com';
-		const password = 'password';
+    const createFunction = usersController.createSession(email, password);
 
-		const spy = jest.spyOn(usersController, 'findByEmail');
-		usersController.findByEmail.mockImplementationOnce(() => false);
+    expect(usersController.findByEmail).toHaveBeenCalled();
+    expect(usersController.findByEmail).toHaveBeenCalledWith(email);
+    expect(createFunction).rejects.toThrow(NotFoundError);
 
-		const createFunction = usersController.createSession(email, password);
+    spy.mockRestore();
+  });
 
-		expect(usersController.findByEmail).toHaveBeenCalled();
-		expect(usersController.findByEmail).toHaveBeenCalledWith(email);
-		expect(createFunction).rejects.toThrow(NotFoundError);
+  it('should throw WrongPasswordError if sent password is incorrect', async () => {
+    const email = 'teste@gmail.com';
+    const password = 'password';
 
-		spy.mockRestore();
-	});
+    const spy = jest.spyOn(usersController, 'findByEmail');
+    usersController.findByEmail.mockImplementationOnce(() => ({ password: 'anotherPassword' }));
 
-	it('should throw WrongPasswordError if sent password is incorrect', async () => {
-		const email = 'teste@gmail.com';
-		const password = 'password';
+    const createFunction = usersController.createSession(email, password);
 
-		const spy = jest.spyOn(usersController, 'findByEmail');
-		usersController.findByEmail.mockImplementationOnce(() => ({ password: 'anotherPassword' }));
+    expect(usersController.findByEmail).toHaveBeenCalled();
+    expect(usersController.findByEmail).toHaveBeenCalledWith(email);
+    expect(createFunction).rejects.toThrow(WrongPasswordError);
 
-		const createFunction = usersController.createSession(email, password);
-
-		expect(usersController.findByEmail).toHaveBeenCalled();
-		expect(usersController.findByEmail).toHaveBeenCalledWith(email);
-		expect(createFunction).rejects.toThrow(WrongPasswordError);
-
-		spy.mockRestore();
-	});
+    spy.mockRestore();
+  });
 });
 
 describe('Testing postAdminSignIn of usersController', () => {
-	it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
-		process.env.ADMIN_USERNAME = 'admin';
-		process.env.ADMIN_PASSWORD = 'admin';
+  it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
+    process.env.ADMIN_USERNAME = 'admin';
+    process.env.ADMIN_PASSWORD = 'admin';
 
-		async function login() {
-			return await usersController.postAdminSignIn('Paola', '12345');
-		}
+    async function login() {
+      return usersController.postAdminSignIn('Paola', '12345');
+    }
 
-		expect(login).rejects.toThrow(AuthError);
-	});
+    expect(login).rejects.toThrow(AuthError);
+  });
 
-	it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
-		const login = await usersController.postAdminSignIn(
-			process.env.ADMIN_USERNAME,
-			process.env.ADMIN_PASSWORD
-		);
+  it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
+    const login = await usersController.postAdminSignIn(
+      process.env.ADMIN_USERNAME,
+      process.env.ADMIN_PASSWORD,
+    );
 
-		expect(login).toEqual(expect.any(String));
-	});
+    expect(login).toEqual(expect.any(String));
+  });
 });

@@ -1,23 +1,25 @@
 const Course = require('../models/Course');
-const ConflictError = require('../../src/errors/ConflictError');
-const NotFoundError = require('../../src/errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
 
 async function getAll() {
   return Course.findAll();
 }
 
 async function getOne(id) {
-	const course = await Course.findByPk(id);
-	if (!course) throw new NotFoundError('Course not found');
+  const course = await Course.findByPk(id);
+  if (!course) throw new NotFoundError('Course not found');
 
-	return course;
+  return course;
 }
 
 async function createCourse(title, description, color, imageUrl) {
   const curso = await Course.findOne({ where: { title } });
   if (curso !== null) throw new ConflictError('There is already a course with this title');
 
-  const createdCurso = await Course.create({ title, description, color, imageUrl });
+  const createdCurso = await Course.create({
+    title, description, color, imageUrl,
+  });
 
   return createdCurso;
 }
@@ -43,4 +45,10 @@ async function deleteCourse(id) {
 }
 
 
-module.exports = { getAll, createCourse, editCourse, deleteCourse, getOne };
+module.exports = {
+  getAll,
+  createCourse,
+  editCourse,
+  deleteCourse,
+  getOne
+};
