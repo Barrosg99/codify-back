@@ -49,7 +49,7 @@ describe('create', () => {
 		User.create.mockImplementation(() => ({ dataValues: { ...user } }));
 
 		const result = await usersController.create(user);
-		
+
 		expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
 			...user,
 			password: expect.any(String),
@@ -63,7 +63,7 @@ describe('create', () => {
 
 describe('creating new session', () => {
 	it('should create session if email is valid and password is correct', async () => {
-		
+
 
 		const email = 'teste@gmail.com';
 		const password = 'password';
@@ -74,7 +74,7 @@ describe('creating new session', () => {
 		));
 
 		Session.create.mockResolvedValue(() => true);
-		
+
 		const response = await usersController.createSession(email, password);
 
 		expect(usersController.findByEmail).toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe('creating new session', () => {
 
 		const spy = jest.spyOn(usersController, 'findByEmail');
 		usersController.findByEmail.mockImplementationOnce(() => false);
-		
+
 		const createFunction = usersController.createSession(email, password);
 
 		expect(usersController.findByEmail).toHaveBeenCalled();
@@ -111,7 +111,7 @@ describe('creating new session', () => {
 
 		const spy = jest.spyOn(usersController, 'findByEmail');
 		usersController.findByEmail.mockImplementationOnce(() => ({ password: 'anotherPassword' }));
-		
+
 		const createFunction = usersController.createSession(email, password);
 
 		expect(usersController.findByEmail).toHaveBeenCalled();
@@ -123,23 +123,23 @@ describe('creating new session', () => {
 });
 
 describe('Testing postAdminSignIn of usersController', () => {
-  it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
-    process.env.ADMIN_USERNAME = 'admin';
-    process.env.ADMIN_PASSWORD = 'admin';
+	it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
+		process.env.ADMIN_USERNAME = 'admin';
+		process.env.ADMIN_PASSWORD = 'admin';
 
-    async function login() {
-      return await usersController.postAdminSignIn('Paola', '12345');
-    }
+		async function login() {
+			return await usersController.postAdminSignIn('Paola', '12345');
+		}
 
-    expect(login).rejects.toThrow(AuthError);
-  });
+		expect(login).rejects.toThrow(AuthError);
+	});
 
-  it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
+	it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
 		const login = await usersController.postAdminSignIn(
 			process.env.ADMIN_USERNAME,
 			process.env.ADMIN_PASSWORD
 		);
 
-    expect(login).toEqual(expect.any(String));
-  });
+		expect(login).toEqual(expect.any(String));
+	});
 });
