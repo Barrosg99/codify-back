@@ -17,6 +17,7 @@ const adminRouter = require('./routers/admin/adminRouter');
 const usersRouter = require('./routers/usersRouter');
 const NotFoundError = require('./errors/NotFoundError');
 const WrongPasswordError = require('./errors/WrongPasswordError');
+const ConflictError = require('./errors/ConflictError');
 
 
 app.use('/courses', verifyJWT, coursesRouter);
@@ -28,6 +29,7 @@ app.use((error, req, res, next) => {
 
   if (error instanceof NotFoundError) res.status(404).send(error.message);
   else if (error instanceof WrongPasswordError) res.status(401).send(error.message);
+  else if (error instanceof ConflictError) res.status(409).send(error.message);
   else res.status(500).json(error);
 });
 
