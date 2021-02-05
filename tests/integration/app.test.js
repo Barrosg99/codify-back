@@ -69,7 +69,7 @@ describe('POST /users/register', () => {
 
 describe('POST /users/sign-in', () => {
   it('should create user session if correct email and password is sent', async () => {
-    let body = {
+    const newUser = {
       name: 'Osvaldo',
       email: 'o@gmail.com',
       password: 'password',
@@ -77,10 +77,10 @@ describe('POST /users/sign-in', () => {
       avatarUrl: 'https://google.com',
     };
 
-    const testUserData = await agent.post('/users/register').send(body);
+    const testUserData = await agent.post('/users/register').send(newUser);
     const { id } = testUserData.body;
 
-    body = { email: 'o@gmail.com', password: 'password' };
+    const body = { email: newUser.email, password: newUser.password };
     const response = await agent.post('/users/sign-in').send(body);
 
     expect(response.status).toBe(201);

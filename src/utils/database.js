@@ -9,6 +9,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
       rejectUnauthorized: false,
     },
   },
+  logging: false,
 });
 
 module.exports = sequelize;

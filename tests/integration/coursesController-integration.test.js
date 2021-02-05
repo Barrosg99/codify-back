@@ -11,14 +11,13 @@ const { createCoursesUtils } = require('../utils');
 const app = require('../../src/app');
 
 const agent = supertest(app);
+let token;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const id = process.env.ADMIN_ID;
-const token = jwt.sign({ id }, process.env.SECRET);
-
 beforeAll(async () => {
+  await db.query('DELETE FROM "adminSessions"');
   await db.query('DELETE FROM courses;');
   await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
 
@@ -29,6 +28,8 @@ beforeAll(async () => {
     'amarelo',
     'https://i.imgur.com/lWUs38z.png',
   );
+  const session = await db.query('INSERT INTO public."adminSessions"("userId", "createdAt", "updatedAt") VALUES (1,\'2019-01-23T09:23:42.079Z\',\'2019-01-23T09:23:42.079Z\') RETURNING *');
+  token = jwt.sign({ id: session.rows[0].id }, process.env.SECRET);
 });
 
 afterAll(async () => {
