@@ -4,14 +4,16 @@ const coursesController = require('../../controllers/coursesController');
 const coursesSchemas = require('../../schemas/coursesSchemas');
 
 router.get('/', async (req, res) => {
+  const total = await coursesController.count();
   const courses = await coursesController.getAll();
-  res.send(courses);
+  res
+    .header('Access-Control-Expose-Headers', 'X-Total-Count')
+    .set('X-Total-Count', total)
+    .send(courses);
 });
 
 router.get('/:id', async (req, res) => {
-  const id = parseInt(req.params.id);
-
-  const course = await coursesController.getOne(id);
+  const course = await coursesController.getOne(+req.params.id);
   res.send(course);
 });
 

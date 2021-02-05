@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
@@ -43,6 +44,10 @@ class CoursesController {
     if (!course) throw new NotFoundError('Course not found');
 
     await course.destroy({ where: { id } });
+  }
+
+  count() {
+    return Course.count();
   }
 }
 
