@@ -21,7 +21,7 @@ router
     const { email, password } = req.body;
     const session = await usersController.createSession(email, password);
 
-    res.status(201).send(session);
+    return res.status(201).send(session);
   });
 
 module.exports = router;

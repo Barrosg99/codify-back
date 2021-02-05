@@ -2,11 +2,12 @@
   "name": "codify-back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "jest --runInBand",
     "dev": "npx nodemon ./src/server.js",
-    "migrations": "npx sequelize-cli db:migrate"
+    "build": "npx sequelize-cli db:migrate",
+    "start": "node ./src/server.js"
   },
   "repository": {
     "type": "git",

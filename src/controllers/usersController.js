@@ -8,6 +8,7 @@ const User = require('../models/User');
 const Session = require('../models/Session');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
+const AdminSession = require('../models/AdminSession');
 
 class UsersController {
   async create({
@@ -51,9 +52,17 @@ class UsersController {
       throw new AuthError('Wrong username or password');
     }
 
-    const id = process.env.ADMIN_ID;
-    const token = jwt.sign({ id }, process.env.SECRET);
+    const session = await AdminSession.create({ userId: process.env.ADMIN_ID });
+    const token = jwt.sign({ id: session.id }, process.env.SECRET);
     return token;
+  }
+
+  async postAdminSignOut(id) {
+    return AdminSession.destroy({ where: { id } });
+  }
+
+  findAdminSessionById(id) {
+    return AdminSession.findByPk(id);
   }
 }
 

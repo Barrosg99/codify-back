@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-vars */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('users',
+    await queryInterface.addColumn('courses',
       'createdAt',
       {
         type: Sequelize.DATE,
       });
-    await queryInterface.addColumn('users',
+    await queryInterface.addColumn('courses',
       'updatedAt',
       {
         type: Sequelize.DATE,
@@ -14,7 +14,7 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('users', 'createdAt');
-    await queryInterface.removeColumn('users', 'updatedAt');
+    await queryInterface.removeColumn('courses', 'createdAt');
+    await queryInterface.removeColumn('courses', 'updatedAt');
   },
 };

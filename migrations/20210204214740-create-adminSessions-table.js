@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('sessions', {
+    await queryInterface.createTable('adminSessions', {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -10,10 +10,6 @@ module.exports = {
       },
       userId: {
         type: Sequelize.INTEGER,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -27,6 +23,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('sessions');
+    await queryInterface.dropTable('adminSessions');
   },
 };

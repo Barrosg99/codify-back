@@ -7,6 +7,7 @@ const User = require('../../src/models/User');
 const NotFoundError = require('../../src/errors/NotFoundError');
 const AuthError = require('../../src/errors/AuthError');
 const WrongPasswordError = require('../../src/errors/WrongPasswordError');
+const AdminSession = require('../../src/models/AdminSession');
 
 jest.mock('../../src/models/Session');
 jest.mock('jsonwebtoken', () => ({
@@ -63,10 +64,8 @@ describe('creating new session', () => {
     const password = 'password';
 
     const spy = jest.spyOn(usersController, 'findByEmail');
-    usersController.findByEmail.mockImplementationOnce((emailTest) => (
-      {
-        id: 1, name: 'Teste', email: emailTest, password: 'password', avatarUrl: 'https://avatar.com',
-      }
+    usersController.findByEmail.mockImplementationOnce(email => (
+      { id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com' }
     ));
 
     Session.create.mockResolvedValue(() => true);
@@ -120,9 +119,6 @@ describe('creating new session', () => {
 
 describe('Testing postAdminSignIn of usersController', () => {
   it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
-    process.env.ADMIN_USERNAME = 'admin';
-    process.env.ADMIN_PASSWORD = 'admin';
-
     async function login() {
       return usersController.postAdminSignIn('Paola', '12345');
     }
@@ -131,11 +127,14 @@ describe('Testing postAdminSignIn of usersController', () => {
   });
 
   it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
+    const spy = jest.spyOn(AdminSession, 'create');
+    AdminSession.create.mockImplementationOnce((({ userId }) => userId));
     const login = await usersController.postAdminSignIn(
       process.env.ADMIN_USERNAME,
       process.env.ADMIN_PASSWORD,
     );
-
+    expect(AdminSession.create).toHaveBeenCalledWith({ userId: process.env.ADMIN_ID });
     expect(login).toEqual(expect.any(String));
+    spy.mockRestore();
   });
 });
