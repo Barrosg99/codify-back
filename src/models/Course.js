@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 const sequelize = require('../utils/database');
 
-class Course extends Sequelize.Model {}
+class Course extends Sequelize.Model { }
 
 Course.init(
   {
@@ -27,10 +27,17 @@ Course.init(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    createdAt: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
+    updatedAt: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
   },
   {
     sequelize,
-    timestamps: false,
     modelName: 'course',
   },
 );
