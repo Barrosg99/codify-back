@@ -52,16 +52,13 @@ class UsersController {
       throw new AuthError('Wrong username or password');
     }
 
-    const id = process.env.ADMIN_ID;
-    const token = jwt.sign({ id }, process.env.SECRET);
-
-    await AdminSession.create({ userId: process.env.ADMIN_ID });
-
+    const session = await AdminSession.create({ userId: process.env.ADMIN_ID });
+    const token = jwt.sign({ id: session.id }, process.env.SECRET);
     return token;
   }
 
-  async postAdminSignOut(userId) {
-    return AdminSession.destroy({ where: { userId } });
+  async postAdminSignOut(id) {
+    return AdminSession.destroy({ where: { id } });
   }
 }
 

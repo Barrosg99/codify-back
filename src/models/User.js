@@ -29,10 +29,10 @@ User.init(
       allowNull: true,
     },
   }, {
-  sequelize,
-  timestamps: false,
-  modelName: 'user',
-},
+    sequelize,
+    timestamps: false,
+    modelName: 'user',
+  },
 );
 
 module.exports = User;

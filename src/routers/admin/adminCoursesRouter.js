@@ -16,11 +16,11 @@ router.post('/', async (req, res) => {
   try {
     const createdCourse = await coursesController.createCourse(title, description, color, imageUrl);
 
-    res.status(201).send(createdCourse);
+    return res.status(201).send(createdCourse);
   } catch (err) {
     console.log(err);
     if (err instanceof ConflictError) return res.status(409).send(err.message);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 });
 
@@ -36,11 +36,11 @@ router.put('/:id', async (req, res) => {
 
   try {
     const course = await coursesController.editCourse(+id, title, description, color, imageUrl);
-    res.status(200).send(course);
+    return res.status(200).send(course);
   } catch (err) {
     console.error(err);
     if (err instanceof NotFoundError) return res.status(404).send(err.message);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 });
 
@@ -49,11 +49,11 @@ router.delete('/:id', async (req, res) => {
 
   try {
     await coursesController.deleteCourse(+id);
-    res.sendStatus(204);
+    return res.sendStatus(204);
   } catch (err) {
     console.error(err);
     if (err instanceof NotFoundError) return res.status(404).send(err.message);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 });
 

@@ -21,7 +21,7 @@ router.post('/sign-in', async (req, res) => {
 
 router.post('/sign-out', verifyJWT, async (req, res) => {
   try {
-    await usersController.postAdminSignOut(req.userId);
+    await usersController.postAdminSignOut(req.sessionId);
     res.sendStatus(204);
   } catch (err) {
     console.error(err);

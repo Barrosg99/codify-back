@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
-
 const { Pool } = require('pg');
 const supertest = require('supertest');
+const sequelize = require('../../src/utils/database');
 
 const { createCoursesUtils } = require('../utils');
 
@@ -24,6 +25,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await db.end();
+  await sequelize.close();
 });
 
 describe('GET /cursos', () => {
