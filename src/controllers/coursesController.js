@@ -44,6 +44,7 @@ class CoursesController {
     if (!course) throw new NotFoundError('Course not found');
 
     await course.destroy({ where: { id } });
+    return course;
   }
 
   count() {

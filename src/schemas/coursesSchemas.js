@@ -5,6 +5,6 @@ const courseSchema = Joi.object({
   description: Joi.string().min(1).required(),
   color: Joi.string().min(1).required(),
   imageUrl: Joi.string().min(1).required(),
-});
+}).options({ allowUnknown: true });
 
 module.exports = { courseSchema };

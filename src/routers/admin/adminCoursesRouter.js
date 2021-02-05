@@ -45,8 +45,8 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
-  await coursesController.deleteCourse(+id);
-  res.sendStatus(204);
+  const course = await coursesController.deleteCourse(+id);
+  res.status(204).send(course);
 });
 
 module.exports = router;
