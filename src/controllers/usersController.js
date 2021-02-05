@@ -36,8 +36,8 @@ class UsersController {
       throw new WrongPasswordError('Password is incorrect');
     }
 
-    await Session.create({ userId: user.id });
-    const token = jwt.sign({ id: user.id }, process.env.SECRET);
+    const session = await Session.create({ userId: user.id });
+    const token = jwt.sign({ id: session.id }, process.env.SECRET);
 
     return {
       userId: user.id,
@@ -45,6 +45,10 @@ class UsersController {
       avatarUrl: user.avatarUrl,
       token,
     };
+  }
+
+  findSessionById(id) {
+    return Session.findByPk(id);
   }
 
   async postAdminSignIn(username, password) {

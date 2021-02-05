@@ -37,9 +37,9 @@ afterAll(async () => {
   await sequelize.close();
 });
 
-describe('GET /courses', () => {
+describe('GET /admin/courses', () => {
   it('Should return 200 with list of courses', async () => {
-    const response = await agent.get('/courses').set('Authorization', `Bearer ${token}`);
+    const response = await agent.get('/admin/courses').set('Authorization', `Bearer ${token}`);
 
     const allCourses = response.body;
 
@@ -120,9 +120,9 @@ describe('DELETE /courses/:id', () => {
   });
 });
 
-describe('GET /courses/:id', () => {
+describe('GET /admin/courses/:id', () => {
   it('Should return status code 200 and requested course data', async () => {
-    const response = await agent.get('/courses/1').set('Authorization', `Bearer ${token}`);
+    const response = await agent.get('/admin/courses/1').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
