@@ -9,8 +9,8 @@ const Course = require('../../src/models/Course');
 
 jest.mock('../../src/models/Course.js');
 
-describe('POST /course', () => {
-	it('createCourse - should return an throw error trying to create a course that already exists.', async () => {
+describe('function createCourse', () => {
+	it('should return an throw error trying to create a course that already exists.', async () => {
 		Course.findOne.mockResolvedValue({
 			id: 1,
 			title: 'JavaScript do zero ao avançado',
@@ -32,8 +32,8 @@ describe('POST /course', () => {
 	});
 });
 
-describe('PUT /course', () => {
-	it('editCourse - should return an throw error trying to edit a course that not exists.', async () => {
+describe('function editCourse', () => {
+	it('should return an throw error trying to edit a course that not exists.', async () => {
 		Course.findByPk.mockResolvedValue(null);
 
 		async function course() {
@@ -49,8 +49,8 @@ describe('PUT /course', () => {
 	});
 });
 
-describe('DELETE /course', () => {
-	it('deleteCourse- should return a throw error if the category does not exist.', async () => {
+describe('function deleteCourse', () => {
+	it('should return a throw error if the category does not exist.', async () => {
 		Course.findByPk.mockResolvedValue(null);
 
 		async function course() {
