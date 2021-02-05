@@ -69,7 +69,7 @@ describe('POST /users/register', () => {
 
 describe('POST /users/sign-in', () => {
   it('should create user session if correct email and password is sent', async () => {
-    let body = {
+    const body = {
       name: 'Osvaldo',
       email: 'o@gmail.com',
       password: 'password',
@@ -80,8 +80,8 @@ describe('POST /users/sign-in', () => {
     const testUserData = await agent.post('/users/register').send(body);
     const { id } = testUserData.body;
 
-    body = { email: 'o@gmail.com', password: 'password' };
-    const response = await agent.post('/users/sign-in').send(body);
+    const body2 = { email: 'o@gmail.com', password: 'password' };
+    const response = await agent.post('/users/sign-in').send(body2);
 
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({
