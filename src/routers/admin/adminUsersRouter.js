@@ -2,7 +2,7 @@ const router = require('express').Router();
 const userSchemas = require('../../schemas/usersSchemas');
 const usersController = require('../../controllers/usersController');
 const AuthError = require('../../errors/AuthError');
-const { verifyJWT } = require('../../midllewares/validation');
+const { verifyJWT } = require('../../middlewares');
 
 router.post('/sign-in', async (req, res) => {
   const { error } = userSchemas.adminSignIn.validate(req.body);

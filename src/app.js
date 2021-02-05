@@ -11,7 +11,7 @@ app.use(express.json());
 
 require('./utils/loadRelationships');
 
-const { verifyJWT } = require('./middlewares/validation');
+const { verifyJWT, verifyClient } = require('./middlewares');
 const coursesRouter = require('./routers/coursesRouter');
 const adminRouter = require('./routers/admin/adminRouter');
 const usersRouter = require('./routers/usersRouter');
@@ -19,8 +19,7 @@ const NotFoundError = require('./errors/NotFoundError');
 const WrongPasswordError = require('./errors/WrongPasswordError');
 const ConflictError = require('./errors/ConflictError');
 
-
-app.use('/courses', verifyJWT, coursesRouter);
+app.use('/courses', verifyJWT, verifyClient, coursesRouter);
 app.use('/admin', adminRouter);
 app.use('/users', usersRouter);
 
