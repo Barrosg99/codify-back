@@ -60,6 +60,10 @@ class UsersController {
   async postAdminSignOut(id) {
     return AdminSession.destroy({ where: { id } });
   }
+
+  findAdminSessionById(id) {
+    return AdminSession.findByPk(id);
+  }
 }
 
 module.exports = new UsersController();
