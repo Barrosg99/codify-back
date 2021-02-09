@@ -2,24 +2,32 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('theories', {
+    await queryInterface.createTable('courseUsers', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      topicId: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'topics',
+          model: 'users',
           key: 'id'
         }
       },
-      youtubeUrl: {
-        type: Sequelize.STRING,
-        allowNull: false
+      courseId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'courses',
+          key: 'id'
+        }
+      },
+      doneActivities: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -33,6 +41,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('theories');
+    await queryInterface.dropTable('courseUsers');
   }
 };
