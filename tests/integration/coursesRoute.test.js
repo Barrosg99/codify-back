@@ -180,3 +180,85 @@ describe('POST /courses/:courseId/users/:userId', () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe('GET /courses/:courseId/chapters/:chapterId', () => {
+  it('Should return status code 200 with list of topic at chapter without user complet topic', async () => {
+    const result = await db.query('SELECT * FROM courses LIMIT 1');
+    const course = result.rows[0];
+
+    const resultChapter = await db.query(
+      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [course.id, 'Teste', 1, 1, 0, new Date(), new Date()],
+    );
+    const chapter = resultChapter.rows[0];
+
+    const resultTopic = await db.query(
+      'INSERT INTO topics ("chapterId", name, "order", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [chapter.id, 'Teste', 1, new Date(), new Date()],
+    );
+    const topic = resultTopic.rows[0];
+
+    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${tokenUser}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: chapter.id,
+      name: chapter.name,
+      order: chapter.order,
+      topicsQuantity: chapter.topicsQuantity,
+      exercisesQuantity: chapter.exercisesQuantity,
+      topics: [
+        {
+          id: topic.id,
+          chapterId: chapter.id,
+          name: topic.name,
+          order: topic.order,
+          topicUsers: [],
+        },
+      ],
+    });
+  });
+
+  it('Should return status code 200 with list of topic at chapter with user complet topic', async () => {
+    const result = await db.query('SELECT * FROM courses LIMIT 1');
+    const course = result.rows[0];
+
+    const resultChapter = await db.query(
+      'SELECT * FROM chapters WHERE "courseId"=$1 LIMIT 1',
+      [course.id],
+    );
+    const chapter = resultChapter.rows[0];
+
+    const resultTopic = await db.query(
+      'SELECT * FROM topics WHERE "chapterId"=$1 LIMIT 1',
+      [chapter.id],
+    );
+    const topic = resultTopic.rows[0];
+
+    await db.query(
+      'INSERT INTO "topicUsers" ("topicId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4)',
+      [topic.id, userId, new Date(), new Date()],
+    );
+
+    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${tokenUser}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: chapter.id,
+      name: chapter.name,
+      order: chapter.order,
+      topicsQuantity: chapter.topicsQuantity,
+      exercisesQuantity: chapter.exercisesQuantity,
+      topics: [
+        {
+          id: topic.id,
+          chapterId: chapter.id,
+          name: topic.name,
+          order: topic.order,
+          topicUsers: [{
+            userId,
+          }],
+        },
+      ],
+    });
+  });
+});

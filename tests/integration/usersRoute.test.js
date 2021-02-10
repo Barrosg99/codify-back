@@ -27,7 +27,7 @@ async function cleanDatabase() {
   await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
 }
 
-beforeEach(cleanDatabase);
+beforeAll(cleanDatabase);
 
 afterAll(async () => {
   await cleanDatabase();

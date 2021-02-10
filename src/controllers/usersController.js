@@ -51,7 +51,9 @@ class UsersController {
   }
 
   findSessionById(id) {
-    return Session.findByPk(id);
+    const session = Session.findByPk(id);
+    if (!session) throw new NotFoundError();
+    return session;
   }
 
   async getCourseProgress(userId, courseId) {

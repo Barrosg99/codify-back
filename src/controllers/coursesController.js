@@ -1,6 +1,8 @@
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
+const Topic = require('../models/Topic');
+const TopicUser = require('../models/TopicUser');
 const User = require('../models/User');
 const CourseUser = require('../models/CourseUser');
 const ConflictError = require('../errors/ConflictError');
@@ -12,7 +14,7 @@ class CoursesController {
   }
 
   async getOne(id) {
-    const course = await Course.findByPk(id, {
+    let course = await Course.findByPk(id, {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -27,18 +29,20 @@ class CoursesController {
 
     if (!course) throw new NotFoundError('Course not found');
 
-    return course;
+    course = course.toJSON();
+
+    let totalTopicsQuantity = 0;
+    course.chapters.forEach((c) => { totalTopicsQuantity += c.topicsQuantity; });
+    return { totalTopicsQuantity, ...course };
   }
 
   async createCourse(title, description, color, imageUrl) {
     const course = await Course.findOne({ where: { title } });
     if (course !== null) throw new ConflictError('There is already a course with this title');
 
-    const createdCourse = await Course.create({
+    return Course.create({
       title, description, color, imageUrl,
     });
-
-    return createdCourse;
   }
 
   async editCourse(id, title, description, color, imageUrl) {
@@ -72,6 +76,27 @@ class CoursesController {
 
     if (!course || !user) throw new NotFoundError();
     return CourseUser.create({ courseId, userId });
+  }
+
+  getAllTopicsAtChapterFromUser(courseId, chapterId, userId) {
+    return Chapter.findByPk(chapterId, {
+      where: { courseId },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'courseId'],
+      },
+      include: {
+        model: Topic,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+        include: {
+          model: TopicUser,
+          attributes: ['userId'],
+          where: { userId },
+          required: false,
+        },
+      },
+    });
   }
 }
 
