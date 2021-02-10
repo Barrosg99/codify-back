@@ -18,7 +18,7 @@ class CoursesController {
       include: {
         model: Chapter,
         attributes: {
-          exclude: ['courseId', 'createdAt', 'updatedAt']
+          exclude: ['courseId', 'order', 'createdAt', 'updatedAt']
         }
       }
     });
@@ -28,9 +28,7 @@ class CoursesController {
     course = course.toJSON(); // getting a plain object, getting rid of Sequelize instance keys such as dataValues
 
     let totalTopicsQuantity = 0;
-    course.chapters.forEach(c => {
-      totalTopicsQuantity += c.topicsQuantity;
-    });
+    course.chapters.forEach(c => totalTopicsQuantity += c.topicsQuantity);
 
     course = { totalTopicsQuantity, ...course };
 
