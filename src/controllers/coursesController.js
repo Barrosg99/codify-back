@@ -12,7 +12,7 @@ class CoursesController {
   }
 
   async getOne(id) {
-    let course = await Course.findByPk(id, {
+    const course = await Course.findByPk(id, {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -26,13 +26,6 @@ class CoursesController {
     });
 
     if (!course) throw new NotFoundError('Course not found');
-
-    course = course.toJSON(); // getting a plain object, getting rid of Sequelize instance keys such as dataValues
-
-    let totalTopicsQuantity = 0;
-    course.chapters.forEach((c) => totalTopicsQuantity += c.topicsQuantity);
-
-    course = { totalTopicsQuantity, ...course };
 
     return course;
   }

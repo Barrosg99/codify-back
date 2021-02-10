@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
 const Session = require('../models/Session');
+const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
 const CourseUser = require('../models/CourseUser');
 const NotFoundError = require('../errors/NotFoundError');
@@ -54,13 +55,21 @@ class UsersController {
   }
 
   async getCourseProgress(userId, courseId) {
+    let userProgress;
+
+    const user = await User.findByPk(userId);
+    const course = await Course.findByPk(courseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!course) throw new NotFoundError('Course not found');
+
     const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
-    if (!userCourseData) throw new NotFoundError('User has not started this course yet');
+    if (!userCourseData) userProgress = '0%';
+    else {
+      const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
 
-    const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
-
-    let userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
-    userProgress = `${userProgress}%`;
+      userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
+      userProgress = `${userProgress}%`;
+    }
 
     return {
       userId,
