@@ -9,24 +9,24 @@ ExerciseUser.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     exerciseId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'exercises',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     userId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'users',
-        key: 'id'
-      }
-    }
+        key: 'id',
+      },
+    },
   },
   {
     sequelize,

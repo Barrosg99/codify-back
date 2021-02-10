@@ -1,6 +1,8 @@
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
+const User = require('../models/User');
+const CourseUser = require('../models/CourseUser');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
@@ -12,15 +14,15 @@ class CoursesController {
   async getOne(id) {
     let course = await Course.findByPk(id, {
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'],
       },
       order: [[{ model: Chapter }, 'order', 'ASC']],
       include: {
         model: Chapter,
         attributes: {
-          exclude: ['courseId', 'order', 'createdAt', 'updatedAt']
-        }
-      }
+          exclude: ['courseId', 'order', 'createdAt', 'updatedAt'],
+        },
+      },
     });
 
     if (!course) throw new NotFoundError('Course not found');
@@ -28,7 +30,7 @@ class CoursesController {
     course = course.toJSON(); // getting a plain object, getting rid of Sequelize instance keys such as dataValues
 
     let totalTopicsQuantity = 0;
-    course.chapters.forEach(c => totalTopicsQuantity += c.topicsQuantity);
+    course.chapters.forEach((c) => totalTopicsQuantity += c.topicsQuantity);
 
     course = { totalTopicsQuantity, ...course };
 
@@ -69,6 +71,14 @@ class CoursesController {
 
   count() {
     return Course.count();
+  }
+
+  async initCouserByUserId(courseId, userId) {
+    const course = await Course.findByPk(courseId);
+    const user = await User.findByPk(userId);
+
+    if (!course || !user) throw new NotFoundError();
+    return CourseUser.create({ courseId, userId });
   }
 }
 
