@@ -50,6 +50,10 @@ class CoursesController {
   count() {
     return Course.count();
   }
+
+  async getSuggestions(limit = null) {
+    return Course.findAll({ limit });
+  }
 }
 
 module.exports = new CoursesController();
