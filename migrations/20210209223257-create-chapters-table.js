@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('chapters', {
@@ -7,31 +5,31 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-        allowNull: false
+        allowNull: false,
       },
       courseId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'courses',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       order: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       topicsQuantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       exercisesQuantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -40,11 +38,11 @@ module.exports = {
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-      }
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('chapters');
-  }
+  },
 };
