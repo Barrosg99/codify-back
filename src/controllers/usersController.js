@@ -2,12 +2,14 @@
 /* eslint-disable class-methods-use-this */
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const AuthError = require('../errors/AuthError');
 
 const User = require('../models/User');
 const Session = require('../models/Session');
+const Chapter = require('../models/Chapter');
+const CourseUser = require('../models/CourseUser');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
+const AuthError = require('../errors/AuthError');
 const AdminSession = require('../models/AdminSession');
 
 class UsersController {
@@ -49,6 +51,22 @@ class UsersController {
 
   findSessionById(id) {
     return Session.findByPk(id);
+  }
+
+  async getCourseProgress(userId, courseId) {
+    const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
+    if (!userCourseData) throw new NotFoundError('User has not started this course yet');
+
+    const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
+
+    let userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
+    userProgress = `${userProgress}%`;
+
+    return {
+      userId,
+      courseId,
+      progress: userProgress
+    };
   }
 
   async postAdminSignIn(username, password) {

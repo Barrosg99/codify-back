@@ -22,4 +22,12 @@ router.post('/sign-in', async (req, res) => {
   return res.status(201).send(session);
 });
 
+router.get('/:userId/courses/:courseId/progress', async (req, res) => {
+  const [userId, courseId] = [+req.params.userId, +req.params.courseId];
+
+  const userProgress = await usersController.getCourseProgress(userId, courseId);
+
+  res.send(userProgress);
+});
+
 module.exports = router;
