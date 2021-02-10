@@ -9,20 +9,20 @@ Exercise.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     topicId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'topics',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     description: {
       type: Sequelize.STRING,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   {
     sequelize,

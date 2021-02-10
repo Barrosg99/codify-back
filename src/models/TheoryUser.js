@@ -9,24 +9,24 @@ TheoryUser.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     theoryId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'theories',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     userId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'users',
-        key: 'id'
-      }
-    }
+        key: 'id',
+      },
+    },
   },
   {
     sequelize,

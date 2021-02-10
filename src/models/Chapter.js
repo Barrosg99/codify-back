@@ -9,34 +9,34 @@ Chapter.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     courseId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'courses',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
     },
     order: {
       type: Sequelize.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     topicsQuantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
     exercisesQuantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 0
-    }
+      defaultValue: 0,
+    },
   },
   {
     sequelize,

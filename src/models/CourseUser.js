@@ -9,28 +9,28 @@ CourseUser.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     userId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'users',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     courseId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'courses',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     doneActivities: {
       type: Sequelize.INTEGER,
-      defaultValue: 0
-    }
+      defaultValue: 0,
+    },
   },
   {
     sequelize,

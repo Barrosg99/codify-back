@@ -9,24 +9,24 @@ TopicUser.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     topicId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'topics',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     userId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'users',
-        key: 'id'
-      }
-    }
+        key: 'id',
+      },
+    },
   },
   {
     sequelize,

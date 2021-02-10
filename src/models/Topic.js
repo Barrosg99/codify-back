@@ -9,24 +9,24 @@ Topic.init(
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-      allowNull: false
+      allowNull: false,
     },
     chapterId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'chapters',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
     },
     order: {
       type: Sequelize.INTEGER,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   {
     sequelize,
