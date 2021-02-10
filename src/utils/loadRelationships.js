@@ -15,7 +15,17 @@ User.belongsToMany(Course, { through: CourseUser });
 User.belongsToMany(Topic, { through: TopicUser });
 User.belongsToMany(Theory, { through: TheoryUser });
 User.belongsToMany(Exercise, { through: ExerciseUser });
+
+Course.belongsToMany(User, { through: CourseUser });
 Course.hasMany(Chapter);
+
 Chapter.hasMany(Topic);
+
+Topic.belongsToMany(User, { through: TopicUser });
 Topic.hasMany(Theory);
 Topic.hasMany(Exercise);
+Topic.hasMany(TopicUser);
+Topic.belongsTo(Chapter);
+
+Theory.belongsToMany(User, { through: TheoryUser });
+Exercise.belongsToMany(User, { through: ExerciseUser });
