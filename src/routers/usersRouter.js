@@ -2,6 +2,7 @@ const router = require('express').Router();
 const usersController = require('../controllers/usersController');
 const registerSchema = require('../schemas/registerSchema');
 const signInSchema = require('../schemas/signInSchema');
+const { verifyJWT } = require('../middlewares');
 
 router
   .post('/register', async (req, res) => {
@@ -23,5 +24,16 @@ router
 
     return res.status(201).send(session);
   });
+
+router.get('/:id/ongoing-courses', async (req, res) => {
+  const id = parseInt(req.params.id);
+  const ongoingCourses = await usersController.getOngoingCoursesByUser(id);
+  res.status(200).send(ongoingCourses);
+});
+
+router.post('/sign-out', verifyJWT, async (req, res) => {
+  await usersController.postUserSignOut(req.sessionId);
+  res.sendStatus(204);
+});
 
 module.exports = router;

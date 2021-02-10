@@ -6,6 +6,7 @@ const AuthError = require('../errors/AuthError');
 
 const User = require('../models/User');
 const Session = require('../models/Session');
+const CourseUser = require('../models/CourseUser');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
 const AdminSession = require('../models/AdminSession');
@@ -67,6 +68,26 @@ class UsersController {
 
   findAdminSessionById(id) {
     return AdminSession.findByPk(id);
+  }
+
+  async getOngoingCoursesByUser(id) {
+    const user = await User.findOne({ where: { id } });
+    if (!user) throw new NotFoundError('User not found');
+
+    return CourseUser.findAll({
+      where: {
+        userId: id,
+      },
+
+      order: [
+        ['updatedAt', 'DESC'],
+      ],
+
+    });
+  }
+
+  async postUserSignOut(id) {
+    return Session.destroy({ where: { id } });
   }
 }
 
