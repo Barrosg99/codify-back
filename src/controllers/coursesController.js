@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
+const Chapter = require('../models/Chapter');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
@@ -9,8 +10,29 @@ class CoursesController {
   }
 
   async getOne(id) {
-    const course = await Course.findByPk(id);
+    let course = await Course.findByPk(id, {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
+      order: [[{ model: Chapter }, 'order', 'ASC']],
+      include: {
+        model: Chapter,
+        attributes: {
+          exclude: ['courseId', 'createdAt', 'updatedAt']
+        }
+      }
+    });
+
     if (!course) throw new NotFoundError('Course not found');
+
+    course = course.toJSON(); // getting a plain object, getting rid of Sequelize instance keys such as dataValues
+
+    let totalTopicsQuantity = 0;
+    course.chapters.forEach(c => {
+      totalTopicsQuantity += c.topicsQuantity;
+    });
+
+    course = { totalTopicsQuantity, ...course };
 
     return course;
   }
