@@ -76,7 +76,7 @@ class UsersController {
     return {
       userId,
       courseId,
-      progress: userProgress
+      progress: userProgress,
     };
   }
 

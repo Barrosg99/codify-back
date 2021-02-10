@@ -64,8 +64,10 @@ describe('creating new session', () => {
     const password = 'password';
 
     const spy = jest.spyOn(usersController, 'findByEmail');
-    usersController.findByEmail.mockImplementationOnce(email => (
-      { id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com' }
+    usersController.findByEmail.mockImplementationOnce((emailUser) => (
+      {
+        id: 1, name: 'Teste', email: emailUser, password: 'password', avatarUrl: 'https://avatar.com',
+      }
     ));
 
     Session.create.mockResolvedValue(() => true);

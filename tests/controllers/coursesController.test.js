@@ -20,7 +20,7 @@ describe('function createCourse', () => {
     });
 
     async function course() {
-      return await coursesController.createCourse(
+      return coursesController.createCourse(
         'JavaScript do zero ao avançado',
         'Curso para vc ficar voando mesmo tipo mostrão no JS',
         'amarelo',
@@ -37,7 +37,7 @@ describe('function editCourse', () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
-      return await coursesController.editCourse(
+      return coursesController.editCourse(
         'Python é bom demais',
         'Curso para vc ficar voando mesmo tipo mostrão no PY',
         'azul',
@@ -54,7 +54,7 @@ describe('function deleteCourse', () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
-      return await coursesController.deleteCourse(2);
+      return coursesController.deleteCourse(2);
     }
 
     expect(course).rejects.toThrow(NotFoundError);
