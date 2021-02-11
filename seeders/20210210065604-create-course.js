@@ -2,7 +2,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('courses', [{
-      id: 1000,
       title: 'JavaScript do zero ao avançado',
       description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
       color: '#e2ef08',
