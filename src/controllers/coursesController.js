@@ -32,6 +32,33 @@ class CoursesController {
     return course;
   }
 
+  getAllTopicsAtChapterFromUser(courseId, userId) {
+    return Course.findByPk(courseId, {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+      order: [[{ model: Chapter }, 'order', 'ASC']],
+      include: {
+        model: Chapter,
+        attributes: {
+          exclude: ['courseId', 'createdAt', 'updatedAt'],
+        },
+        include: {
+          model: Topic,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+          include: {
+            model: TopicUser,
+            attributes: ['userId'],
+            where: { userId },
+            required: false,
+          },
+        },
+      },
+    });
+  }
+
   async createCourse(title, description, color, imageUrl) {
     const course = await Course.findOne({ where: { title } });
     if (course !== null) throw new ConflictError('There is already a course with this title');
@@ -72,27 +99,6 @@ class CoursesController {
 
     if (!course || !user) throw new NotFoundError();
     return CourseUser.create({ courseId, userId });
-  }
-
-  getAllTopicsAtChapterFromUser(courseId, chapterId, userId) {
-    return Chapter.findByPk(chapterId, {
-      where: { courseId },
-      attributes: {
-        exclude: ['createdAt', 'updatedAt', 'courseId'],
-      },
-      include: {
-        model: Topic,
-        attributes: {
-          exclude: ['createdAt', 'updatedAt'],
-        },
-        include: {
-          model: TopicUser,
-          attributes: ['userId'],
-          where: { userId },
-          required: false,
-        },
-      },
-    });
   }
 }
 
