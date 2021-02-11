@@ -57,7 +57,7 @@ class UsersController {
   }
 
   async getCourseProgress(userId, courseId) {
-    let userProgress;
+    let userProgress, hasStarted = false;
 
     const user = await User.findByPk(userId);
     const course = await Course.findByPk(courseId);
@@ -65,17 +65,18 @@ class UsersController {
     if (!course) throw new NotFoundError('Course not found');
 
     const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
-    if (!userCourseData) userProgress = '0%';
+    if (!userCourseData) userProgress = 0;
     else {
       const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
 
+      hasStarted = true;
       userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
-      userProgress = `${userProgress}%`;
     }
 
     return {
       userId,
       courseId,
+      hasStarted,
       progress: userProgress,
     };
   }

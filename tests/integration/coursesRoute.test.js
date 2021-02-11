@@ -262,3 +262,34 @@ describe('GET /courses/:courseId/chapters/:chapterId', () => {
     });
   });
 });
+
+describe('GET /courses/:id', () => {
+  it('should return course data if it exists', async () => {
+    const result = await db.query('SELECT * FROM courses LIMIT 1');
+    const course = result.rows[0];
+
+    const response = await agent.get(`/courses/${course.id}`).set('Authorization', `Bearer ${tokenUser}`);
+
+    expect(response.body).toMatchObject({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      color: course.color,
+      imageUrl: course.imageUrl,
+      chapters: expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: 'Teste',
+          topicsQuantity: expect.any(Number),
+          exercisesQuantity: expect.any(Number)
+        })
+      ])
+    });
+  });
+
+  it('should return status code 404 if sent course id is invalid', async () => {
+    const response = await agent.get(`/courses/4269`).set('Authorization', `Bearer ${tokenUser}`);
+
+    expect(response.status).toBe(404);
+  });
+});
