@@ -27,6 +27,11 @@ Topic.init(
       type: Sequelize.INTEGER,
       allowNull: false,
     },
+    excluded: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
   },
   {
     sequelize,
