@@ -14,7 +14,7 @@ class CoursesController {
   }
 
   async getOne(id) {
-    let course = await Course.findByPk(id, {
+    const course = await Course.findByPk(id, {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -29,11 +29,7 @@ class CoursesController {
 
     if (!course) throw new NotFoundError('Course not found');
 
-    course = course.toJSON();
-
-    let totalTopicsQuantity = 0;
-    course.chapters.forEach((c) => { totalTopicsQuantity += c.topicsQuantity; });
-    return { totalTopicsQuantity, ...course };
+    return course;
   }
 
   async createCourse(title, description, color, imageUrl) {
