@@ -2,4 +2,3 @@ node_modules
 .env
 coverage
 .vscode/settings.json
-nodemon.json

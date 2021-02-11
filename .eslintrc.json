@@ -12,8 +12,6 @@
         "ecmaVersion": 9
     },
     "rules": {
-        "no-console": "off",
-        "consistent-return": "off",
-        "radix":"off"
+        "no-console": "off"
     }
 }

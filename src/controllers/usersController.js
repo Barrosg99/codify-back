@@ -48,9 +48,7 @@ class UsersController {
   }
 
   findSessionById(id) {
-    const session = Session.findByPk(id);
-    if (!session) throw new NotFoundError();
-    return session;
+    return Session.findByPk(id);
   }
 
   async postAdminSignIn(username, password) {
