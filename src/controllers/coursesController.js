@@ -1,5 +1,7 @@
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
+const User = require('../models/User');
+const CourseUser = require('../models/CourseUser');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
@@ -53,6 +55,14 @@ class CoursesController {
 
   async getSuggestions(limit = null) {
     return Course.findAll({ limit });
+  }
+
+  async initCouserByUserId(courseId, userId) {
+    const course = await Course.findByPk(courseId);
+    const user = await User.findByPk(userId);
+
+    if (!course || !user) throw new NotFoundError();
+    return CourseUser.create({ courseId, userId });
   }
 }
 

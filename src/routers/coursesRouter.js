@@ -22,4 +22,10 @@ router.get('/:id', async (req, res) => {
   res.send(course);
 });
 
+router.post('/:courseId/users/:userId', async (req, res) => {
+  const { courseId, userId } = req.params;
+  await coursesController.initCouserByUserId(+courseId, +userId);
+  res.sendStatus(200);
+});
+
 module.exports = router;

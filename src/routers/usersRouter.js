@@ -25,13 +25,13 @@ router
     return res.status(201).send(session);
   });
 
-router.get('/:id/ongoing-courses', async (req, res) => {
+router.get('/:id/courses/ongoing', async (req, res) => {
   const id = parseInt(req.params.id);
   const ongoingCourses = await usersController.getOngoingCoursesByUser(id);
   res.status(200).send(ongoingCourses);
 });
 
-router.post('/sign-out', verifyJWT, async (req, res) => {
+router.post('/signOut', verifyJWT, async (req, res) => {
   await usersController.postUserSignOut(req.sessionId);
   res.sendStatus(204);
 });
