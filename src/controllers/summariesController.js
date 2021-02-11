@@ -88,7 +88,7 @@ class SummariesController {
 
     const newTopics = [];
     topics.forEach((topic) => {
-      if (topic.id === null) {
+      if (!topic.id) {
         newTopics.push({ name: topic.name, order: topic.order, chapterId: chapter.id });
       }
     });
