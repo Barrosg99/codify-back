@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 
 const { createCoursesUtils } = require('../utils');
