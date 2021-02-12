@@ -5,32 +5,19 @@ const { Pool } = require('pg');
 const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
+const { cleanDataBase } = require('../utils');
 
 const agent = supertest(app);
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-async function cleanDatabase() {
-  await db.query('DELETE FROM "theoryUsers"');
-  await db.query('DELETE FROM "topicUsers"');
-  await db.query('DELETE FROM "exerciseUsers"');
-  await db.query('DELETE FROM theories');
-  await db.query('DELETE FROM exercises');
-  await db.query('DELETE FROM topics');
-  await db.query('DELETE FROM chapters');
-  await db.query('DELETE FROM "courseUsers"');
-  await db.query('DELETE FROM "adminSessions"');
-  await db.query('DELETE FROM sessions');
-  await db.query('DELETE FROM courses');
-  await db.query('DELETE FROM users');
-  await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
-}
-
-beforeAll(cleanDatabase);
+beforeAll(async () => {
+  await cleanDataBase(db);
+});
 
 afterAll(async () => {
-  await cleanDatabase();
+  await cleanDataBase(db);
   await db.end();
   await sequelize.close();
 });

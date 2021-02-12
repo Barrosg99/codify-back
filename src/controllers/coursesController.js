@@ -9,33 +9,12 @@ const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
 class CoursesController {
-  async getAll() {
+  getAll() {
     return Course.findAll();
   }
 
-  async getOne(id) {
-    let course = await Course.findByPk(id, {
-      attributes: {
-        exclude: ['createdAt', 'updatedAt'],
-      },
-      order: [[{ model: Chapter }, 'order', 'ASC']],
-      include: {
-        model: Chapter,
-        attributes: {
-          exclude: ['courseId', 'order', 'createdAt', 'updatedAt'],
-        },
-      },
-    });
-
-    if (!course) throw new NotFoundError('Course not found');
-
-    course = course.toJSON();
-
-    let totalTopicsQuantity = 0;
-    course.chapters.forEach((c) => { totalTopicsQuantity += c.topicsQuantity; });
-    course = { totalTopicsQuantity, ...course };
-
-    return course;
+  getOne(id) {
+    return Course.findByPk(id);
   }
 
   async createCourse(title, description, color, imageUrl) {
