@@ -10,6 +10,7 @@ class TopicController {
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
+      order: [[{model: Exercise}, 'id','ASC']],
       include: [
         {
           model: Theory,
