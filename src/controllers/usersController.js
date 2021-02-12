@@ -9,11 +9,13 @@ const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
 const CourseUser = require('../models/CourseUser');
 const TheoryUser = require('../models/TheoryUser');
+const Theory = require('../models/Theory');
+const Exercise = require('../models/Exercise');
+const ExerciseUser = require('../models/ExerciseUser');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
 const AuthError = require('../errors/AuthError');
 const AdminSession = require('../models/AdminSession');
-const Theory = require('../models/Theory');
 
 class UsersController {
   async create({
@@ -93,6 +95,18 @@ class UsersController {
 
     if (association) await association.destroy();
     else return TheoryUser.create({ userId, theoryId });
+  }
+
+  async postExerciseProgress(userId, exerciseId) {
+    const user = await User.findByPk(userId);
+    const exercise = await Exercise.findByPk(exerciseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!exercise) throw new NotFoundError('Exercise not found');
+
+    const association = await ExerciseUser.findOne({ where: { userId, exerciseId } });
+
+    if (association) await association.destroy();
+    else return ExerciseUser.create({ userId, exerciseId });
   }
 
   async postAdminSignIn(username, password) {
