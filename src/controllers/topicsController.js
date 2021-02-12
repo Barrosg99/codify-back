@@ -30,6 +30,11 @@ class TopicsController {
     const topic = await this.getOne(id);
     if (!topic) throw new NotFoundError('Topic not found');
 
+    if (topic.chapterId !== chapterId) {
+      await chaptersController.changeTopicsQuantity(topic.chapterId, 'minus');
+      await chaptersController.changeTopicsQuantity(chapterId, 'plus');
+    }
+
     topic.chapterId = chapterId;
     topic.name = name;
     topic.order = order;

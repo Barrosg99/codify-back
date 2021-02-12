@@ -68,7 +68,7 @@ class ChaptersController {
 
   async changeExerciseQuantity(id, operation) {
     const chapter = await this.getOne(id);
-    console.log(chapter.dataValues);
+
     if (operation === 'plus') {
       chapter.exercisesQuantity += 1;
     } else if (operation === 'minus') {

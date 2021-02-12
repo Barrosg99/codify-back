@@ -24,6 +24,16 @@ class ExercisesController {
 
   async editExercise({ id, topicId, description }) {
     const exercise = await this.getOne(id);
+
+    if (exercise.topicId !== topicId) {
+      const oldTopic = await topicsController.getOne(exercise.topicId);
+      const newTopic = await topicsController.getOne(topicId);
+      if (oldTopic.chapterId !== newTopic.chapterId) {
+        await chaptersController.changeExerciseQuantity(oldTopic.chapterId, 'minus');
+        await chaptersController.changeExerciseQuantity(newTopic.chapterId, 'plus');
+      }
+    }
+
     exercise.topicId = topicId;
     exercise.description = description;
 
@@ -34,7 +44,7 @@ class ExercisesController {
 
   async creteExercise({ topicId, description }) {
     const topic = await topicsController.getOne(topicId);
-    console.log(topic.dataValues);
+
     await chaptersController.changeExerciseQuantity(topic.chapterId, 'plus');
 
     return Exercise.create({ topicId, description });
