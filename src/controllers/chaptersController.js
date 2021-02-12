@@ -1,0 +1,71 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable class-methods-use-this */
+const Chapter = require('../models/Chapter');
+const NotFoundError = require('../errors/NotFoundError');
+
+class ChaptersController {
+  getAll({
+    _end, _start, _order, _sort, id,
+  }) {
+    let options = {
+      limit: _end - _start,
+      offset: _start,
+      order: [[_sort, _order]],
+      where: { excluded: false },
+    };
+
+    if (id) options = { where: { excluded: false, id } };
+
+    return Chapter.findAndCountAll(options);
+  }
+
+  getOne(id) {
+    return Chapter.findByPk(id);
+  }
+
+  async editChapter(updatedChapter) {
+    const chapter = await this.getOne(updatedChapter.id);
+    if (!chapter) throw new NotFoundError('Chapter not found');
+
+    const {
+      courseId, name, order, exercisesQuantity,
+    } = updatedChapter;
+
+    chapter.courseId = courseId;
+    chapter.name = name;
+    chapter.order = order;
+    chapter.exercisesQuantity = exercisesQuantity;
+
+    await chapter.save();
+
+    return chapter;
+  }
+
+  createChapter({
+    courseId, name, order, topicsQuantity, exercisesQuantity,
+  }) {
+    return Chapter.create({
+      courseId, name, order, topicsQuantity, exercisesQuantity,
+    });
+  }
+
+  deleteChapter(id) {
+    return Chapter.update({ excluded: true }, {
+      where: { id },
+      returning: true,
+      raw: true,
+    });
+  }
+
+  async changeTopicsQuantity(id, operation) {
+    const chapter = await this.getOne(id);
+    if (operation === 'plus') {
+      chapter.topicsQuantity += 1;
+    } else if (operation === 'minus') {
+      chapter.topicsQuantity -= 1;
+    }
+    await chapter.save();
+  }
+}
+
+module.exports = new ChaptersController();
