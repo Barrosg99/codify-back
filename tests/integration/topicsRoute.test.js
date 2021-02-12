@@ -65,7 +65,7 @@ afterAll(async () => {
 });
 
 describe('GET /topics/:topicId/users/:userId', () => {
-  it('should return topic with its theories and exercises if valid courseId is sent', async () => {
+  it('should return topic with its theories and exercises if valid topicId is sent', async () => {
     const newChapter = await db.query(
       'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [courseId, 'Teste', 1, 1, 1, new Date(), new Date()],

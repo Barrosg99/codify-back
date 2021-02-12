@@ -44,14 +44,14 @@ class TopicController {
     if (!topic) throw new NotFoundError('Topic not found');
 
     topic.theories.forEach(t => {
-      if (t.users.length > 0) t.dataValues.userHasFinished = true;
+      if (t.dataValues.users.length > 0) t.dataValues.userHasFinished = true;
       else t.dataValues.userHasFinished = false;
 
       delete t.dataValues.users;
     });
 
     topic.exercises.forEach(e => {
-      if (e.users.length > 0) e.dataValues.userHasFinished = true;
+      if (e.dataValues.users.length > 0) e.dataValues.userHasFinished = true;
       else e.dataValues.userHasFinished = false;
 
       delete e.dataValues.users;
