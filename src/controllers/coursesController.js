@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
@@ -32,8 +33,8 @@ class CoursesController {
     return course;
   }
 
-  getAllTopicsAtChapterFromUser(courseId, userId) {
-    return Course.findByPk(courseId, {
+  async getAllTopicsAtChapterFromUser(courseId, userId) {
+    const course = await Course.findByPk(courseId, {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -57,6 +58,16 @@ class CoursesController {
         },
       },
     });
+
+    course.chapters.forEach((c) => {
+      c.topics.forEach((t) => {
+        if (t.topicUsers.length > 0) t.dataValues.userHasFinished = true;
+        else t.dataValues.userHasFinished = false;
+        delete t.dataValues.topicUsers;
+      });
+    });
+
+    return course;
   }
 
   async createCourse(title, description, color, imageUrl) {
