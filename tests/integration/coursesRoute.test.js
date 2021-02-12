@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 
 const { Pool } = require('pg');
 const supertest = require('supertest');

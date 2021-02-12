@@ -10,7 +10,7 @@ const { verifyJWT, verifyAdmin } = require('../../middlewares');
 
 router.use('/users', adminUsersRouter);
 router.use('/courses', verifyJWT, verifyAdmin, adminCoursesRouter);
-router.use('/chapters', verifyJWT, verifyAdmin, adminChaptersRouter);
+router.use('/chapters', adminChaptersRouter);
 router.use('/topics', verifyJWT, verifyAdmin, adminTopicsRouter);
 router.use('/theories', verifyJWT, verifyAdmin, adminTheoriesRouter);
 router.use('/exercises', verifyJWT, verifyAdmin, adminExercisesRouter);

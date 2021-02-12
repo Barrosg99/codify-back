@@ -6,8 +6,9 @@ class TheoriesController {
   getAll({
     _end, _start, _order, _sort,
   }) {
+    const limit = _end ? _end - _start : null;
     const options = {
-      limit: _end,
+      limit,
       offset: _start,
       order: [[_sort, _order]],
       where: { excluded: false },

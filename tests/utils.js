@@ -38,6 +38,18 @@ async function createCourseUsersUtils(db, userId) {
   return courseUsers.rows[0];
 }
 
+async function createChapters(db, courseId, name, order, topicsQuantity, exercisesQuantity) {
+  const chapter = await db.query(`
+    INSERT INTO public.chapters
+    ("courseId", name, "order", "topicsQuantity",
+    "exercisesQuantity", "createdAt", "updatedAt")
+    VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *;`, [
+    courseId, name, order, topicsQuantity, exercisesQuantity,
+  ]);
+
+  return chapter.rows[0];
+}
+
 async function cleanDataBase(db) {
   await db.query('DELETE FROM "theoryUsers"');
   await db.query('DELETE FROM "topicUsers"');
@@ -91,4 +103,5 @@ module.exports = {
   cleanDataBase,
   createAdminSession,
   createUserSession,
+  createChapters,
 };
