@@ -2,7 +2,7 @@ const router = require('express').Router();
 const usersController = require('../controllers/usersController');
 const registerSchema = require('../schemas/registerSchema');
 const signInSchema = require('../schemas/signInSchema');
-const { verifyJWT } = require('../middlewares');
+const { verifyJWT, verifyClient } = require('../middlewares');
 
 router.post('/register', async (req, res) => {
   const { error } = registerSchema.validate(req.body);
@@ -23,13 +23,38 @@ router.post('/sign-in', async (req, res) => {
   return res.status(201).send(session);
 });
 
-router.get('/:id/courses/ongoing', async (req, res) => {
+router.get('/:userId/courses/:courseId/progress', verifyJWT, verifyClient, async (req, res) => {
+  const [userId, courseId] = [+req.params.userId, +req.params.courseId];
+
+  const userProgress = await usersController.getCourseProgress(userId, courseId);
+  res.send(userProgress);
+});
+
+router.post('/:userId/theories/:theoryId/progress', verifyJWT, verifyClient, async (req, res) => {
+  const [userId, theoryId] = [+req.params.userId, +req.params.theoryId];
+
+  const userHasDone = await usersController.postTheoryProgress(userId, theoryId);
+
+  if (userHasDone) res.sendStatus(201);
+  else res.sendStatus(204);
+});
+
+router.post('/:userId/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (req, res) => {
+  const [userId, exerciseId] = [+req.params.userId, +req.params.exerciseId];
+
+  const userHasDone = await usersController.postExerciseProgress(userId, exerciseId);
+
+  if (userHasDone) res.sendStatus(201);
+  else res.sendStatus(204);
+});
+
+router.get('/:id/courses/ongoing', verifyJWT, verifyClient, async (req, res) => {
   const id = parseInt(req.params.id);
   const ongoingCourses = await usersController.getOngoingCoursesByUser(id);
   res.status(200).send(ongoingCourses);
 });
 
-router.post('/signOut', verifyJWT, async (req, res) => {
+router.post('/signOut', verifyJWT, verifyClient, async (req, res) => {
   await usersController.postUserSignOut(req.sessionId);
   res.sendStatus(204);
 });

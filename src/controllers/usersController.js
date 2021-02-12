@@ -2,13 +2,19 @@
 /* eslint-disable class-methods-use-this */
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const AuthError = require('../errors/AuthError');
 
 const User = require('../models/User');
 const Session = require('../models/Session');
+const Course = require('../models/Course');
+const Chapter = require('../models/Chapter');
 const CourseUser = require('../models/CourseUser');
+const TheoryUser = require('../models/TheoryUser');
+const Theory = require('../models/Theory');
+const Exercise = require('../models/Exercise');
+const ExerciseUser = require('../models/ExerciseUser');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
+const AuthError = require('../errors/AuthError');
 const AdminSession = require('../models/AdminSession');
 
 class UsersController {
@@ -45,6 +51,7 @@ class UsersController {
       name: user.name,
       avatarUrl: user.avatarUrl,
       token,
+      hasInitAnyCourse: user.hasInitAnyCourse,
     };
   }
 
@@ -52,6 +59,56 @@ class UsersController {
     const session = Session.findByPk(id);
     if (!session) throw new NotFoundError();
     return session;
+  }
+
+  async getCourseProgress(userId, courseId) {
+    let userProgress; let
+      hasStarted = false;
+
+    const user = await User.findByPk(userId);
+    const course = await Course.findByPk(courseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!course) throw new NotFoundError('Course not found');
+
+    const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
+    if (!userCourseData) userProgress = 0;
+    else {
+      const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
+
+      hasStarted = true;
+      userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
+    }
+
+    return {
+      userId,
+      courseId,
+      hasStarted,
+      progress: userProgress,
+    };
+  }
+
+  async postTheoryProgress(userId, theoryId) {
+    const user = await User.findByPk(userId);
+    const theory = await Theory.findByPk(theoryId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!theory) throw new NotFoundError('Theory not found');
+
+    const association = await TheoryUser.findOne({ where: { userId, theoryId } });
+
+    if (association) await association.destroy();
+    else return TheoryUser.create({ userId, theoryId });
+  }
+
+  async postExerciseProgress(userId, exerciseId) {
+    const user = await User.findByPk(userId);
+    const exercise = await Exercise.findByPk(exerciseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!exercise) throw new NotFoundError('Exercise not found');
+
+    const association = await ExerciseUser.findOne({ where: { userId, exerciseId } });
+
+    if (association) await association.destroy();
+    else return ExerciseUser.create({ userId, exerciseId });
   }
 
   async postAdminSignIn(username, password) {
@@ -76,15 +133,19 @@ class UsersController {
     const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundError('User not found');
 
-    return CourseUser.findAll({
-      where: {
-        userId: id,
+    return Course.findAll({
+      include: {
+        model: User,
+        through: {
+          model: CourseUser,
+          where: {
+            userId: id,
+          },
+          order: [
+            ['updatedAt', 'DESC'],
+          ],
+        },
       },
-
-      order: [
-        ['updatedAt', 'DESC'],
-      ],
-
     });
   }
 

@@ -196,67 +196,34 @@ describe('GET /courses/:courseId/chapters/:chapterId', () => {
     );
     const topic = resultTopic.rows[0];
 
-    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${userToken}`);
+    const response = await agent.get(`/courses/${course.id}/chapters`).set('Authorization', `Bearer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      id: chapter.id,
-      name: chapter.name,
-      order: chapter.order,
-      topicsQuantity: chapter.topicsQuantity,
-      exercisesQuantity: chapter.exercisesQuantity,
-      topics: [
-        {
-          id: topic.id,
-          chapterId: chapter.id,
-          name: topic.name,
-          order: topic.order,
-          topicUsers: [],
-        },
-      ],
-    });
-  });
-
-  it('Should return status code 200 with list of topic at chapter with user complet topic', async () => {
-    const result = await db.query('SELECT * FROM courses LIMIT 1');
-    const course = result.rows[0];
-
-    const resultChapter = await db.query(
-      'SELECT * FROM chapters WHERE "courseId"=$1 LIMIT 1',
-      [course.id],
-    );
-    const chapter = resultChapter.rows[0];
-
-    const resultTopic = await db.query(
-      'SELECT * FROM topics WHERE "chapterId"=$1 LIMIT 1',
-      [chapter.id],
-    );
-    const topic = resultTopic.rows[0];
-    console.log(userId, userToken);
-    await db.query(
-      'INSERT INTO "topicUsers" ("topicId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4)',
-      [topic.id, userId, new Date(), new Date()],
-    );
-
-    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({
-      id: chapter.id,
-      name: chapter.name,
-      order: chapter.order,
-      topicsQuantity: chapter.topicsQuantity,
-      exercisesQuantity: chapter.exercisesQuantity,
-      topics: [
-        {
-          id: topic.id,
-          chapterId: chapter.id,
-          name: topic.name,
-          order: topic.order,
-          topicUsers: [{
-            userId,
-          }],
-        },
-      ],
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      color: course.color,
+      imageUrl: course.imageUrl,
+      chapters: expect.arrayContaining([
+        expect.objectContaining({
+          id: chapter.id,
+          name: chapter.name,
+          excluded: chapter.excluded,
+          order: chapter.order,
+          topicsQuantity: chapter.topicsQuantity,
+          exercisesQuantity: chapter.exercisesQuantity,
+          topics: [
+            {
+              id: topic.id,
+              chapterId: chapter.id,
+              excluded: false,
+              name: topic.name,
+              order: topic.order,
+              userHasFinished: false,
+            },
+          ],
+        }),
+      ]),
     });
   });
 });

@@ -5,15 +5,28 @@ const { Pool } = require('pg');
 const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
-const { cleanDataBase } = require('../utils');
+
+const { createCoursesUtils, createUserSession, cleanDataBase } = require('../utils');
 
 const agent = supertest(app);
+let userToken;
+let userId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
 beforeAll(async () => {
   await cleanDataBase(db);
+  courseId = await createCoursesUtils(
+    db,
+    'JavaScript do zero ao avançado',
+    'Curso para você ficar voando mesmo, tipo monstrão no JS',
+    '#F5F100',
+    'https://i.imgur.com/lWUs38z.png',
+  );
+  const session = await createUserSession(db);
+  userToken = session.userToken;
+  userId = session.userId;
 });
 
 afterAll(async () => {
@@ -128,6 +141,60 @@ describe('POST /users/sign-in', () => {
   });
 });
 
+describe('GET /users/:userId/courses/:courseId/progress', () => {
+  it('should return user progress in a course if both exist with no progress if user has not started the course', async () => {
+    await db.query(
+      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [courseId, 'Teste', 1, 9, 0, new Date(), new Date()],
+    );
+
+    const response = await agent
+      .get(`/users/${userId}/courses/${courseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.body).toMatchObject({
+      userId,
+      courseId,
+      hasStarted: false,
+      progress: 0,
+    });
+  });
+
+  it('should return user progress in a course if both exist', async () => {
+    await db.query(
+      'INSERT INTO "courseUsers" ("userId", "courseId", "doneActivities", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, courseId, 2, new Date(), new Date()],
+    );
+
+    const response = await agent
+      .get(`/users/${userId}/courses/${courseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.body).toMatchObject({
+      userId,
+      courseId,
+      hasStarted: true,
+      progress: 22,
+    });
+  });
+
+  it('should return status code 404 if invalid user id is sent', async () => {
+    const response = await agent
+      .get(`/users/65899/courses/${courseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return status code 404 if invalid course id is sent', async () => {
+    const response = await agent
+      .get(`/users/${userId}/courses/55165/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+});
+
 describe('GET users/:id/courses/ongoing', () => {
   it('Should return an ordered list of this users courses', async () => {
     const newUser = {
@@ -146,8 +213,7 @@ describe('GET users/:id/courses/ongoing', () => {
 
     await agent.post('/users/sign-in').send(body);
 
-    const response = await agent.get(`/users/${id}/courses/ongoing`);
-
+    const response = await agent.get(`/users/${id}/courses/ongoing`).set('Authorization', `Baerer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(expect.arrayContaining([]));
   });

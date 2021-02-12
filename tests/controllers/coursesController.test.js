@@ -67,8 +67,16 @@ describe('function getOne - gets one course data', () => {
       id: 1,
       title: 'JavaScript',
       description: 'JS course',
-      color: 'yellow',
+      color: '#FFFB0F',
       imageUrl: 'https://google.com',
+      chapters: [
+        {
+          id: 1,
+          name: 'Apresentação',
+          topicsQuantity: 2,
+          exercisesQuantity: 5,
+        }
+      ]
     });
 
     const response = await coursesController.getOne(1);
@@ -77,8 +85,16 @@ describe('function getOne - gets one course data', () => {
       id: 1,
       title: 'JavaScript',
       description: 'JS course',
-      color: 'yellow',
+      color: '#FFFB0F',
       imageUrl: 'https://google.com',
+      chapters: [
+        {
+          id: 1,
+          name: 'Apresentação',
+          topicsQuantity: 2,
+          exercisesQuantity: 5,
+        }
+      ]
     });
   });
 

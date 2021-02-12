@@ -16,26 +16,19 @@ router.get('/suggestions', async (req, res) => {
   res.status(200).send(await coursesController.getSuggestions(limit));
 });
 
-router.get('/:id', async (req, res) => {
-  const id = parseInt(req.params.id);
-  const course = await coursesController.getOne(id);
-
-  res.send(course);
-});
-
 router.post('/:courseId/users/:userId', async (req, res) => {
   const { courseId, userId } = req.params;
   await coursesController.initCouserByUserId(+courseId, +userId);
   res.sendStatus(200);
 });
 
-router.get('/:courseId/chapters/:chapterId', async (req, res) => {
-  const { courseId, chapterId } = req.params;
+router.get('/:courseId/chapters', async (req, res) => {
+  const { courseId } = req.params;
 
   const { userId } = await usersController.findSessionById(req.sessionId);
 
   const topics = await coursesController
-    .getAllTopicsAtChapterFromUser(+courseId, +chapterId, userId);
+    .getAllTopicsAtChapterFromUser(+courseId, userId);
   res.send(topics);
 });
 

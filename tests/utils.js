@@ -10,7 +10,7 @@ async function createCoursesUtils(db, title, description, color, imageUrl) {
     imageUrl,
   ]);
 
-  return course.rows[0];
+  return course.rows[0].id;
 }
 
 async function createUserUtils(db, name, password, email, avatarUrl) {
