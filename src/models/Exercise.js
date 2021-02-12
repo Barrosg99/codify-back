@@ -23,6 +23,11 @@ Exercise.init(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    excluded: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
   },
   {
     sequelize,
