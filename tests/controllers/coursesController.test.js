@@ -20,7 +20,7 @@ describe('function createCourse', () => {
     });
 
     async function course() {
-      return await coursesController.createCourse(
+      return coursesController.createCourse(
         'JavaScript do zero ao avançado',
         'Curso para vc ficar voando mesmo tipo mostrão no JS',
         'amarelo',
@@ -37,7 +37,7 @@ describe('function editCourse', () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
-      return await coursesController.editCourse(
+      return coursesController.editCourse(
         'Python é bom demais',
         'Curso para vc ficar voando mesmo tipo mostrão no PY',
         'azul',
@@ -54,7 +54,7 @@ describe('function deleteCourse', () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
-      return await coursesController.deleteCourse(2);
+      return coursesController.deleteCourse(2);
     }
 
     expect(course).rejects.toThrow(NotFoundError);
@@ -67,8 +67,16 @@ describe('function getOne - gets one course data', () => {
       id: 1,
       title: 'JavaScript',
       description: 'JS course',
-      color: 'yellow',
+      color: '#FFFB0F',
       imageUrl: 'https://google.com',
+      chapters: [
+        {
+          id: 1,
+          name: 'Apresentação',
+          topicsQuantity: 2,
+          exercisesQuantity: 5,
+        }
+      ]
     });
 
     const response = await coursesController.getOne(1);
@@ -77,8 +85,16 @@ describe('function getOne - gets one course data', () => {
       id: 1,
       title: 'JavaScript',
       description: 'JS course',
-      color: 'yellow',
+      color: '#FFFB0F',
       imageUrl: 'https://google.com',
+      chapters: [
+        {
+          id: 1,
+          name: 'Apresentação',
+          topicsQuantity: 2,
+          exercisesQuantity: 5,
+        }
+      ]
     });
   });
 

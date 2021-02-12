@@ -3,6 +3,8 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
 
@@ -10,6 +12,11 @@ const agent = supertest(app);
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
+
+let userToken; let userId; let
+  courseId;
+
+const { createCoursesUtils } = require('../utils');
 
 async function cleanDatabase() {
   await db.query('DELETE FROM "theoryUsers"');
@@ -27,7 +34,33 @@ async function cleanDatabase() {
   await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
 }
 
-beforeAll(cleanDatabase);
+beforeAll(async () => {
+  await cleanDatabase();
+  courseId = await createCoursesUtils(
+    db,
+    'JavaScript do zero ao avançado',
+    'Curso para você ficar voando mesmo, tipo monstrão no JS',
+    '#F5F100',
+    'https://i.imgur.com/lWUs38z.png',
+  );
+
+  console.log(courseId);
+
+  const password = bcrypt.hashSync('123456', 10);
+  const result = await db.query(
+    'INSERT INTO users (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) RETURNING *',
+    ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
+  );
+  const user = result.rows[0];
+
+  const sessionUser = await db.query(
+    'INSERT INTO sessions ("userId", "createdAt", "updatedAt")VALUES ($1 , $2, $3) RETURNING *',
+    [user.id, new Date(), new Date()],
+  );
+
+  userToken = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
+  userId = user.id;
+});
 
 afterAll(async () => {
   await cleanDatabase();
@@ -138,6 +171,60 @@ describe('POST /users/sign-in', () => {
     const response = await agent.post('/users/sign-in').send(body);
 
     expect(response.status).toBe(422);
+  });
+});
+
+describe('GET /users/:userId/courses/:courseId/progress', () => {
+  it('should return user progress in a course if both exist with no progress if user has not started the course', async () => {
+    await db.query(
+      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [courseId, 'Teste', 1, 9, 0, new Date(), new Date()],
+    );
+
+    const response = await agent
+      .get(`/users/${userId}/courses/${courseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.body).toMatchObject({
+      userId,
+      courseId,
+      hasStarted: false,
+      progress: 0,
+    });
+  });
+
+  it('should return user progress in a course if both exist', async () => {
+    await db.query(
+      'INSERT INTO "courseUsers" ("userId", "courseId", "doneActivities", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, courseId, 2, new Date(), new Date()],
+    );
+
+    const response = await agent
+      .get(`/users/${userId}/courses/${courseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.body).toMatchObject({
+      userId,
+      courseId,
+      hasStarted: true,
+      progress: 22,
+    });
+  });
+
+  it('should return status code 404 if invalid user id is sent', async () => {
+    const response = await agent
+      .get(`/users/65899/courses/${courseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return status code 404 if invalid course id is sent', async () => {
+    const response = await agent
+      .get(`/users/${userId}/courses/55165/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
   });
 });
 

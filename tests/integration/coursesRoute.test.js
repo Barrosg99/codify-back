@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 
 const { createCoursesUtils } = require('../utils');
@@ -221,9 +221,9 @@ describe('GET /courses/:courseId/chapters/:chapterId', () => {
     );
     const topic = resultTopic.rows[0];
 
-    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${tokenUser}`);
+    const response = await agent.get(`/courses/${course.id}/chapters`).set('Authorization', `Bearer ${tokenUser}`);
     expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({
+    expect(response.body.chapters[0]).toMatchObject({
       id: chapter.id,
       name: chapter.name,
       order: chapter.order,
@@ -262,10 +262,10 @@ describe('GET /courses/:courseId/chapters/:chapterId', () => {
       [topic.id, userId, new Date(), new Date()],
     );
 
-    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${tokenUser}`);
+    const response = await agent.get(`/courses/${course.id}/chapters`).set('Authorization', `Bearer ${tokenUser}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({
+    expect(response.body.chapters[0]).toMatchObject({
       id: chapter.id,
       name: chapter.name,
       order: chapter.order,
@@ -283,5 +283,36 @@ describe('GET /courses/:courseId/chapters/:chapterId', () => {
         },
       ],
     });
+  });
+});
+
+describe('GET /courses/:id', () => {
+  it('should return course data if it exists', async () => {
+    const result = await db.query('SELECT * FROM courses LIMIT 1');
+    const course = result.rows[0];
+
+    const response = await agent.get(`/courses/${course.id}`).set('Authorization', `Bearer ${tokenUser}`);
+
+    expect(response.body).toMatchObject({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      color: course.color,
+      imageUrl: course.imageUrl,
+      chapters: expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: 'Teste',
+          topicsQuantity: expect.any(Number),
+          exercisesQuantity: expect.any(Number),
+        }),
+      ]),
+    });
+  });
+
+  it('should return status code 404 if sent course id is invalid', async () => {
+    const response = await agent.get('/courses/4269').set('Authorization', `Bearer ${tokenUser}`);
+
+    expect(response.status).toBe(404);
   });
 });

@@ -29,13 +29,13 @@ router.post('/:courseId/users/:userId', async (req, res) => {
   res.sendStatus(200);
 });
 
-router.get('/:courseId/chapters/:chapterId', async (req, res) => {
-  const { courseId, chapterId } = req.params;
+router.get('/:courseId/chapters', async (req, res) => {
+  const { courseId } = req.params;
 
   const { userId } = await usersController.findSessionById(req.sessionId);
 
   const topics = await coursesController
-    .getAllTopicsAtChapterFromUser(+courseId, +chapterId, userId);
+    .getAllTopicsAtChapterFromUser(+courseId, userId);
   res.send(topics);
 });
 

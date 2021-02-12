@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
@@ -14,7 +15,7 @@ class CoursesController {
   }
 
   async getOne(id) {
-    let course = await Course.findByPk(id, {
+    const course = await Course.findByPk(id, {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -29,11 +30,42 @@ class CoursesController {
 
     if (!course) throw new NotFoundError('Course not found');
 
-    course = course.toJSON();
+    return course;
+  }
 
-    let totalTopicsQuantity = 0;
-    course.chapters.forEach((c) => { totalTopicsQuantity += c.topicsQuantity; });
-    course = { totalTopicsQuantity, ...course };
+  async getAllTopicsAtChapterFromUser(courseId, userId) {
+    const course = await Course.findByPk(courseId, {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+      order: [[{ model: Chapter }, 'order', 'ASC']],
+      include: {
+        model: Chapter,
+        attributes: {
+          exclude: ['courseId', 'createdAt', 'updatedAt'],
+        },
+        include: {
+          model: Topic,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+          include: {
+            model: TopicUser,
+            attributes: ['userId'],
+            where: { userId },
+            required: false,
+          },
+        },
+      },
+    });
+
+    course.chapters.forEach((c) => {
+      c.topics.forEach((t) => {
+        if (t.topicUsers.length > 0) t.dataValues.userHasFinished = true;
+        else t.dataValues.userHasFinished = false;
+        delete t.dataValues.topicUsers;
+      });
+    });
 
     return course;
   }
@@ -82,27 +114,6 @@ class CoursesController {
 
     if (!course || !user) throw new NotFoundError();
     return CourseUser.create({ courseId, userId });
-  }
-
-  getAllTopicsAtChapterFromUser(courseId, chapterId, userId) {
-    return Chapter.findByPk(chapterId, {
-      where: { courseId },
-      attributes: {
-        exclude: ['createdAt', 'updatedAt', 'courseId'],
-      },
-      include: {
-        model: Topic,
-        attributes: {
-          exclude: ['createdAt', 'updatedAt'],
-        },
-        include: {
-          model: TopicUser,
-          attributes: ['userId'],
-          where: { userId },
-          required: false,
-        },
-      },
-    });
   }
 }
 
