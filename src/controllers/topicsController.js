@@ -5,8 +5,8 @@ const TheoryUser = require('../models/TheoryUser');
 const User = require('../models/User');
 
 class TopicController {
-  getOne(topicId, userId) {
-    return Topic.findByPk(topicId, {
+  async getOne(topicId, userId) {
+    const topic = await Topic.findByPk(topicId, {
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
@@ -18,7 +18,9 @@ class TopicController {
             model: User,
             attributes: [['id', 'userId']],
             through: {
-              attributes: []
+              where: { userId },
+              attributes: [],
+              required: false,
             }
           }
         },
@@ -29,12 +31,30 @@ class TopicController {
             model: User,
             attributes: [['id', 'userId']],
             through: {
-              attributes: []
+              where: { userId },
+              attributes: [],
+              required: false
             }
           }
         }
       ]
     });
+
+    topic.theories.forEach(t => {
+      if (t.users.length > 0) t.dataValues.userHasFinished = true;
+      else t.dataValues.userHasFinished = false;
+
+      delete t.dataValues.users;
+    });
+
+    topic.exercises.forEach(e => {
+      if (e.users.length > 0) e.dataValues.userHasFinished = true;
+      else e.dataValues.userHasFinished = false;
+
+      delete e.dataValues.users;
+    });
+
+    return topic;
   }
 }
 
