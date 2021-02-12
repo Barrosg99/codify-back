@@ -4,12 +4,14 @@ require('dotenv').config();
 const usersController = require('../../src/controllers/usersController');
 const Session = require('../../src/models/Session');
 const User = require('../../src/models/User');
+const CourseUser = require('../../src/models/CourseUser');
 const NotFoundError = require('../../src/errors/NotFoundError');
 const AuthError = require('../../src/errors/AuthError');
 const WrongPasswordError = require('../../src/errors/WrongPasswordError');
 const AdminSession = require('../../src/models/AdminSession');
 
 jest.mock('../../src/models/Session');
+jest.mock('../../src/models/User');
 jest.mock('jsonwebtoken', () => ({
   sign: () => 'token',
 }));
@@ -64,8 +66,10 @@ describe('creating new session', () => {
     const password = 'password';
 
     const spy = jest.spyOn(usersController, 'findByEmail');
-    usersController.findByEmail.mockImplementationOnce(email => (
-      { id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com' }
+    usersController.findByEmail.mockImplementationOnce((email) => (
+      {
+        id: 1, name: 'Teste', email, password: 'password', avatarUrl: 'https://avatar.com',
+      }
     ));
 
     Session.create.mockResolvedValue(() => true);
@@ -118,7 +122,7 @@ describe('creating new session', () => {
 });
 
 describe('Testing postAdminSignIn of usersController', () => {
-  it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
+  it('Should return a throw error trying to login with wrong username and password.', async () => {
     async function login() {
       return usersController.postAdminSignIn('Paola', '12345');
     }
@@ -126,7 +130,7 @@ describe('Testing postAdminSignIn of usersController', () => {
     expect(login).rejects.toThrow(AuthError);
   });
 
-  it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
+  it('Should return a token if username and password are correct.', async () => {
     const spy = jest.spyOn(AdminSession, 'create');
     AdminSession.create.mockImplementationOnce((({ userId }) => userId));
     const login = await usersController.postAdminSignIn(
@@ -136,5 +140,17 @@ describe('Testing postAdminSignIn of usersController', () => {
     expect(AdminSession.create).toHaveBeenCalledWith({ userId: process.env.ADMIN_ID });
     expect(login).toEqual(expect.any(String));
     spy.mockRestore();
+  });
+});
+
+describe('Testing getOngoingCoursesByUser', () => {
+  it('Should return a throw error trying to search for user courses that dont exist', async () => {
+    User.findOne.mockImplementation(null);
+
+    async function user() {
+      return usersController.getOngoingCoursesByUser(9999);
+    }
+
+    expect(user).rejects.toThrow(NotFoundError);
   });
 });
