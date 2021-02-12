@@ -72,6 +72,10 @@ class CoursesController {
     return Course.count();
   }
 
+  async getSuggestions(limit = null) {
+    return Course.findAll({ limit });
+  }
+
   async initCouserByUserId(courseId, userId) {
     const course = await Course.findByPk(courseId);
     const user = await User.findByPk(userId);
