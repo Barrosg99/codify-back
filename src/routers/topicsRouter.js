@@ -2,10 +2,10 @@ const router = require('express').Router();
 
 const topicsController = require('../controllers/topicsController');
 
-router.get('/:id', async (req, res) => {
-  const id = +req.params.id;
+router.get('/:topicId/users/:userId', async (req, res) => {
+  const [topicId, userId] = [+req.params.topicId, +req.params.userId];
 
-  const topic = await topicsController.getOne(id);
+  const topic = await topicsController.getOne(topicId, userId);
 
   res.send(topic);
 });

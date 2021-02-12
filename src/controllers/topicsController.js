@@ -1,16 +1,23 @@
 const Topic = require('../models/Topic');
 const Theory = require('../models/Theory');
+const Exercise = require('../models/Exercise');
 
 class TopicController {
-  getOne(id) {
-    return Topic.findByPk(id, {
+  getOne(topicId, userId) {
+    return Topic.findByPk(topicId, {
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
-      include: {
-        model: Theory,
-        attributes: [['id', 'theoryId'], 'youtubeUrl']
-      }
+      include: [
+        {
+          model: Theory,
+          attributes: [['id', 'theoryId'], 'youtubeUrl']
+        },
+        {
+          model: Exercise,
+          attributes: [['id', 'exerciseId'], 'description']
+        }
+      ]
     });
   }
 }
