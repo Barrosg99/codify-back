@@ -4,12 +4,15 @@ const { Pool } = require('pg');
 const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 
-const { createCoursesUtils, cleanDataBase, createUserUtils, createUserSession } = require('../utils');
+const {
+  createCoursesUtils, cleanDataBase, createUserSession,
+} = require('../utils');
 
 const app = require('../../src/app');
 
 const agent = supertest(app);
-let userToken, courseId, userId, topicId, chapterId, theoryId, exerciseId;
+let userToken; let courseId; let userId; let topicId; let chapterId; let theoryId; let
+  exerciseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -24,19 +27,6 @@ beforeAll(async () => {
     'amarelo',
     'https://i.imgur.com/lWUs38z.png',
   );
-
-  // const password = bcrypt.hashSync('123456', 10);
-  // const result = await db.query(
-  //   'INSERT INTO users (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) RETURNING *',
-  //   ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
-  // );
-  // const user = result.rows[0];
-  // const sessionUser = await db.query(
-  //   'INSERT INTO sessions ("userId", "createdAt", "updatedAt")VALUES ($1 , $2, $3) RETURNING *',
-  //   [user.id, new Date(), new Date()],
-  // );
-  // userToken = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
-  // userId = user.id;
 
   const session = await createUserSession(db);
   userToken = session.userToken;
@@ -65,13 +55,13 @@ describe('GET /topics/:topicId/users/:userId', () => {
 
     const newTheory = await db.query(
       'INSERT INTO theories (id, "topicId", "youtubeUrl", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, topicId, 'https://youtube.com', new Date(), new Date()]
+      [1, topicId, 'https://youtube.com', new Date(), new Date()],
     );
     theoryId = newTheory.rows[0].id;
 
     const newExercise = await db.query(
       'INSERT INTO exercises (id, description, "topicId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, 'Teste', topicId, new Date(), new Date()]
+      [1, 'Teste', topicId, new Date(), new Date()],
     );
     exerciseId = newExercise.rows[0].id;
 
@@ -88,28 +78,28 @@ describe('GET /topics/:topicId/users/:userId', () => {
         expect.objectContaining({
           theoryId,
           youtubeUrl: 'https://youtube.com',
-          userHasFinished: false
-        })
+          userHasFinished: false,
+        }),
       ]),
       exercises: expect.arrayContaining([
         expect.objectContaining({
           exerciseId,
           description: 'Teste',
-          userHasFinished: false
-        })
-      ])
+          userHasFinished: false,
+        }),
+      ]),
     });
   });
 
   it('should return user progress as true if he/she finished theory or activity', async () => {
     await db.query(
       'INSERT INTO "theoryUsers" (id, "theoryId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, theoryId, userId, new Date(), new Date()]
+      [1, theoryId, userId, new Date(), new Date()],
     );
 
     await db.query(
       'INSERT INTO "exerciseUsers" (id, "exerciseId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, exerciseId, userId, new Date(), new Date()]
+      [1, exerciseId, userId, new Date(), new Date()],
     );
 
     const response = await agent
@@ -125,30 +115,30 @@ describe('GET /topics/:topicId/users/:userId', () => {
         expect.objectContaining({
           theoryId,
           youtubeUrl: 'https://youtube.com',
-          userHasFinished: true
-        })
+          userHasFinished: true,
+        }),
       ]),
       exercises: expect.arrayContaining([
         expect.objectContaining({
           exerciseId,
           description: 'Teste',
-          userHasFinished: true
-        })
-      ])
+          userHasFinished: true,
+        }),
+      ]),
     });
   });
 
   it('should return status code 401 if invalid token is sent', async () => {
     const response = await agent
       .get(`/topics/${topicId}/users/${userId}`)
-      .set('Authorization', `Bearer invalidToken`);
+      .set('Authorization', 'Bearer invalidToken');
 
     expect(response.status).toBe(401);
   });
 
   it('should return status code 400 if headers are not sent', async () => {
     const response = await agent
-      .get(`/topics/${topicId}/users/${userId}`)
+      .get(`/topics/${topicId}/users/${userId}`);
 
     expect(response.status).toBe(400);
   });
