@@ -49,7 +49,9 @@ class TopicsController {
 
   async deleteTopic(id) {
     const topic = await this.getOne(id);
+
     await chaptersController.changeTopicsQuantity(topic.chapterId, 'minus');
+
     topic.excluded = true;
     await topic.save();
     return topic;

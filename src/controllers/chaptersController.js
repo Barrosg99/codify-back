@@ -28,13 +28,12 @@ class ChaptersController {
     if (!chapter) throw new NotFoundError('Chapter not found');
 
     const {
-      courseId, name, order, exercisesQuantity,
+      courseId, name, order,
     } = updatedChapter;
 
     chapter.courseId = courseId;
     chapter.name = name;
     chapter.order = order;
-    chapter.exercisesQuantity = exercisesQuantity;
 
     await chapter.save();
 
@@ -42,10 +41,10 @@ class ChaptersController {
   }
 
   createChapter({
-    courseId, name, order, topicsQuantity, exercisesQuantity,
+    courseId, name, order,
   }) {
     return Chapter.create({
-      courseId, name, order, topicsQuantity, exercisesQuantity,
+      courseId, name, order,
     });
   }
 
@@ -63,6 +62,17 @@ class ChaptersController {
       chapter.topicsQuantity += 1;
     } else if (operation === 'minus') {
       chapter.topicsQuantity -= 1;
+    }
+    await chapter.save();
+  }
+
+  async changeExerciseQuantity(id, operation) {
+    const chapter = await this.getOne(id);
+    console.log(chapter.dataValues);
+    if (operation === 'plus') {
+      chapter.exercisesQuantity += 1;
+    } else if (operation === 'minus') {
+      chapter.exercisesQuantity -= 1;
     }
     await chapter.save();
   }
