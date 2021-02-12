@@ -1,8 +1,8 @@
 const Topic = require('../models/Topic');
 const Theory = require('../models/Theory');
 const Exercise = require('../models/Exercise');
-const TheoryUser = require('../models/TheoryUser');
 const User = require('../models/User');
+const NotFoundError = require('../errors/NotFoundError');
 
 class TopicController {
   async getOne(topicId, userId) {
@@ -10,7 +10,7 @@ class TopicController {
       attributes: {
         exclude: ['createdAt', 'updatedAt']
       },
-      order: [[{model: Exercise}, 'id','ASC']],
+      order: [[{ model: Exercise }, 'id', 'ASC']],
       include: [
         {
           model: Theory,
@@ -40,6 +40,8 @@ class TopicController {
         }
       ]
     });
+
+    if (!topic) throw new NotFoundError('Topic not found');
 
     topic.theories.forEach(t => {
       if (t.users.length > 0) t.dataValues.userHasFinished = true;
