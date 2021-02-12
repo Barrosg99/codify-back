@@ -181,6 +181,29 @@ describe('POST /courses/:courseId/users/:userId', () => {
   });
 });
 
+describe('POST /suggestions', () => {
+  it('Should return an array with a maximum of 6 course suggestions', async () => {
+    const newUser = {
+      name: 'Minerva',
+      email: 'minerva@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
+
+    const user = await agent.post('/users/register').send(newUser);
+
+    const { email } = user.body;
+    const body = { email, password: '12345' };
+
+    const userSession = await agent.post('/users/sign-in').send(body);
+    const response = await agent.get('/courses/suggestions').set('Authorization', `Bearer ${userSession.body.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).not.toHaveLength(7);
+  });
+});
+
 describe('GET /courses/:courseId/chapters/:chapterId', () => {
   it('Should return status code 200 with list of topic at chapter without user complet topic', async () => {
     const result = await db.query('SELECT * FROM courses LIMIT 1');

@@ -13,7 +13,8 @@ const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-let userToken, userId, courseId;
+let userToken; let userId; let
+  courseId;
 
 const { createCoursesUtils } = require('../utils');
 
@@ -188,14 +189,14 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: false,
-      progress: 0
+      progress: 0,
     });
   });
 
   it('should return user progress in a course if both exist', async () => {
     await db.query(
       'INSERT INTO "courseUsers" ("userId", "courseId", "doneActivities", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [userId, courseId, 2, new Date(), new Date()]
+      [userId, courseId, 2, new Date(), new Date()],
     );
 
     const response = await agent
@@ -206,7 +207,7 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: true,
-      progress: 22
+      progress: 22,
     });
   });
 
@@ -224,5 +225,53 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
+  });
+});
+
+describe('GET users/:id/courses/ongoing', () => {
+  it('Should return an ordered list of this users courses', async () => {
+    const newUser = {
+      name: 'Hermione',
+      email: 'hermione@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
+
+    const user = await agent.post('/users/register').send(newUser);
+
+    const { id, email } = user.body;
+
+    const body = { email, password: '12345' };
+
+    await agent.post('/users/sign-in').send(body);
+
+    const response = await agent.get(`/users/${id}/courses/ongoing`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([]));
+  });
+});
+
+describe('POST /signOut', () => {
+  it('Should only return status 204 after ending the users session', async () => {
+    const newUser = {
+      name: 'Gina',
+      email: 'gina@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
+
+    const user = await agent.post('/users/register').send(newUser);
+
+    const { email } = user.body;
+    const body = { email, password: '12345' };
+
+    const userSession = await agent.post('/users/sign-in').send(body);
+
+    const response = await agent.post('/users/signOut').set('Authorization', `Baerer ${userSession.body.token}`);
+
+    expect(response.status).toBe(204);
   });
 });

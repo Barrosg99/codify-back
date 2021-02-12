@@ -128,7 +128,7 @@ describe('creating new session', () => {
 });
 
 describe('Testing postAdminSignIn of usersController', () => {
-  it('postAdminSignIn - Should return a throw error trying to login with wrong username and password.', async () => {
+  it('Should return a throw error trying to login with wrong username and password.', async () => {
     async function login() {
       return usersController.postAdminSignIn('Paola', '12345');
     }
@@ -136,7 +136,7 @@ describe('Testing postAdminSignIn of usersController', () => {
     expect(login).rejects.toThrow(AuthError);
   });
 
-  it('postAdminSignIn - Should return a token if username and password are correct.', async () => {
+  it('Should return a token if username and password are correct.', async () => {
     const spy = jest.spyOn(AdminSession, 'create');
     AdminSession.create.mockImplementationOnce((({ userId }) => userId));
     const login = await usersController.postAdminSignIn(
@@ -151,7 +151,8 @@ describe('Testing postAdminSignIn of usersController', () => {
 
 describe('Testing function getCourseProgress of usersController', () => {
   it('should return user progress if user id and course id are valid, with no progress if user has not started the course', async () => {
-    const userId = 1, courseId = 1;
+    const userId = 1; const
+      courseId = 1;
 
     User.findByPk.mockImplementationOnce(() => true);
     Course.findByPk.mockImplementationOnce(() => true);
@@ -166,12 +167,13 @@ describe('Testing function getCourseProgress of usersController', () => {
       userId,
       courseId,
       hasStarted: false,
-      progress: 0
+      progress: 0,
     });
   });
 
   it('should return user progress if user id and course id are valid, and if user has started the course', async () => {
-    const userId = 1, courseId = 1;
+    const userId = 1; const
+      courseId = 1;
 
     User.findByPk.mockImplementationOnce(() => true);
     Course.findByPk.mockImplementationOnce(() => true);
@@ -188,7 +190,7 @@ describe('Testing function getCourseProgress of usersController', () => {
       userId,
       courseId,
       hasStarted: true,
-      progress: 19
+      progress: 19,
     });
   });
 
@@ -207,5 +209,17 @@ describe('Testing function getCourseProgress of usersController', () => {
     const testedFunction = usersController.getCourseProgress();
 
     expect(testedFunction).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe('Testing getOngoingCoursesByUser', () => {
+  it('Should return a throw error trying to search for user courses that dont exist', async () => {
+    User.findOne.mockImplementation(null);
+
+    async function user() {
+      return usersController.getOngoingCoursesByUser(9999);
+    }
+
+    expect(user).rejects.toThrow(NotFoundError);
   });
 });
