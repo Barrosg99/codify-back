@@ -5,7 +5,7 @@ const User = require('../models/User');
 const NotFoundError = require('../errors/NotFoundError');
 
 class TopicController {
-  async getOne(topicId, userId) {
+  async getOneWithUserProgress(topicId, userId) {
     const topic = await Topic.findByPk(topicId, {
       attributes: {
         exclude: ['createdAt', 'updatedAt']

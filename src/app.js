@@ -23,7 +23,7 @@ const ConflictError = require('./errors/ConflictError');
 app.use('/courses', verifyJWT, verifyClient, coursesRouter);
 app.use('/admin', adminRouter);
 app.use('/users', usersRouter);
-app.use('/topics', topicsRouter);
+app.use('/topics', verifyJWT, verifyClient, topicsRouter);
 
 app.use((error, req, res, next) => {
   console.log(error);

@@ -5,7 +5,7 @@ const topicsController = require('../controllers/topicsController');
 router.get('/:topicId/users/:userId', async (req, res) => {
   const [topicId, userId] = [+req.params.topicId, +req.params.userId];
 
-  const topic = await topicsController.getOne(topicId, userId);
+  const topic = await topicsController.getOneWithUserProgress(topicId, userId);
 
   res.send(topic);
 });
