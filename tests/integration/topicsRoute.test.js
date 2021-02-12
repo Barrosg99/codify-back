@@ -2,39 +2,20 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 
-const { createCoursesUtils } = require('../utils');
+const { createCoursesUtils, cleanDataBase, createUserUtils, createUserSession } = require('../utils');
 
 const app = require('../../src/app');
 
 const agent = supertest(app);
-let tokenUser;
-let courseId, userId, topicId, chapterId, theoryId, exerciseId;
+let userToken, courseId, userId, topicId, chapterId, theoryId, exerciseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-async function cleanDatabase() {
-  await db.query('DELETE FROM "theoryUsers"');
-  await db.query('DELETE FROM "topicUsers"');
-  await db.query('DELETE FROM "exerciseUsers"');
-  await db.query('DELETE FROM theories');
-  await db.query('DELETE FROM exercises');
-  await db.query('DELETE FROM topics');
-  await db.query('DELETE FROM chapters');
-  await db.query('DELETE FROM "courseUsers"');
-  await db.query('DELETE FROM "adminSessions"');
-  await db.query('DELETE FROM sessions');
-  await db.query('DELETE FROM courses');
-  await db.query('DELETE FROM users');
-  await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
-}
-
 beforeAll(async () => {
-  await cleanDatabase();
+  await cleanDataBase(db);
 
   courseId = await createCoursesUtils(
     db,
@@ -44,22 +25,26 @@ beforeAll(async () => {
     'https://i.imgur.com/lWUs38z.png',
   );
 
-  const password = bcrypt.hashSync('123456', 10);
-  const result = await db.query(
-    'INSERT INTO users (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) RETURNING *',
-    ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
-  );
-  const user = result.rows[0];
-  const sessionUser = await db.query(
-    'INSERT INTO sessions ("userId", "createdAt", "updatedAt")VALUES ($1 , $2, $3) RETURNING *',
-    [user.id, new Date(), new Date()],
-  );
-  tokenUser = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
-  userId = user.id;
+  // const password = bcrypt.hashSync('123456', 10);
+  // const result = await db.query(
+  //   'INSERT INTO users (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) RETURNING *',
+  //   ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
+  // );
+  // const user = result.rows[0];
+  // const sessionUser = await db.query(
+  //   'INSERT INTO sessions ("userId", "createdAt", "updatedAt")VALUES ($1 , $2, $3) RETURNING *',
+  //   [user.id, new Date(), new Date()],
+  // );
+  // userToken = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
+  // userId = user.id;
+
+  const session = await createUserSession(db);
+  userToken = session.userToken;
+  userId = session.userId;
 });
 
 afterAll(async () => {
-  await cleanDatabase();
+  await cleanDataBase(db);
   await db.end();
   await sequelize.close();
 });
@@ -92,7 +77,7 @@ describe('GET /topics/:topicId/users/:userId', () => {
 
     const response = await agent
       .get(`/topics/${topicId}/users/${userId}`)
-      .set('Authorization', `Bearer ${tokenUser}`);
+      .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.body).toMatchObject({
       id: topicId,
@@ -129,7 +114,7 @@ describe('GET /topics/:topicId/users/:userId', () => {
 
     const response = await agent
       .get(`/topics/${topicId}/users/${userId}`)
-      .set('Authorization', `Bearer ${tokenUser}`);
+      .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.body).toMatchObject({
       id: topicId,
@@ -171,7 +156,7 @@ describe('GET /topics/:topicId/users/:userId', () => {
   it('should return status code 404 if required topic does not exist in database', async () => {
     const response = await agent
       .get(`/topics/2251/users/${userId}`)
-      .set('Authorization', `Bearer ${tokenUser}`);
+      .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
   });
