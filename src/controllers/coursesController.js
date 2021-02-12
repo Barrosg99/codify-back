@@ -59,13 +59,17 @@ class CoursesController {
       },
     });
 
+    let lastTopicId = course.chapters[0].topics[0].id;
     course.chapters.forEach((c) => {
       c.topics.forEach((t) => {
-        if (t.topicUsers.length > 0) t.dataValues.userHasFinished = true;
-        else t.dataValues.userHasFinished = false;
+        if (t.topicUsers.length > 0) {
+          t.dataValues.userHasFinished = true;
+          lastTopicId = t.id;
+        } else t.dataValues.userHasFinished = false;
         delete t.dataValues.topicUsers;
       });
     });
+    course.dataValues.lastTopicId = lastTopicId;
 
     return course;
   }
@@ -111,9 +115,11 @@ class CoursesController {
   async initCouserByUserId(courseId, userId) {
     const course = await Course.findByPk(courseId);
     const user = await User.findByPk(userId);
-
     if (!course || !user) throw new NotFoundError();
-    return CourseUser.create({ courseId, userId });
+
+    user.update({ hasInitAnyCourse: true });
+
+    return CourseUser.findOrCreate({ where: { courseId, userId } });
   }
 }
 

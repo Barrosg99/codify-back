@@ -28,6 +28,11 @@ User.init(
       type: Sequelize.STRING,
       allowNull: true,
     },
+    hasInitAnyCourse: {
+      type: Sequelize.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
+    },
   }, {
     sequelize,
     timestamps: false,
