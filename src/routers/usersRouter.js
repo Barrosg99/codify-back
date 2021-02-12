@@ -30,6 +30,24 @@ router.get('/:userId/courses/:courseId/progress', verifyJWT, verifyClient, async
   res.send(userProgress);
 });
 
+router.post('/:userId/theories/:theoryId/progress', verifyJWT, verifyClient, async (req, res) => {
+  const [userId, theoryId] = [+req.params.userId, +req.params.theoryId];
+
+  const userHasDone = await usersController.postTheoryProgress(userId, theoryId);
+
+  if (userHasDone) res.sendStatus(201);
+  else res.sendStatus(204);
+});
+
+router.post('/:userId/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (req, res) => {
+  const [userId, exerciseId] = [+req.params.userId, +req.params.exerciseId];
+
+  const userHasDone = await usersController.postExerciseProgress(userId, exerciseId);
+
+  if (userHasDone) res.sendStatus(201);
+  else res.sendStatus(204);
+});
+
 router.get('/:id/courses/ongoing', verifyJWT, verifyClient, async (req, res) => {
   const id = parseInt(req.params.id);
   const ongoingCourses = await usersController.getOngoingCoursesByUser(id);
