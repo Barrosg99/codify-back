@@ -68,7 +68,7 @@ describe('create', () => {
 
 describe('creating new session', () => {
   it('should create session if email is valid and password is correct', async () => {
-    const email = 'teste@gmail.com';
+    const userEmail = 'teste@gmail.com';
     const password = 'password';
 
     const spy = jest.spyOn(usersController, 'findByEmail');
@@ -80,10 +80,10 @@ describe('creating new session', () => {
 
     Session.create.mockResolvedValue(() => true);
 
-    const response = await usersController.createSession(email, password);
+    const response = await usersController.createSession(userEmail, password);
 
     expect(usersController.findByEmail).toHaveBeenCalled();
-    expect(usersController.findByEmail).toHaveBeenCalledWith(email);
+    expect(usersController.findByEmail).toHaveBeenCalledWith(userEmail);
     expect(response).toMatchObject({
       userId: 1,
       name: 'Teste',

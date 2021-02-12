@@ -47,6 +47,7 @@ class UsersController {
       name: user.name,
       avatarUrl: user.avatarUrl,
       token,
+      hasInitAnyCourse: user.hasInitAnyCourse,
     };
   }
 
@@ -104,15 +105,19 @@ class UsersController {
     const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundError('User not found');
 
-    return CourseUser.findAll({
-      where: {
-        userId: id,
+    return Course.findAll({
+      include: {
+        model: User,
+        through: {
+          model: CourseUser,
+          where: {
+            userId: id,
+          },
+          order: [
+            ['updatedAt', 'DESC'],
+          ],
+        },
       },
-
-      order: [
-        ['updatedAt', 'DESC'],
-      ],
-
     });
   }
 

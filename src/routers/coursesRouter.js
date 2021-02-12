@@ -16,13 +16,6 @@ router.get('/suggestions', async (req, res) => {
   res.status(200).send(await coursesController.getSuggestions(limit));
 });
 
-router.get('/:id', async (req, res) => {
-  const id = parseInt(req.params.id);
-  const course = await coursesController.getOne(id);
-
-  res.send(course);
-});
-
 router.post('/:courseId/users/:userId', async (req, res) => {
   const { courseId, userId } = req.params;
   await coursesController.initCouserByUserId(+courseId, +userId);

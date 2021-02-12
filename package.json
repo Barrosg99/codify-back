@@ -8,7 +8,7 @@
     "dev": "npx nodemon ./src/server.js",
     "build": "npx sequelize-cli db:migrate",
     "start": "node ./src/server.js",
-    "seed":"npx sequelize-cli db:seed:all",
+    "seed": "npx sequelize-cli db:seed:all",
     "unseed": "npx sequelize-cli db:seed:undo:all"
   },
   "repository": {
