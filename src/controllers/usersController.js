@@ -8,10 +8,12 @@ const Session = require('../models/Session');
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
 const CourseUser = require('../models/CourseUser');
+const TheoryUser = require('../models/TheoryUser');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
 const AuthError = require('../errors/AuthError');
 const AdminSession = require('../models/AdminSession');
+const Theory = require('../models/Theory');
 
 class UsersController {
   async create({
@@ -79,6 +81,18 @@ class UsersController {
       hasStarted,
       progress: userProgress,
     };
+  }
+
+  async postTheoryProgress(userId, theoryId) {
+    const user = await User.findByPk(userId);
+    const theory = await Theory.findByPk(theoryId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!theory) throw new NotFoundError('Theory not found');
+
+    const association = await TheoryUser.findOne({ where: { userId, theoryId } });
+
+    if (association) await association.destroy();
+    else return TheoryUser.create({ userId, theoryId });
   }
 
   async postAdminSignIn(username, password) {

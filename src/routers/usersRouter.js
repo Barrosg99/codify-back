@@ -30,4 +30,15 @@ router.get('/:userId/courses/:courseId/progress', async (req, res) => {
   res.send(userProgress);
 });
 
+router.post('/:userId/theories/:theoryId/progress', async (req, res) => {
+  const [userId, theoryId] = [+req.params.userId, +req.params.theoryId];
+
+  const userHasDone = await usersController.postTheoryProgress(userId, theoryId);
+
+  if (userHasDone) res.sendStatus(201);
+  else res.sendStatus(204);
+
+  res.send(userProgress);
+});
+
 module.exports = router;
