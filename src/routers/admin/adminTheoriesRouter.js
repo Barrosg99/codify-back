@@ -13,7 +13,13 @@ router
     res.send(await theoriesController.getOne(+req.params.id));
   })
   .put('/:id', async (req, res) => {
-    const up = await theoriesController.editTheory(req.body);
-    res.sendStatus(501);
+    res.send(await theoriesController.editTheory(req.body));
+  })
+  .post('/', async (req, res) => {
+    res.send(await theoriesController.createTheory(req.body));
+  })
+  .delete('/:id', async (req, res) => {
+    const deletedTheory = await theoriesController.deleteTheory(+req.params.id);
+    res.send(deletedTheory[1][0]);
   });
 module.exports = router;

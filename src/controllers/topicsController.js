@@ -6,14 +6,17 @@ const chaptersController = require('./chaptersController');
 
 class TopicsController {
   getAll({
-    _end, _start, _order, _sort,
+    _end, _start, _order, _sort, id,
   }) {
-    const options = {
+    let options = {
       limit: _end - _start,
       offset: _start,
       order: [[_sort, _order]],
       where: { excluded: false },
     };
+
+    if (id) options = { where: { excluded: false, id } };
+
     return Topic.findAndCountAll(options);
   }
 

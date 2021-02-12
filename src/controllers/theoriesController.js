@@ -10,6 +10,7 @@ class TheoriesController {
       limit: _end,
       offset: _start,
       order: [[_sort, _order]],
+      where: { excluded: false },
     };
 
     return Theory.findAndCountAll(options);
@@ -19,8 +20,31 @@ class TheoriesController {
     return Theory.findByPk(id);
   }
 
-  async editTheory(updatedTheory) {
-    console.log(updatedTheory);
+  async editTheory({
+    id, topicId, youtubeUrl,
+  }) {
+    const theory = await this.getOne(id);
+
+    theory.topicId = topicId;
+    theory.youtubeUrl = youtubeUrl;
+
+    await theory.save();
+
+    return theory;
+  }
+
+  createTheory({ topicId, youtubeUrl }) {
+    return Theory.create({
+      topicId, youtubeUrl,
+    });
+  }
+
+  async deleteTheory(id) {
+    return Theory.update({ excluded: true }, {
+      where: { id },
+      returning: true,
+      raw: true,
+    });
   }
 }
 module.exports = new TheoriesController();
