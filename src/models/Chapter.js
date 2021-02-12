@@ -37,6 +37,11 @@ Chapter.init(
       allowNull: false,
       defaultValue: 0,
     },
+    excluded: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
   },
   {
     sequelize,

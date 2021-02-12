@@ -27,7 +27,6 @@ router.get('/:userId/courses/:courseId/progress', verifyJWT, verifyClient, async
   const [userId, courseId] = [+req.params.userId, +req.params.courseId];
 
   const userProgress = await usersController.getCourseProgress(userId, courseId);
-
   res.send(userProgress);
 });
 
@@ -47,6 +46,17 @@ router.post('/:userId/exercises/:exerciseId/progress', verifyJWT, verifyClient, 
 
   if (userHasDone) res.sendStatus(201);
   else res.sendStatus(204);
+});
+
+router.get('/:id/courses/ongoing', verifyJWT, verifyClient, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const ongoingCourses = await usersController.getOngoingCoursesByUser(id);
+  res.status(200).send(ongoingCourses);
+});
+
+router.post('/signOut', verifyJWT, verifyClient, async (req, res) => {
+  await usersController.postUserSignOut(req.sessionId);
+  res.sendStatus(204);
 });
 
 module.exports = router;

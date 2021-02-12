@@ -3,38 +3,20 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
 
+const { createCoursesUtils, createUserSession, cleanDataBase } = require('../utils');
+
 const agent = supertest(app);
+let userToken;
+let userId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-let userToken, userId, courseId;
-
-const { createCoursesUtils } = require('../utils');
-
-async function cleanDatabase() {
-  await db.query('DELETE FROM "theoryUsers"');
-  await db.query('DELETE FROM "topicUsers"');
-  await db.query('DELETE FROM "exerciseUsers"');
-  await db.query('DELETE FROM theories');
-  await db.query('DELETE FROM exercises');
-  await db.query('DELETE FROM topics');
-  await db.query('DELETE FROM chapters');
-  await db.query('DELETE FROM "courseUsers"');
-  await db.query('DELETE FROM "adminSessions"');
-  await db.query('DELETE FROM sessions');
-  await db.query('DELETE FROM courses');
-  await db.query('DELETE FROM users');
-  await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
-}
-
 beforeAll(async () => {
-  await cleanDatabase();
+  await cleanDataBase(db);
   courseId = await createCoursesUtils(
     db,
     'JavaScript do zero ao avançado',
@@ -42,27 +24,13 @@ beforeAll(async () => {
     '#F5F100',
     'https://i.imgur.com/lWUs38z.png',
   );
-
-  console.log(courseId);
-
-  const password = bcrypt.hashSync('123456', 10);
-  const result = await db.query(
-    'INSERT INTO users (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) RETURNING *',
-    ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
-  );
-  const user = result.rows[0];
-
-  const sessionUser = await db.query(
-    'INSERT INTO sessions ("userId", "createdAt", "updatedAt")VALUES ($1 , $2, $3) RETURNING *',
-    [user.id, new Date(), new Date()],
-  );
-
-  userToken = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
-  userId = user.id;
+  const session = await createUserSession(db);
+  userToken = session.userToken;
+  userId = session.userId;
 });
 
 afterAll(async () => {
-  await cleanDatabase();
+  await cleanDataBase(db);
   await db.end();
   await sequelize.close();
 });
@@ -188,14 +156,14 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: false,
-      progress: 0
+      progress: 0,
     });
   });
 
   it('should return user progress in a course if both exist', async () => {
     await db.query(
       'INSERT INTO "courseUsers" ("userId", "courseId", "doneActivities", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [userId, courseId, 2, new Date(), new Date()]
+      [userId, courseId, 2, new Date(), new Date()],
     );
 
     const response = await agent
@@ -206,7 +174,7 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: true,
-      progress: 22
+      progress: 22,
     });
   });
 
@@ -224,5 +192,52 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
+  });
+});
+
+describe('GET users/:id/courses/ongoing', () => {
+  it('Should return an ordered list of this users courses', async () => {
+    const newUser = {
+      name: 'Hermione',
+      email: 'hermione@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
+
+    const user = await agent.post('/users/register').send(newUser);
+
+    const { id, email } = user.body;
+
+    const body = { email, password: '12345' };
+
+    await agent.post('/users/sign-in').send(body);
+
+    const response = await agent.get(`/users/${id}/courses/ongoing`).set('Authorization', `Baerer ${userToken}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([]));
+  });
+});
+
+describe('POST /signOut', () => {
+  it('Should only return status 204 after ending the users session', async () => {
+    const newUser = {
+      name: 'Gina',
+      email: 'gina@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
+
+    const user = await agent.post('/users/register').send(newUser);
+
+    const { email } = user.body;
+    const body = { email, password: '12345' };
+
+    const userSession = await agent.post('/users/sign-in').send(body);
+
+    const response = await agent.post('/users/signOut').set('Authorization', `Baerer ${userSession.body.token}`);
+
+    expect(response.status).toBe(204);
   });
 });

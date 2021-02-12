@@ -28,7 +28,7 @@ describe('function createCourse', () => {
       );
     }
 
-    expect(course).rejects.toThrow(ConflictError);
+    expect(await course).rejects.toThrow(ConflictError);
   });
 });
 
@@ -45,19 +45,19 @@ describe('function editCourse', () => {
       );
     }
 
-    expect(course).rejects.toThrow(NotFoundError);
+    expect(await course).rejects.toThrow(NotFoundError);
   });
 });
 
 describe('function deleteCourse', () => {
-  it('should return a throw error if the category does not exist.', async () => {
+  it('should return a throw error if the course does not exist.', async () => {
     Course.findByPk.mockResolvedValue(null);
 
     async function course() {
       return coursesController.deleteCourse(2);
     }
 
-    expect(course).rejects.toThrow(NotFoundError);
+    expect(await course).rejects.toThrow(NotFoundError);
   });
 });
 

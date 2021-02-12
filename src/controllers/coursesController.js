@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
@@ -9,31 +10,20 @@ const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
 class CoursesController {
-  async getAll() {
+  getAll() {
     return Course.findAll();
   }
 
   async getOne(id) {
-    const course = await Course.findByPk(id, {
-      attributes: {
-        exclude: ['createdAt', 'updatedAt'],
-      },
-      order: [[{ model: Chapter }, 'order', 'ASC']],
-      include: {
-        model: Chapter,
-        attributes: {
-          exclude: ['courseId', 'order', 'createdAt', 'updatedAt'],
-        },
-      },
-    });
+    const course = Course.findByPk(id);
 
-    if (!course) throw new NotFoundError('Course not found');
+    if (!course) throw new NotFoundError();
 
     return course;
   }
 
-  getAllTopicsAtChapterFromUser(courseId, userId) {
-    return Course.findByPk(courseId, {
+  async getAllTopicsAtChapterFromUser(courseId, userId) {
+    const course = await Course.findByPk(courseId, {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -57,6 +47,20 @@ class CoursesController {
         },
       },
     });
+
+    let lastTopicId = course.chapters[0].topics[0].id;
+    course.chapters.forEach((c) => {
+      c.topics.forEach((t) => {
+        if (t.topicUsers.length > 0) {
+          t.dataValues.userHasFinished = true;
+          lastTopicId = t.id;
+        } else t.dataValues.userHasFinished = false;
+        delete t.dataValues.topicUsers;
+      });
+    });
+    course.dataValues.lastTopicId = lastTopicId;
+
+    return course;
   }
 
   async createCourse(title, description, color, imageUrl) {
@@ -93,12 +97,18 @@ class CoursesController {
     return Course.count();
   }
 
+  async getSuggestions(limit = null) {
+    return Course.findAll({ limit });
+  }
+
   async initCouserByUserId(courseId, userId) {
     const course = await Course.findByPk(courseId);
     const user = await User.findByPk(userId);
-
     if (!course || !user) throw new NotFoundError();
-    return CourseUser.create({ courseId, userId });
+
+    user.update({ hasInitAnyCourse: true });
+
+    return CourseUser.findOrCreate({ where: { courseId, userId } });
   }
 }
 
