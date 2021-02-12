@@ -16,7 +16,7 @@ const db = new Pool({
 });
 
 beforeAll(async () => {
-  await cleanDataBase();
+  await cleanDataBase(db);
   courseId = await createCoursesUtils(
     db,
     'JavaScript do zero ao avançado',
@@ -213,8 +213,7 @@ describe('GET users/:id/courses/ongoing', () => {
 
     await agent.post('/users/sign-in').send(body);
 
-    const response = await agent.get(`/users/${id}/courses/ongoing`);
-
+    const response = await agent.get(`/users/${id}/courses/ongoing`).set('Authorization', `Baerer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(expect.arrayContaining([]));
   });

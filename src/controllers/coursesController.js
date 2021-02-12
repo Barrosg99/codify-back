@@ -15,7 +15,11 @@ class CoursesController {
   }
 
   async getOne(id) {
-    return Course.findByPk(id);
+    const course = Course.findByPk(id);
+
+    if (!course) throw new NotFoundError();
+
+    return course;
   }
 
   async getAllTopicsAtChapterFromUser(courseId, userId) {

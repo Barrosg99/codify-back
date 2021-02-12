@@ -196,78 +196,8 @@ describe('GET /courses/:courseId/chapters/:chapterId', () => {
     );
     const topic = resultTopic.rows[0];
 
-    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${userToken}`);
+    const response = await agent.get(`/courses/${course.id}/chapters`).set('Authorization', `Bearer ${userToken}`);
     expect(response.status).toBe(200);
-    expect(response.body.chapters[0]).toMatchObject({
-      id: chapter.id,
-      name: chapter.name,
-      order: chapter.order,
-      topicsQuantity: chapter.topicsQuantity,
-      exercisesQuantity: chapter.exercisesQuantity,
-      topics: [
-        {
-          id: topic.id,
-          chapterId: chapter.id,
-          name: topic.name,
-          order: topic.order,
-          topicUsers: [],
-        },
-      ],
-    });
-  });
-
-  it('Should return status code 200 with list of topic at chapter with user complet topic', async () => {
-    const result = await db.query('SELECT * FROM courses LIMIT 1');
-    const course = result.rows[0];
-
-    const resultChapter = await db.query(
-      'SELECT * FROM chapters WHERE "courseId"=$1 LIMIT 1',
-      [course.id],
-    );
-    const chapter = resultChapter.rows[0];
-
-    const resultTopic = await db.query(
-      'SELECT * FROM topics WHERE "chapterId"=$1 LIMIT 1',
-      [chapter.id],
-    );
-    const topic = resultTopic.rows[0];
-    console.log(userId, userToken);
-    await db.query(
-      'INSERT INTO "topicUsers" ("topicId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4)',
-      [topic.id, userId, new Date(), new Date()],
-    );
-
-    const response = await agent.get(`/courses/${course.id}/chapters/${chapter.id}`).set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body.chapters[0]).toMatchObject({
-      id: chapter.id,
-      name: chapter.name,
-      order: chapter.order,
-      topicsQuantity: chapter.topicsQuantity,
-      exercisesQuantity: chapter.exercisesQuantity,
-      topics: [
-        {
-          id: topic.id,
-          chapterId: chapter.id,
-          name: topic.name,
-          order: topic.order,
-          topicUsers: [{
-            userId,
-          }],
-        },
-      ],
-    });
-  });
-});
-
-describe('GET /courses/:id', () => {
-  it('should return course data if it exists', async () => {
-    const result = await db.query('SELECT * FROM courses LIMIT 1');
-    const course = result.rows[0];
-
-    const response = await agent.get(`/courses/${course.id}`).set('Authorization', `Bearer ${tokenUser}`);
-
     expect(response.body).toMatchObject({
       id: course.id,
       title: course.title,
@@ -276,18 +206,24 @@ describe('GET /courses/:id', () => {
       imageUrl: course.imageUrl,
       chapters: expect.arrayContaining([
         expect.objectContaining({
-          id: expect.any(Number),
-          name: 'Teste',
-          topicsQuantity: expect.any(Number),
-          exercisesQuantity: expect.any(Number),
+          id: chapter.id,
+          name: chapter.name,
+          excluded: chapter.excluded,
+          order: chapter.order,
+          topicsQuantity: chapter.topicsQuantity,
+          exercisesQuantity: chapter.exercisesQuantity,
+          topics: [
+            {
+              id: topic.id,
+              chapterId: chapter.id,
+              excluded: false,
+              name: topic.name,
+              order: topic.order,
+              userHasFinished: false,
+            },
+          ],
         }),
       ]),
     });
-  });
-
-  it('should return status code 404 if sent course id is invalid', async () => {
-    const response = await agent.get('/courses/4269').set('Authorization', `Bearer ${tokenUser}`);
-
-    expect(response.status).toBe(404);
   });
 });
