@@ -141,7 +141,7 @@ describe('POST /users/sign-in', () => {
   });
 });
 
-describe('GET /users/:userId/courses/:courseId/progress', () => {
+describe('GET /users/courses/:courseId/progress', () => {
   it('should return user progress in a course if both exist with no progress if user has not started the course', async () => {
     await db.query(
       'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
@@ -149,7 +149,7 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
     );
 
     const response = await agent
-      .get(`/users/${userId}/courses/${courseId}/progress`)
+      .get(`/users/courses/${courseId}/progress`)
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.body).toMatchObject({
@@ -167,7 +167,7 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
     );
 
     const response = await agent
-      .get(`/users/${userId}/courses/${courseId}/progress`)
+      .get(`/users/courses/${courseId}/progress`)
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.body).toMatchObject({
@@ -180,22 +180,22 @@ describe('GET /users/:userId/courses/:courseId/progress', () => {
 
   it('should return status code 404 if invalid user id is sent', async () => {
     const response = await agent
-      .get(`/users/65899/courses/${courseId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
+      .get(`/users/courses/${courseId}/progress`)
+      .set('Authorization', 'Bearer bcshacbhdbchdshc');
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(401);
   });
 
   it('should return status code 404 if invalid course id is sent', async () => {
     const response = await agent
-      .get(`/users/${userId}/courses/55165/progress`)
+      .get('/users/courses/55165/progress')
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
   });
 });
 
-describe('GET users/:id/courses/ongoing', () => {
+describe('GET users/courses/ongoing', () => {
   it('Should return an ordered list of this users courses', async () => {
     const newUser = {
       name: 'Hermione',
@@ -207,13 +207,11 @@ describe('GET users/:id/courses/ongoing', () => {
 
     const user = await agent.post('/users/register').send(newUser);
 
-    const { id, email } = user.body;
-
-    const body = { email, password: '12345' };
+    const body = { email: user.body.email, password: '12345' };
 
     await agent.post('/users/sign-in').send(body);
 
-    const response = await agent.get(`/users/${id}/courses/ongoing`).set('Authorization', `Baerer ${userToken}`);
+    const response = await agent.get('/users/courses/ongoing').set('Authorization', `Baerer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(expect.arrayContaining([]));
   });

@@ -1,30 +1,17 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
-const JwtError = require('../errors/JwtError');
+const AuthError = require('../errors/AuthError');
 
 async function verifyJWT(req, res, next) {
-  try {
-    let token = req.header('Authorization');
+  const token = req.header('Authorization').split(' ')[1];
+  if (!token) throw new AuthError();
 
-    if (!token) return res.status(400).send({ message: 'Token not found' });
-
-    const split = token.split(' ');
-    token = split[1];
-
-    if (!token) return res.status(401).json({ auth: false, message: 'No token provided.' });
-
-    jwt.verify(token, process.env.SECRET, (err, decoded) => {
-      if (err) return res.status(401).json({ auth: false, message: 'Failed to authenticate token.' });
-      req.sessionId = decoded.id;
-    });
-
-    next();
-  } catch (err) {
-    console.error(err);
-    if (err instanceof JwtError) res.status(403).send('Failed to authenticate token.');
-    else res.sendStatus(500);
-  }
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+    if (err) throw new AuthError();
+    req.sessionId = decoded.id;
+  });
+  next();
 }
 
 module.exports = verifyJWT;

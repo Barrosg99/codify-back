@@ -75,8 +75,8 @@ describe('function getOne - gets one course data', () => {
           name: 'Apresentação',
           topicsQuantity: 2,
           exercisesQuantity: 5,
-        }
-      ]
+        },
+      ],
     });
 
     const response = await coursesController.getOne(1);
@@ -93,8 +93,8 @@ describe('function getOne - gets one course data', () => {
           name: 'Apresentação',
           topicsQuantity: 2,
           exercisesQuantity: 5,
-        }
-      ]
+        },
+      ],
     });
   });
 

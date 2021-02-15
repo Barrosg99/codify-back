@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 require('dotenv').config();
 
 const { Pool } = require('pg');
@@ -11,8 +12,13 @@ const {
 const app = require('../../src/app');
 
 const agent = supertest(app);
-let userToken; let courseId; let userId; let topicId; let chapterId; let theoryId; let
-  exerciseId;
+let userToken;
+let courseId;
+let topicId;
+let chapterId;
+let theoryId;
+let exerciseId;
+let userId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -39,7 +45,7 @@ afterAll(async () => {
   await sequelize.close();
 });
 
-describe('GET /topics/:topicId/users/:userId', () => {
+describe('GET /topics/:topicId/users', () => {
   it('should return topic with its theories and exercises if valid topicId is sent', async () => {
     const newChapter = await db.query(
       'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
@@ -66,7 +72,7 @@ describe('GET /topics/:topicId/users/:userId', () => {
     exerciseId = newExercise.rows[0].id;
 
     const response = await agent
-      .get(`/topics/${topicId}/users/${userId}`)
+      .get(`/topics/${topicId}/users`)
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.body).toMatchObject({
@@ -103,7 +109,7 @@ describe('GET /topics/:topicId/users/:userId', () => {
     );
 
     const response = await agent
-      .get(`/topics/${topicId}/users/${userId}`)
+      .get(`/topics/${topicId}/users`)
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.body).toMatchObject({
@@ -130,7 +136,7 @@ describe('GET /topics/:topicId/users/:userId', () => {
 
   it('should return status code 401 if invalid token is sent', async () => {
     const response = await agent
-      .get(`/topics/${topicId}/users/${userId}`)
+      .get(`/topics/${topicId}/users`)
       .set('Authorization', 'Bearer invalidToken');
 
     expect(response.status).toBe(401);
@@ -138,14 +144,14 @@ describe('GET /topics/:topicId/users/:userId', () => {
 
   it('should return status code 400 if headers are not sent', async () => {
     const response = await agent
-      .get(`/topics/${topicId}/users/${userId}`);
+      .get(`/topics/${topicId}/users`).set('Authorization', 'Bearer');
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
   });
 
   it('should return status code 404 if required topic does not exist in database', async () => {
     const response = await agent
-      .get(`/topics/2251/users/${userId}`)
+      .get('/topics/2251/users')
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
