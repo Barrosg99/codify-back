@@ -13,10 +13,11 @@ const TheoryUser = require('../models/TheoryUser');
 const Theory = require('../models/Theory');
 const Exercise = require('../models/Exercise');
 const ExerciseUser = require('../models/ExerciseUser');
+const AdminSession = require('../models/AdminSession');
+
 const NotFoundError = require('../errors/NotFoundError');
 const WrongPasswordError = require('../errors/WrongPasswordError');
 const AuthError = require('../errors/AuthError');
-const AdminSession = require('../models/AdminSession');
 
 class UsersController {
   async create({
@@ -57,9 +58,7 @@ class UsersController {
   }
 
   findSessionById(id) {
-    const session = Session.findByPk(id);
-    if (!session) throw new NotFoundError();
-    return session;
+    return Session.findByPk(id);
   }
 
   async getCourseProgress(userId, courseId) {

@@ -89,7 +89,7 @@ async function createUserSession(db) {
     `INSERT INTO sessions 
     ("userId", "createdAt", "updatedAt")
     VALUES ($1 , $2, $3) RETURNING *`,
-    [user.id, new Date(), new Date()],
+    [user.rows[0].id, new Date(), new Date()],
   );
   const userToken = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
   const userId = user.rows[0].id;
