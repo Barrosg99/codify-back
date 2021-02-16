@@ -31,7 +31,7 @@ class TopicsController {
   async getOneWithUserProgress(topicId, userId) {
     const topic = await Topic.findByPk(topicId, {
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'],
       },
       order: [[{ model: Exercise }, 'id', 'ASC']],
       include: [
@@ -45,8 +45,8 @@ class TopicsController {
               where: { userId },
               attributes: [],
               required: false,
-            }
-          }
+            },
+          },
         },
         {
           model: Exercise,
@@ -57,23 +57,23 @@ class TopicsController {
             through: {
               where: { userId },
               attributes: [],
-              required: false
-            }
-          }
-        }
-      ]
+              required: false,
+            },
+          },
+        },
+      ],
     });
 
     if (!topic) throw new NotFoundError('Topic not found');
 
-    topic.theories.forEach(t => {
+    topic.theories.forEach((t) => {
       if (t.dataValues.users.length > 0) t.dataValues.userHasFinished = true;
       else t.dataValues.userHasFinished = false;
 
       delete t.dataValues.users;
     });
 
-    topic.exercises.forEach(e => {
+    topic.exercises.forEach((e) => {
       if (e.dataValues.users.length > 0) e.dataValues.userHasFinished = true;
       else e.dataValues.userHasFinished = false;
 

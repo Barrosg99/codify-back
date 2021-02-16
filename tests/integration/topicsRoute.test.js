@@ -6,7 +6,13 @@ const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 
 const {
-  createCoursesUtils, cleanDataBase, createUserSession,
+  createCoursesUtils,
+  cleanDataBase,
+  createUserSession,
+  createChapters,
+  createTopic,
+  createTheory,
+  createExercise,
 } = require('../utils');
 
 const app = require('../../src/app');
@@ -34,6 +40,18 @@ beforeAll(async () => {
     'https://i.imgur.com/lWUs38z.png',
   );
 
+  const testChapter = await createChapters(db, courseId, 'Teste', 1, 1, 1);
+  chapterId = testChapter.id;
+
+  const testTopic = await createTopic(db, chapterId);
+  topicId = testTopic.id;
+
+  const testTheory = await createTheory(db, topicId);
+  theoryId = testTheory.id;
+
+  const testExercise = await createExercise(db, topicId);
+  exerciseId = testExercise.id;
+
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
@@ -47,30 +65,6 @@ afterAll(async () => {
 
 describe('GET /topics/:topicId/users', () => {
   it('should return topic with its theories and exercises if valid topicId is sent', async () => {
-    const newChapter = await db.query(
-      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [courseId, 'Teste', 1, 1, 1, new Date(), new Date()],
-    );
-    chapterId = newChapter.rows[0].id;
-
-    const newTopic = await db.query(
-      'INSERT INTO topics ("chapterId", name, "order", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [chapterId, 'Teste', 1, new Date(), new Date()],
-    );
-    topicId = newTopic.rows[0].id;
-
-    const newTheory = await db.query(
-      'INSERT INTO theories (id, "topicId", "youtubeUrl", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, topicId, 'https://youtube.com', new Date(), new Date()],
-    );
-    theoryId = newTheory.rows[0].id;
-
-    const newExercise = await db.query(
-      'INSERT INTO exercises (id, description, "topicId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, 'Teste', topicId, new Date(), new Date()],
-    );
-    exerciseId = newExercise.rows[0].id;
-
     const response = await agent
       .get(`/topics/${topicId}/users`)
       .set('Authorization', `Bearer ${userToken}`);
