@@ -7,6 +7,11 @@ const User = require('../../src/models/User');
 const Course = require('../../src/models/Course');
 const CourseUser = require('../../src/models/CourseUser');
 const Chapter = require('../../src/models/Chapter');
+const Topic = require('../../src/models/Topic');
+const Theory = require('../../src/models/Theory');
+const Exercise = require('../../src/models/Exercise');
+const TheoryUser = require('../../src/models/TheoryUser');
+const ExerciseUser = require('../../src/models/ExerciseUser');
 const NotFoundError = require('../../src/errors/NotFoundError');
 const AuthError = require('../../src/errors/AuthError');
 const WrongPasswordError = require('../../src/errors/WrongPasswordError');
@@ -17,6 +22,11 @@ jest.mock('../../src/models/User');
 jest.mock('../../src/models/Course');
 jest.mock('../../src/models/CourseUser');
 jest.mock('../../src/models/Chapter');
+jest.mock('../../src/models/Theory');
+jest.mock('../../src/models/Topic');
+jest.mock('../../src/models/TheoryUser');
+jest.mock('../../src/models/ExerciseUser');
+jest.mock('../../src/models/Exercise');
 
 jest.mock('jsonwebtoken', () => ({
   sign: () => 'token',
@@ -172,8 +182,8 @@ describe('Testing function getCourseProgress of usersController', () => {
   });
 
   it('should return user progress if user id and course id are valid, and if user has started the course', async () => {
-    const userId = 1; const
-      courseId = 1;
+    const userId = 1;
+    const courseId = 1;
 
     User.findByPk.mockImplementationOnce(() => true);
     Course.findByPk.mockImplementationOnce(() => true);
@@ -221,5 +231,121 @@ describe('Testing getOngoingCoursesByUser', () => {
     }
 
     expect(user).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe('Testing function postTheoryProgress', () => {
+  it('should return false if user has already done the theory', async () => {
+    const userId = 1;
+    const theoryId = 1;
+
+    User.findByPk.mockImplementationOnce(() => true);
+    Theory.findByPk.mockImplementationOnce(() => true);
+    Topic.findByPk.mockImplementationOnce(() => ({ chapter: { courseId: 2 } }));
+    TheoryUser.findOne.mockImplementationOnce(() => ({ destroy: () => true }));
+    CourseUser.decrement.mockImplementationOnce(() => 0);
+
+    const response = await usersController.postTheoryProgress(userId, theoryId);
+
+    expect(TheoryUser.findOne).toHaveBeenCalledWith({ where: { userId, theoryId } });
+    expect(CourseUser.decrement).toHaveBeenCalled();
+    expect(CourseUser.decrement).toHaveBeenCalledWith('doneActivities', { where: { userId, courseId: 2 } });
+    expect(response).toBe(false);
+  });
+
+  it('should return true if user has not done the theory yet', async () => {
+    const userId = 1;
+    const theoryId = 1;
+
+    User.findByPk.mockImplementationOnce(() => true);
+    Theory.findByPk.mockImplementationOnce(() => true);
+    Topic.findByPk.mockImplementationOnce(() => ({ chapter: { courseId: 2 } }));
+    TheoryUser.findOne.mockImplementationOnce(() => false);
+    TheoryUser.create.mockImplementationOnce(() => true);
+    CourseUser.increment.mockImplementationOnce(() => 1);
+
+    const response = await usersController.postTheoryProgress(userId, theoryId);
+
+    expect(TheoryUser.findOne).toHaveBeenCalledWith({ where: { userId, theoryId } });
+    expect(TheoryUser.create).toHaveBeenCalled();
+    expect(TheoryUser.create).toHaveBeenCalledWith({ userId, theoryId });
+    expect(CourseUser.increment).toHaveBeenCalledWith('doneActivities', { where: { userId, courseId: 2 } });
+    expect(response).toBe(true);
+  });
+
+  it('should throw NotFoundError if sent userId is not valid', async () => {
+    User.findByPk.mockImplementationOnce(() => false);
+    Theory.findByPk.mockImplementationOnce(() => true);
+
+    const testedFunction = usersController.postTheoryProgress();
+
+    expect(testedFunction).rejects.toThrow(NotFoundError);
+  });
+
+  it('should throw NotFoundError if sent theoryId is not valid', async () => {
+    User.findByPk.mockImplementationOnce(() => true);
+    Theory.findByPk.mockImplementationOnce(() => false);
+
+    const testedFunction = usersController.postTheoryProgress();
+
+    expect(testedFunction).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe('Testing function postExerciseProgress', () => {
+  it('should return false if user has already done the exercise', async () => {
+    const userId = 1;
+    const exerciseId = 1;
+
+    User.findByPk.mockImplementationOnce(() => true);
+    Exercise.findByPk.mockImplementationOnce(() => true);
+    Topic.findByPk.mockImplementationOnce(() => ({ chapter: { courseId: 2 } }));
+    ExerciseUser.findOne.mockImplementationOnce(() => ({ destroy: () => true }));
+    CourseUser.decrement.mockImplementationOnce(() => 0);
+
+    const response = await usersController.postExerciseProgress(userId, exerciseId);
+
+    expect(ExerciseUser.findOne).toHaveBeenCalledWith({ where: { userId, exerciseId } });
+    expect(CourseUser.decrement).toHaveBeenCalled();
+    expect(CourseUser.decrement).toHaveBeenCalledWith('doneActivities', { where: { userId, courseId: 2 } });
+    expect(response).toBe(false);
+  });
+
+  it('should return true if user has not done the theory yet', async () => {
+    const userId = 1;
+    const exerciseId = 1;
+
+    User.findByPk.mockImplementationOnce(() => true);
+    Exercise.findByPk.mockImplementationOnce(() => true);
+    Topic.findByPk.mockImplementationOnce(() => ({ chapter: { courseId: 2 } }));
+    ExerciseUser.findOne.mockImplementationOnce(() => false);
+    ExerciseUser.create.mockImplementationOnce(() => true);
+    CourseUser.increment.mockImplementationOnce(() => 1);
+
+    const response = await usersController.postExerciseProgress(userId, exerciseId);
+
+    expect(ExerciseUser.findOne).toHaveBeenCalledWith({ where: { userId, exerciseId } });
+    expect(ExerciseUser.create).toHaveBeenCalled();
+    expect(ExerciseUser.create).toHaveBeenCalledWith({ userId, exerciseId });
+    expect(CourseUser.increment).toHaveBeenCalledWith('doneActivities', { where: { userId, courseId: 2 } });
+    expect(response).toBe(true);
+  });
+
+  it('should throw NotFoundError if sent userId is not valid', async () => {
+    User.findByPk.mockImplementationOnce(() => false);
+    Exercise.findByPk.mockImplementationOnce(() => true);
+
+    const testedFunction = usersController.postExerciseProgress();
+
+    expect(testedFunction).rejects.toThrow(NotFoundError);
+  });
+
+  it('should throw NotFoundError if sent theoryId is not valid', async () => {
+    User.findByPk.mockImplementationOnce(() => true);
+    Exercise.findByPk.mockImplementationOnce(() => false);
+
+    const testedFunction = usersController.postExerciseProgress();
+
+    expect(testedFunction).rejects.toThrow(NotFoundError);
   });
 });
