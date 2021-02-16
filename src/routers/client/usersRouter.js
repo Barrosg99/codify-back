@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const usersController = require('../controllers/usersController');
-const registerSchema = require('../schemas/registerSchema');
-const signInSchema = require('../schemas/signInSchema');
-const { verifyJWT, verifyClient } = require('../middlewares');
+const usersController = require('../../controllers/usersController');
+const registerSchema = require('../../schemas/registerSchema');
+const signInSchema = require('../../schemas/signInSchema');
+const { verifyJWT, verifyClient } = require('../../middlewares');
 
 router.post('/register', async (req, res) => {
   const { error } = registerSchema.validate(req.body);
@@ -46,6 +46,13 @@ router.post('/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (r
 
   if (userHasDone) res.sendStatus(201);
   else res.sendStatus(204);
+});
+
+router.post('/topics/:topicId/progress', verifyJWT, verifyClient, async (req, res) => {
+  const topicId = +req.params.topicId;
+
+  const result = await usersController.postTopicProgress(req.userId, topicId);
+  res.send(result);
 });
 
 router.get('/courses/ongoing', verifyJWT, verifyClient, async (req, res) => {

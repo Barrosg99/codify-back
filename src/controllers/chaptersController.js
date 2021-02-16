@@ -1,7 +1,5 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Chapter = require('../models/Chapter');
-const NotFoundError = require('../errors/NotFoundError');
+const { Chapter } = require('../models');
+const { NotFoundError } = require('../errors');
 
 class ChaptersController {
   getAll({

@@ -1,7 +1,5 @@
-/* eslint-disable prefer-destructuring */
-/* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
-const AuthError = require('../errors/AuthError');
+const { AuthError } = require('../errors');
 
 async function verifyJWT(req, res, next) {
   const token = req.header('Authorization').split(' ')[1];

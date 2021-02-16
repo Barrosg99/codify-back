@@ -1,4 +1,4 @@
-const verifyJWT = require('./validation');
+const verifyJWT = require('./verifyJWT');
 const verifyAdmin = require('./verifyAdmin');
 const verifyClient = require('./verifyClient');
 

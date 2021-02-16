@@ -13,15 +13,14 @@ require('./utils/loadRelationships');
 
 const { verifyJWT, verifyClient } = require('./middlewares');
 
-const coursesRouter = require('./routers/coursesRouter');
+const coursesRouter = require('./routers/client/coursesRouter');
 const adminRouter = require('./routers/admin/adminRouter');
-const usersRouter = require('./routers/usersRouter');
-const topicsRouter = require('./routers/topicsRouter');
+const usersRouter = require('./routers/client/usersRouter');
+const topicsRouter = require('./routers/client/topicsRouter');
 
-const NotFoundError = require('./errors/NotFoundError');
-const WrongPasswordError = require('./errors/WrongPasswordError');
-const ConflictError = require('./errors/ConflictError');
-const AuthError = require('./errors/AuthError');
+const {
+  ActivitiesNotCompletedError, AuthError, ConflictError, WrongPasswordError, NotFoundError,
+} = require('./errors');
 
 app.use('/courses', verifyJWT, verifyClient, coursesRouter);
 app.use('/admin', adminRouter);
@@ -31,11 +30,19 @@ app.use('/topics', verifyJWT, verifyClient, topicsRouter);
 app.use((error, req, res, next) => {
   console.log(error);
 
-  if (error instanceof NotFoundError) res.status(404).send(error.message);
-  else if (error instanceof WrongPasswordError) res.status(401).send(error.message);
-  else if (error instanceof AuthError) res.status(401).send(error.message);
-  else if (error instanceof ConflictError) res.status(409).send(error.message);
-  else res.status(500).json(error);
+  if (error instanceof NotFoundError) {
+    res.status(404);
+  } else if (error instanceof WrongPasswordError) {
+    res.status(401).send({ message: 'Email or password is wrong' });
+  } else if (error instanceof ActivitiesNotCompletedError) {
+    res.status(403).send({ message: 'Activities at this topic not completed by user' });
+  } else if (error instanceof AuthError) {
+    res.status(401);
+  } else if (error instanceof ConflictError) {
+    res.status(409).send({ message: 'Email alredy used' });
+  } else {
+    res.status(500).send({ message: 'Ops, unknown error' });
+  }
 });
 
 module.exports = app;

@@ -1,13 +1,7 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Course = require('../models/Course');
-const Chapter = require('../models/Chapter');
-const Topic = require('../models/Topic');
-const TopicUser = require('../models/TopicUser');
-const User = require('../models/User');
-const CourseUser = require('../models/CourseUser');
-const ConflictError = require('../errors/ConflictError');
-const NotFoundError = require('../errors/NotFoundError');
+const {
+  CourseUser, User, TopicUser, Topic, Chapter, Course,
+} = require('../models');
+const { ConflictError, NotFoundError } = require('../errors');
 
 class CoursesController {
   getAll() {

@@ -1,10 +1,7 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Topic = require('../models/Topic');
-const Theory = require('../models/Theory');
-const Exercise = require('../models/Exercise');
-const User = require('../models/User');
-const NotFoundError = require('../errors/NotFoundError');
+const {
+  User, Exercise, Theory, Topic,
+} = require('../models');
+const { NotFoundError } = require('../errors');
 const chaptersController = require('./chaptersController');
 
 class TopicsController {
@@ -30,7 +27,7 @@ class TopicsController {
   async getOneWithUserProgress(topicId, userId) {
     const topic = await Topic.findByPk(topicId, {
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'],
       },
       order: [[{ model: Exercise }, 'id', 'ASC']],
       include: [
@@ -44,8 +41,8 @@ class TopicsController {
               where: { userId },
               attributes: [],
               required: false,
-            }
-          }
+            },
+          },
         },
         {
           model: Exercise,
@@ -56,23 +53,23 @@ class TopicsController {
             through: {
               where: { userId },
               attributes: [],
-              required: false
-            }
-          }
-        }
-      ]
+              required: false,
+            },
+          },
+        },
+      ],
     });
 
     if (!topic) throw new NotFoundError('Topic not found');
 
-    topic.theories.forEach(t => {
+    topic.theories.forEach((t) => {
       if (t.dataValues.users.length > 0) t.dataValues.userHasFinished = true;
       else t.dataValues.userHasFinished = false;
 
       delete t.dataValues.users;
     });
 
-    topic.exercises.forEach(e => {
+    topic.exercises.forEach((e) => {
       if (e.dataValues.users.length > 0) e.dataValues.userHasFinished = true;
       else e.dataValues.userHasFinished = false;
 

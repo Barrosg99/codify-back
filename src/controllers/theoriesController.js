@@ -1,6 +1,4 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Theory = require('../models/Theory');
+const { Theory } = require('../models');
 
 class TheoriesController {
   getAll({

@@ -1,6 +1,4 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Exercise = require('../models/Exercise');
+const { Exercise } = require('../models');
 const chaptersController = require('./chaptersController');
 const topicsController = require('./topicsController');
 
