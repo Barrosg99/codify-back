@@ -127,6 +127,11 @@ class TopicsController {
     const completedTopic = await this._completedAllActivities(userId, topicId);
     if (completedTopic) {
       await TopicUser.findOrCreate({ where: { userId, topicId } });
+    } else {
+      const association = await TopicUser.findOne({ where: { userId, topicId } });
+      if (association) {
+        await association.destroy();
+      }
     }
 
     const nextTopic = await this._getNextTopic(topic);
