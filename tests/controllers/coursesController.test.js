@@ -5,9 +5,14 @@ require('dotenv').config();
 const coursesController = require('../../src/controllers/coursesController');
 const ConflictError = require('../../src/errors/ConflictError');
 const NotFoundError = require('../../src/errors/NotFoundError');
-const Course = require('../../src/models/Course');
+const {
+  Course, CourseUser, Chapter, User,
+} = require('../../src/models');
 
 jest.mock('../../src/models/Course.js');
+jest.mock('../../src/models/CourseUser');
+jest.mock('../../src/models/Chapter');
+jest.mock('../../src/models/User');
 
 describe('function createCourse', () => {
   it('should return an throw error trying to create a course that already exists.', async () => {
@@ -104,5 +109,68 @@ describe('function getOne - gets one course data', () => {
     const response = coursesController.getOne(1);
 
     expect(response).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe('Testing function getCourseProgress of courseController', () => {
+  it('should return user progress if user id and course id are valid, with no progress if user has not started the course', async () => {
+    const userId = 1; const
+      courseId = 1;
+
+    User.findByPk.mockImplementationOnce(() => true);
+    Course.findByPk.mockImplementationOnce(() => true);
+    CourseUser.findOne.mockImplementationOnce(() => false);
+
+    const response = await coursesController.getCourseProgress(userId, courseId);
+
+    expect(CourseUser.findOne).toHaveBeenCalled();
+    expect(CourseUser.findOne).toHaveBeenCalledWith({ where: { userId, courseId } });
+    expect(Chapter.sum).not.toHaveBeenCalled();
+    expect(response).toMatchObject({
+      userId,
+      courseId,
+      hasStarted: false,
+      progress: 0,
+    });
+  });
+
+  it('should return user progress if user id and course id are valid, and if user has started the course', async () => {
+    const userId = 1;
+    const courseId = 1;
+
+    User.findByPk.mockImplementationOnce(() => true);
+    Course.findByPk.mockImplementationOnce(() => true);
+    CourseUser.findOne.mockImplementationOnce(() => ({ doneActivities: 5 }));
+    Chapter.sum.mockImplementationOnce(() => 26);
+
+    const response = await coursesController.getCourseProgress(userId, courseId);
+
+    expect(CourseUser.findOne).toHaveBeenCalled();
+    expect(CourseUser.findOne).toHaveBeenCalledWith({ where: { userId, courseId } });
+    expect(Chapter.sum).toHaveBeenCalled();
+    expect(Chapter.sum).toHaveBeenCalledWith('topicsQuantity', { where: { courseId } });
+    expect(response).toMatchObject({
+      userId,
+      courseId,
+      hasStarted: true,
+      progress: 19,
+    });
+  });
+
+  it('should throw NotFoundError if sent user id is invalid', async () => {
+    User.findByPk.mockImplementationOnce(() => false);
+
+    const testedFunction = coursesController.getCourseProgress();
+
+    expect(testedFunction).rejects.toThrow(NotFoundError);
+  });
+
+  it('should throw NotFoundError if sent course id is invalid', async () => {
+    User.findByPk.mockImplementationOnce(() => true);
+    Course.findByPk.mockImplementationOnce(() => false);
+
+    const testedFunction = coursesController.getCourseProgress();
+
+    expect(testedFunction).rejects.toThrow(NotFoundError);
   });
 });

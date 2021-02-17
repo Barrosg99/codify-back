@@ -1,7 +1,7 @@
 const {
-  User, Exercise, Theory, Topic,
+  User, Exercise, Theory, Topic, Chapter, TopicUser, TheoryUser, ExerciseUser,
 } = require('../models');
-const { NotFoundError } = require('../errors');
+const { NotFoundError, NotNextTopicError } = require('../errors');
 const chaptersController = require('./chaptersController');
 
 class TopicsController {
@@ -60,7 +60,7 @@ class TopicsController {
       ],
     });
 
-    if (!topic) throw new NotFoundError('Topic not found');
+    if (!topic) throw new NotFoundError();
 
     topic.theories.forEach((t) => {
       if (t.dataValues.users.length > 0) t.dataValues.userHasFinished = true;
@@ -116,6 +116,79 @@ class TopicsController {
     await topic.save();
 
     return topic;
+  }
+
+  async postTopicProgress(userId, topicId) {
+    const topic = await Topic.findByPk(topicId, {
+      include: Chapter,
+    });
+    if (!topic) throw new NotFoundError();
+
+    const completedTopic = await this._completedAllActivities(userId, topicId);
+    if (completedTopic) {
+      await TopicUser.findOrCreate({ where: { userId, topicId } });
+    }
+
+    const nextTopic = await this._getNextTopic(topic);
+    if (!nextTopic) {
+      throw new NotNextTopicError();
+    }
+
+    return { nextTopic };
+  }
+
+  async _completedAllActivities(userId, topicId) {
+    const quantityExercises = await Exercise.count({ where: { topicId } });
+    const quantityTheory = await Theory.count({ where: { topicId } });
+
+    const countTheoryDone = await Theory.count({
+      where: { topicId },
+      include: {
+        model: TheoryUser,
+        where: { userId },
+      },
+    });
+
+    const countExerciseDone = await Exercise.count({
+      where: { topicId },
+      include: {
+        model: ExerciseUser,
+        where: { userId },
+      },
+    });
+
+    if (countTheoryDone !== quantityTheory || countExerciseDone !== quantityExercises) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async _getNextTopic(topic) {
+    let nextTopic = await Topic.findOne({
+      attributes: ['id'],
+      where: {
+        chapterId: topic.chapterId,
+        order: topic.order + 1,
+      },
+    });
+
+    if (!nextTopic) {
+      nextTopic = await Topic.findOne({
+        where: { order: 1 },
+        attributes: ['id'],
+        include: {
+          model: Chapter,
+          attributes: [],
+          where: {
+            courseId: topic.chapter.courseId,
+            order: topic.chapter.order + 1,
+          },
+        },
+      });
+    }
+
+    return nextTopic.id;
   }
 }
 

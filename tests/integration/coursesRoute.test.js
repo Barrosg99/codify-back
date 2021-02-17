@@ -147,11 +147,6 @@ describe('POST /courses/:courseId/users', () => {
 
     expect(response.status).toBe(200);
   });
-  it('Should return status code 401 when not pass correct ids', async () => {
-    const response = await agent.post('/courses/0/users').set('Authorization', 'Bearer cdkcmskdmccdscds');
-
-    expect(response.status).toBe(401);
-  });
 });
 
 describe('GET /suggestions', () => {

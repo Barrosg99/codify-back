@@ -136,16 +136,8 @@ describe('GET /topics/:topicId/users', () => {
 
   it('should return status code 401 if invalid token is sent', async () => {
     const response = await agent
-      .get(`/topics/${topicId}/users`)
+      .get('/topics/0/users')
       .set('Authorization', 'Bearer invalidToken');
-
-    expect(response.status).toBe(401);
-  });
-
-  it('should return status code 400 if headers are not sent', async () => {
-    const response = await agent
-      .get(`/topics/${topicId}/users`).set('Authorization', 'Bearer');
-
     expect(response.status).toBe(401);
   });
 

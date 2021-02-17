@@ -1,5 +1,10 @@
 const router = require('express').Router();
 const usersController = require('../../controllers/usersController');
+const topicsController = require('../../controllers/topicsController');
+const theoriesController = require('../../controllers/theoriesController');
+const coursesController = require('../../controllers/coursesController');
+const exercisesController = require('../../controllers/exercisesController');
+
 const registerSchema = require('../../schemas/registerSchema');
 const signInSchema = require('../../schemas/signInSchema');
 const { verifyJWT, verifyClient } = require('../../middlewares');
@@ -26,14 +31,14 @@ router.post('/sign-in', async (req, res) => {
 router.get('/courses/:courseId/progress', verifyJWT, verifyClient, async (req, res) => {
   const courseId = +req.params.courseId;
 
-  const userProgress = await usersController.getCourseProgress(req.userId, courseId);
+  const userProgress = await coursesController.getCourseProgress(req.userId, courseId);
   res.send(userProgress);
 });
 
 router.post('/theories/:theoryId/progress', verifyJWT, verifyClient, async (req, res) => {
   const theoryId = +req.params.theoryId;
 
-  const userHasDone = await usersController.postTheoryProgress(req.userId, theoryId);
+  const userHasDone = await theoriesController.postTheoryProgress(req.userId, theoryId);
 
   if (userHasDone) res.sendStatus(201);
   else res.sendStatus(204);
@@ -42,7 +47,7 @@ router.post('/theories/:theoryId/progress', verifyJWT, verifyClient, async (req,
 router.post('/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (req, res) => {
   const exerciseId = +req.params.exerciseId;
 
-  const userHasDone = await usersController.postExerciseProgress(req.userId, exerciseId);
+  const userHasDone = await exercisesController.postExerciseProgress(req.userId, exerciseId);
 
   if (userHasDone) res.sendStatus(201);
   else res.sendStatus(204);
@@ -51,7 +56,7 @@ router.post('/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (r
 router.post('/topics/:topicId/progress', verifyJWT, verifyClient, async (req, res) => {
   const topicId = +req.params.topicId;
 
-  const result = await usersController.postTopicProgress(req.userId, topicId);
+  const result = await topicsController.postTopicProgress(req.userId, topicId);
   res.send(result);
 });
 

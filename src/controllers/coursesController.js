@@ -104,6 +104,32 @@ class CoursesController {
 
     return CourseUser.findOrCreate({ where: { courseId, userId } });
   }
+
+  async getCourseProgress(userId, courseId) {
+    let userProgress; let
+      hasStarted = false;
+
+    const user = await User.findByPk(userId);
+    const course = await Course.findByPk(courseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!course) throw new NotFoundError('Course not found');
+
+    const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
+    if (!userCourseData) userProgress = 0;
+    else {
+      const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
+
+      hasStarted = true;
+      userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
+    }
+
+    return {
+      userId,
+      courseId,
+      hasStarted,
+      progress: userProgress,
+    };
+  }
 }
 
 module.exports = new CoursesController();
