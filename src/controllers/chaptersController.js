@@ -59,6 +59,7 @@ class ChaptersController {
 
   async changeTopicsQuantity(id, operation) {
     const chapter = await this.getOne(id);
+
     if (operation === 'plus') {
       chapter.topicsQuantity += 1;
     } else if (operation === 'minus') {

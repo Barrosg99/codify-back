@@ -14,7 +14,7 @@ const app = require('../../src/app');
 
 const agent = supertest(app);
 let adminToken;
-let course;
+let courseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -22,7 +22,7 @@ const db = new Pool({
 beforeAll(async () => {
   await cleanDataBase(db);
 
-  course = await createCoursesUtils(
+  courseId = await createCoursesUtils(
     db,
     'JavaScript do zero ao avançado',
     'Curso para vc ficar voando mesmo tipo mostrão no JS',
@@ -41,10 +41,8 @@ afterAll(async () => {
 
 describe('GET /admin/chapters', () => {
   it('should return 200 with list of chapters', async () => {
-    await createChapters(db, course.id, 'Apresentação', 1, 2, 3);
-
     for (let i = 0; i < 3; i += 1) {
-      await createChapters(db, course.id, 'Apresentação', 1, 2, 3);
+      await createChapters(db, courseId, 'Apresentação', 1, 2, 3);
     }
 
     const { body, status } = await agent.get('/admin/chapters').set('Authorization', `Bearer ${adminToken}`);
@@ -54,7 +52,7 @@ describe('GET /admin/chapters', () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: expect.any(Number),
-          courseId: course.id,
+          courseId,
           name: 'Apresentação',
           order: 1,
           topicsQuantity: 2,
@@ -62,7 +60,7 @@ describe('GET /admin/chapters', () => {
         }),
         expect.objectContaining({
           id: expect.any(Number),
-          courseId: course.id,
+          courseId,
           name: 'Apresentação',
           order: 1,
           topicsQuantity: 2,
@@ -70,7 +68,7 @@ describe('GET /admin/chapters', () => {
         }),
         expect.objectContaining({
           id: expect.any(Number),
-          courseId: course.id,
+          courseId,
           name: 'Apresentação',
           order: 1,
           topicsQuantity: 2,
