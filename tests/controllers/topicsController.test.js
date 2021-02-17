@@ -157,12 +157,13 @@ describe('function editTopic', () => {
     jest.restoreAllMocks();
 
     expect(spyFn).not.toHaveBeenCalled();
-    expect(response).toMatchObject({
-      chapterId,
-      name,
-      order,
-      save: expect.any(Function),
-    });
+    expect(response).toEqual(
+      expect.objectContaining({
+        chapterId,
+        name,
+        order,
+      }),
+    );
   });
 
   it('should throw NotFoundError if invalid id is sent', async () => {

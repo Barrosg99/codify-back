@@ -3,6 +3,7 @@
 const Exercise = require('../models/Exercise');
 const chaptersController = require('./chaptersController');
 const topicsController = require('./topicsController');
+const NotFoundError = require('../errors/NotFoundError');
 
 class ExercisesController {
   getAll({
@@ -25,6 +26,7 @@ class ExercisesController {
 
   async editExercise({ id, topicId, description }) {
     const exercise = await this.getOne(id);
+    if (!exercise) throw new NotFoundError('Exercise id is not valid');
 
     if (exercise.topicId !== topicId) {
       const oldTopic = await topicsController.getOne(exercise.topicId);
@@ -43,7 +45,7 @@ class ExercisesController {
     return exercise;
   }
 
-  async creteExercise({ topicId, description }) {
+  async createExercise({ topicId, description }) {
     const topic = await topicsController.getOne(topicId);
 
     await chaptersController.changeExerciseQuantity(topic.chapterId, 'plus');

@@ -20,7 +20,7 @@ router
     res.send(await exercisesController.editExercise(req.body));
   })
   .post('/', async (req, res) => {
-    res.send(await exercisesController.creteExercise(req.body));
+    res.send(await exercisesController.createExercise(req.body));
   })
   .delete('/:id', async (req, res) => {
     res.send(await exercisesController.deleteExercise(+req.params.id));
