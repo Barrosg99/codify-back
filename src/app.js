@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 require('dotenv').config();
+require('express-async-errors');
 
 const express = require('express');
 const cors = require('cors');
@@ -9,7 +10,6 @@ app.use(cors());
 app.use(express.json());
 
 require('./utils/loadRelationships');
-require('express-async-errors');
 
 const { verifyJWT, verifyClient } = require('./middlewares');
 
@@ -29,21 +29,14 @@ app.use('/users', usersRouter);
 app.use('/topics', verifyJWT, verifyClient, topicsRouter);
 
 app.use((error, req, res, next) => {
-  console.error(error);
-  if (error instanceof NotFoundError) {
-    res.status(404);
-    console.log(res);
-  } else if (error instanceof WrongPasswordError) {
-    res.status(401).send({ message: 'Email or password is wrong' });
-  } else if (error instanceof NotNextTopicError) {
-    res.status(403).send({
-      message: 'Activities at this topic not completed by user',
-    });
-  } else if (error instanceof AuthError) {
-    res.status(401);
-  } else if (error instanceof ConflictError) {
-    res.status(409).send({ message: 'Email alredy used' });
-  } else res.status(500).send({ message: 'Ops, unknown error' });
+  console.log(error);
+
+  if (error instanceof NotFoundError) res.status(404).send(error.message);
+  else if (error instanceof WrongPasswordError) res.status(401).send(error.message);
+  else if (error instanceof AuthError) res.status(401).send(error.message);
+  else if (error instanceof NotNextTopicError) res.status(403).send(error.message);
+  else if (error instanceof ConflictError) res.status(409).send(error.message);
+  else res.status(500).json(error);
 });
 
 module.exports = app;
