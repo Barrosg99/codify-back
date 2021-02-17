@@ -8,6 +8,7 @@ const Session = require('../models/Session');
 const Course = require('../models/Course');
 const Chapter = require('../models/Chapter');
 const CourseUser = require('../models/CourseUser');
+const Topic = require('../models/Topic');
 const TheoryUser = require('../models/TheoryUser');
 const Theory = require('../models/Theory');
 const Exercise = require('../models/Exercise');
@@ -93,10 +94,25 @@ class UsersController {
     if (!user) throw new NotFoundError('User not found');
     if (!theory) throw new NotFoundError('Theory not found');
 
+    const topic = await Topic.findByPk(theory.topicId, {
+      include: {
+        model: Chapter,
+      },
+    });
+
+    const { courseId } = topic.chapter;
+
     const association = await TheoryUser.findOne({ where: { userId, theoryId } });
 
-    if (association) await association.destroy();
-    else return TheoryUser.create({ userId, theoryId });
+    if (association) {
+      await association.destroy();
+      await CourseUser.decrement('doneActivities', { where: { userId, courseId } });
+      return false;
+    }
+
+    await TheoryUser.create({ userId, theoryId });
+    await CourseUser.increment('doneActivities', { where: { userId, courseId } });
+    return true;
   }
 
   async postExerciseProgress(userId, exerciseId) {
@@ -105,10 +121,25 @@ class UsersController {
     if (!user) throw new NotFoundError('User not found');
     if (!exercise) throw new NotFoundError('Exercise not found');
 
+    const topic = await Topic.findByPk(exercise.topicId, {
+      include: {
+        model: Chapter,
+      },
+    });
+
+    const { courseId } = topic.chapter;
+
     const association = await ExerciseUser.findOne({ where: { userId, exerciseId } });
 
-    if (association) await association.destroy();
-    else return ExerciseUser.create({ userId, exerciseId });
+    if (association) {
+      await association.destroy();
+      await CourseUser.decrement('doneActivities', { where: { userId, courseId } });
+      return false;
+    }
+
+    await ExerciseUser.create({ userId, exerciseId });
+    await CourseUser.increment('doneActivities', { where: { userId, courseId } });
+    return true;
   }
 
   async postAdminSignIn(username, password) {
