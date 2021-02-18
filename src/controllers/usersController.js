@@ -16,6 +16,8 @@ const {
   AuthError,
 } = require('../errors');
 
+const { getEmailMessage } = require('../utils/helpers');
+
 class UsersController {
   async create({
     name, password, email, avatarUrl,
@@ -102,17 +104,8 @@ class UsersController {
     if (!user) throw new NotFoundError('User not found');
 
     const token = jwt.sign({ userId: user.id }, process.env.SECRET, { expiresIn: 300 });
-    const html = `
-      <h1 style="font-family: 'Roboto';">Codify</h1>
-      <h2>Olá, ${user.name}!</h2>
-      Para redefinir sua senha para acesso ao portal de cursos, use o link abaixo. Este link é válido por 5 minutos, então caso o tempo seja excedido faça uma nova solicitação de redefinição de senha.
-      
-      <br><br>Acesse este link: ${process.env.PWD_RESET_URL}?t=${token}
 
-      <br><br>Caso você não tenha solicitado uma redefinição de senha, ignore este e-mail.
-      
-      <br><br>Equipe Codify
-    `;
+    const html = getEmailMessage(user, token);
 
     const msg = {
       to: email,
