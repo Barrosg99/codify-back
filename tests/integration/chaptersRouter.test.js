@@ -114,6 +114,7 @@ describe('PUT /admin/chapters/:id', () => {
     const chapter = chapters[1];
 
     const updatedChapter = {
+      id: chapter.id,
       courseId,
       name: 'Testando mudança',
       order: 35,

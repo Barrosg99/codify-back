@@ -3,7 +3,6 @@ const {
 } = require('../models');
 const chaptersController = require('./chaptersController');
 const topicsController = require('./topicsController');
-const NotFoundError = require('../errors/NotFoundError');
 
 const { NotFoundError } = require('../errors');
 

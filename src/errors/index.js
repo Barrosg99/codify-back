@@ -4,7 +4,6 @@ const ConflictError = require('./ConflictError');
 const JwtError = require('./JwtError');
 const NotFoundError = require('./NotFoundError');
 const WrongPasswordError = require('./WrongPasswordError');
-const BadRequestError = require('./BadRequestError');
 
 module.exports = {
   NotNextTopicError,
@@ -13,5 +12,4 @@ module.exports = {
   JwtError,
   NotFoundError,
   WrongPasswordError,
-  BadRequestError,
 };
