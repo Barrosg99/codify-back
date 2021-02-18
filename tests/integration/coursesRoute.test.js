@@ -14,7 +14,6 @@ const app = require('../../src/app');
 const agent = supertest(app);
 let adminToken;
 let userToken;
-let userId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -33,7 +32,6 @@ beforeAll(async () => {
   adminToken = await createAdminSession(db);
   const session = await createUserSession(db);
   userToken = session.userToken;
-  userId = session.userId;
 });
 
 afterAll(async () => {
@@ -140,19 +138,14 @@ describe('GET /admin/courses/:id', () => {
   });
 });
 
-describe('POST /courses/:courseId/users/:userId', () => {
+describe('POST /courses/:courseId/users', () => {
   it('Should return status code 200 when sucess to init course', async () => {
     const result = await db.query('SELECT * FROM courses LIMIT 1');
     const course = result.rows[0];
 
-    const response = await agent.post(`/courses/${course.id}/users/${userId}`).set('Authorization', `Bearer ${userToken}`);
+    const response = await agent.post(`/courses/${course.id}/users`).set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(200);
-  });
-  it('Should return status code 404 when not pass correct ids', async () => {
-    const response = await agent.post('/courses/1/users/1').set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(404);
   });
 });
 

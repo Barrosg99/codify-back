@@ -5,6 +5,6 @@ module.exports = async (req, res, next) => {
   if (!session) {
     return res.status(401).json({ auth: false, message: 'Failed to authenticate token.' });
   }
-
+  req.userId = session.userId;
   next();
 };

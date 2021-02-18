@@ -1,10 +1,7 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Topic = require('../models/Topic');
-const Theory = require('../models/Theory');
-const Exercise = require('../models/Exercise');
-const User = require('../models/User');
-const NotFoundError = require('../errors/NotFoundError');
+const {
+  User, Exercise, Theory, Topic, Chapter, TopicUser, TheoryUser, ExerciseUser,
+} = require('../models');
+const { NotFoundError, NotNextTopicError } = require('../errors');
 const chaptersController = require('./chaptersController');
 
 class TopicsController {
@@ -30,7 +27,7 @@ class TopicsController {
   async getOneWithUserProgress(topicId, userId) {
     const topic = await Topic.findByPk(topicId, {
       attributes: {
-        exclude: ['createdAt', 'updatedAt']
+        exclude: ['createdAt', 'updatedAt'],
       },
       order: [[{ model: Exercise }, 'id', 'ASC']],
       include: [
@@ -44,8 +41,8 @@ class TopicsController {
               where: { userId },
               attributes: [],
               required: false,
-            }
-          }
+            },
+          },
         },
         {
           model: Exercise,
@@ -56,23 +53,23 @@ class TopicsController {
             through: {
               where: { userId },
               attributes: [],
-              required: false
-            }
-          }
-        }
-      ]
+              required: false,
+            },
+          },
+        },
+      ],
     });
 
-    if (!topic) throw new NotFoundError('Topic not found');
+    if (!topic) throw new NotFoundError();
 
-    topic.theories.forEach(t => {
+    topic.theories.forEach((t) => {
       if (t.dataValues.users.length > 0) t.dataValues.userHasFinished = true;
       else t.dataValues.userHasFinished = false;
 
       delete t.dataValues.users;
     });
 
-    topic.exercises.forEach(e => {
+    topic.exercises.forEach((e) => {
       if (e.dataValues.users.length > 0) e.dataValues.userHasFinished = true;
       else e.dataValues.userHasFinished = false;
 
@@ -119,6 +116,84 @@ class TopicsController {
     await topic.save();
 
     return topic;
+  }
+
+  async postTopicProgress(userId, topicId) {
+    const topic = await Topic.findByPk(topicId, {
+      include: Chapter,
+    });
+    if (!topic) throw new NotFoundError();
+
+    const completedTopic = await this._completedAllActivities(userId, topicId);
+    if (completedTopic) {
+      await TopicUser.findOrCreate({ where: { userId, topicId } });
+    } else {
+      const association = await TopicUser.findOne({ where: { userId, topicId } });
+      if (association) {
+        await association.destroy();
+      }
+    }
+
+    const nextTopic = await this._getNextTopic(topic);
+    if (!nextTopic) {
+      throw new NotNextTopicError();
+    }
+
+    return { nextTopic };
+  }
+
+  async _completedAllActivities(userId, topicId) {
+    const quantityExercises = await Exercise.count({ where: { topicId } });
+    const quantityTheory = await Theory.count({ where: { topicId } });
+
+    const countTheoryDone = await Theory.count({
+      where: { topicId },
+      include: {
+        model: TheoryUser,
+        where: { userId },
+      },
+    });
+
+    const countExerciseDone = await Exercise.count({
+      where: { topicId },
+      include: {
+        model: ExerciseUser,
+        where: { userId },
+      },
+    });
+
+    if (countTheoryDone !== quantityTheory || countExerciseDone !== quantityExercises) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async _getNextTopic(topic) {
+    let nextTopic = await Topic.findOne({
+      attributes: ['id'],
+      where: {
+        chapterId: topic.chapterId,
+        order: topic.order + 1,
+      },
+    });
+
+    if (!nextTopic) {
+      nextTopic = await Topic.findOne({
+        where: { order: 1 },
+        attributes: ['id'],
+        include: {
+          model: Chapter,
+          attributes: [],
+          where: {
+            courseId: topic.chapter.courseId,
+            order: topic.chapter.order + 1,
+          },
+        },
+      });
+    }
+
+    return nextTopic.id;
   }
 }
 

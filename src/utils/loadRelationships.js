@@ -28,4 +28,6 @@ Topic.hasMany(TopicUser);
 Topic.belongsTo(Chapter);
 
 Theory.belongsToMany(User, { through: TheoryUser });
+Theory.hasMany(TheoryUser);
 Exercise.belongsToMany(User, { through: ExerciseUser });
+Exercise.hasMany(ExerciseUser);
