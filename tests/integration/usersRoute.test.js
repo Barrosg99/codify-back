@@ -6,11 +6,23 @@ const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
 
-const { createCoursesUtils, createUserSession, cleanDataBase } = require('../utils');
+const {
+  createCoursesUtils,
+  createUserSession,
+  cleanDataBase,
+  createChapters,
+  createTopic,
+  createTheory,
+  createExercise,
+} = require('../utils');
 
 const agent = supertest(app);
 let userToken;
 let userId;
+let chapterId;
+let topicId;
+let theoryId;
+let exerciseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -24,6 +36,19 @@ beforeAll(async () => {
     '#F5F100',
     'https://i.imgur.com/lWUs38z.png',
   );
+
+  const testChapter = await createChapters(db, courseId, 'Teste', 1, 5, 5);
+  chapterId = testChapter.id;
+
+  const testTopic = await createTopic(db, chapterId);
+  topicId = testTopic.id;
+
+  const testTheory = await createTheory(db, topicId);
+  theoryId = testTheory.id;
+
+  const testExercise = await createExercise(db, topicId);
+  exerciseId = testExercise.id;
+
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
@@ -143,11 +168,6 @@ describe('POST /users/sign-in', () => {
 
 describe('GET /users/courses/:courseId/progress', () => {
   it('should return user progress in a course if both exist with no progress if user has not started the course', async () => {
-    await db.query(
-      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [courseId, 'Teste', 1, 9, 0, new Date(), new Date()],
-    );
-
     const response = await agent
       .get(`/users/courses/${courseId}/progress`)
       .set('Authorization', `Bearer ${userToken}`);
@@ -174,7 +194,7 @@ describe('GET /users/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: true,
-      progress: 22,
+      progress: 40,
     });
   });
 
@@ -237,5 +257,73 @@ describe('POST /signOut', () => {
     const response = await agent.post('/users/signOut').set('Authorization', `Baerer ${userSession.body.token}`);
 
     expect(response.status).toBe(204);
+  });
+});
+
+describe('POST /users/theories/:theoryId/progress', () => {
+  it('should return status code 201 if user progress has been successfully created', async () => {
+    const response = await agent
+      .post(`/users/theories/${theoryId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(201);
+  });
+
+  it('should return status code 204 if user progress has been successfully deleted', async () => {
+    const response = await agent
+      .post(`/users/theories/${theoryId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  it('should return status code 404 if sent theory id is invalid', async () => {
+    const response = await agent
+      .post('/users/theories/5561128/progress')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return status code 401 if sent token is invalid', async () => {
+    const response = await agent
+      .post(`/users/theories/${theoryId}/progress`)
+      .set('Authorization', 'Bearer invalidToken');
+
+    expect(response.status).toBe(401);
+  });
+});
+
+describe('POST /users/exercises/:exerciseId/progress', () => {
+  it('should return status code 201 if user progress has been successfully created', async () => {
+    const response = await agent
+      .post(`/users/exercises/${exerciseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(201);
+  });
+
+  it('should return status code 204 if user progress has been successfully deleted', async () => {
+    const response = await agent
+      .post(`/users/exercises/${exerciseId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  it('should return status code 404 if sent theory id is invalid', async () => {
+    const response = await agent
+      .post('/users/exercises/5561128/progress')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return status code 401 if sent token is invalid', async () => {
+    const response = await agent
+      .post(`/users/exercises/${exerciseId}/progress`)
+      .set('Authorization', 'Bearer invalidToken');
+
+    expect(response.status).toBe(401);
   });
 });

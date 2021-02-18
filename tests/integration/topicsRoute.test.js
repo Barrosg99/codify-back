@@ -6,13 +6,21 @@ const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 
 const {
-  createCoursesUtils, cleanDataBase, createUserSession,
+  createCoursesUtils,
+  cleanDataBase,
+  createUserSession,
+  createChapters,
+  createTopic,
+  createTheory,
+  createExercise,
+  createAdminSession,
 } = require('../utils');
 
 const app = require('../../src/app');
 
 const agent = supertest(app);
 let userToken;
+let adminToken;
 let courseId;
 let topicId;
 let chapterId;
@@ -34,9 +42,23 @@ beforeAll(async () => {
     'https://i.imgur.com/lWUs38z.png',
   );
 
+  const testChapter = await createChapters(db, courseId, 'Teste', 1, 1, 1);
+  chapterId = testChapter.id;
+
+  const testTopic = await createTopic(db, chapterId);
+  topicId = testTopic.id;
+
+  const testTheory = await createTheory(db, topicId);
+  theoryId = testTheory.id;
+
+  const testExercise = await createExercise(db, topicId);
+  exerciseId = testExercise.id;
+
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
+
+  adminToken = await createAdminSession(db);
 });
 
 afterAll(async () => {
@@ -47,30 +69,6 @@ afterAll(async () => {
 
 describe('GET /topics/:topicId/users', () => {
   it('should return topic with its theories and exercises if valid topicId is sent', async () => {
-    const newChapter = await db.query(
-      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [courseId, 'Teste', 1, 1, 1, new Date(), new Date()],
-    );
-    chapterId = newChapter.rows[0].id;
-
-    const newTopic = await db.query(
-      'INSERT INTO topics ("chapterId", name, "order", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [chapterId, 'Teste', 1, new Date(), new Date()],
-    );
-    topicId = newTopic.rows[0].id;
-
-    const newTheory = await db.query(
-      'INSERT INTO theories (id, "topicId", "youtubeUrl", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, topicId, 'https://youtube.com', new Date(), new Date()],
-    );
-    theoryId = newTheory.rows[0].id;
-
-    const newExercise = await db.query(
-      'INSERT INTO exercises (id, description, "topicId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, 'Teste', topicId, new Date(), new Date()],
-    );
-    exerciseId = newExercise.rows[0].id;
-
     const response = await agent
       .get(`/topics/${topicId}/users`)
       .set('Authorization', `Bearer ${userToken}`);
@@ -147,5 +145,72 @@ describe('GET /topics/:topicId/users', () => {
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
+  });
+});
+
+describe('GET /admin/topics', () => {
+  it('should return 200 with list of topics', async () => {
+    const { body, status } = await agent.get('/admin/topics').set('Authorization', `Bearer ${adminToken}`);
+
+    expect(status).toBe(200);
+    expect(body).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        chapterId,
+        order: 1,
+        name: 'Teste',
+      }),
+    ]));
+  });
+});
+
+describe('GET /admin/topics/:id', () => {
+  it('should return one topic by the id', async () => {
+    const { body, status } = await agent.get(`/admin/topics/${topicId}`).set('Authorization', `Bearer ${adminToken}`);
+    expect(status).toBe(200);
+    expect(body).toEqual(expect.objectContaining({
+      chapterId,
+      order: 1,
+      name: 'Teste',
+    }));
+  });
+});
+
+describe('PUT /admin/topics/:id', () => {
+  it('should update topic data', async () => {
+    const topic = {
+      id: topicId,
+      chapterId,
+      name: 'Novo Teste',
+      order: 47,
+    };
+
+    const { body, status } = await agent.put(`/admin/topics/${topicId}`).set('Authorization', `Bearer ${adminToken}`).send(topic);
+
+    expect(status).toBe(200);
+    expect(body).toEqual(expect.objectContaining(topic));
+  });
+});
+
+describe('POST /admin/topics', () => {
+  it('should create topic and return it', async () => {
+    const topic = {
+      chapterId,
+      name: 'Novo Tópico',
+      order: 66,
+    };
+
+    const { status, body } = await agent.post('/admin/topics').set('Authorization', `Bearer ${adminToken}`).send(topic);
+
+    expect(status).toBe(201);
+    expect(body).toEqual(expect.objectContaining(topic));
+  });
+});
+
+describe('DEL /admin/topics/:id', () => {
+  it('should change excluded flag to true', async () => {
+    const { status, body } = await agent.del(`/admin/topics/${topicId}`).set('Authorization', `Bearer ${adminToken}`);
+
+    expect(status).toBe(200);
+    expect(body.excluded).toBe(true);
   });
 });

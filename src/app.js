@@ -20,7 +20,11 @@ const usersRouter = require('./routers/client/usersRouter');
 const topicsRouter = require('./routers/client/topicsRouter');
 
 const {
-  AuthError, ConflictError, WrongPasswordError, NotFoundError, NotNextTopicError,
+  AuthError,
+  ConflictError,
+  WrongPasswordError,
+  NotFoundError,
+  NotNextTopicError,
 } = require('./errors');
 
 app.use('/courses', verifyJWT, verifyClient, coursesRouter);
@@ -29,7 +33,7 @@ app.use('/users', usersRouter);
 app.use('/topics', verifyJWT, verifyClient, topicsRouter);
 
 app.use((error, req, res, next) => {
-  console.log(error);
+  console.error(error);
 
   if (error instanceof NotFoundError) res.status(404).send(error.message);
   else if (error instanceof WrongPasswordError) res.status(401).send(error.message);

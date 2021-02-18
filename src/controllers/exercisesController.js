@@ -10,8 +10,9 @@ class ExercisesController {
   getAll({
     _end, _start, _order, _sort,
   }) {
+    const limit = _end ? _end - _start : null;
     const options = {
-      limit: _end,
+      limit,
       offset: _start,
       order: [[_sort, _order]],
       where: { excluded: false },
@@ -26,6 +27,7 @@ class ExercisesController {
 
   async editExercise({ id, topicId, description }) {
     const exercise = await this.getOne(id);
+    if (!exercise) throw new NotFoundError('Exercise id is not valid');
 
     if (exercise.topicId !== topicId) {
       const oldTopic = await topicsController.getOne(exercise.topicId);
@@ -44,7 +46,7 @@ class ExercisesController {
     return exercise;
   }
 
-  async creteExercise({ topicId, description }) {
+  async createExercise({ topicId, description }) {
     const topic = await topicsController.getOne(topicId);
 
     await chaptersController.changeExerciseQuantity(topic.chapterId, 'plus');

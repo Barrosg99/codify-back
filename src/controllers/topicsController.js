@@ -8,8 +8,9 @@ class TopicsController {
   getAll({
     _end, _start, _order, _sort, id,
   }) {
+    const limit = _end ? _end - _start : null;
     let options = {
-      limit: _end - _start,
+      limit,
       offset: _start,
       order: [[_sort, _order]],
       where: { excluded: false },
