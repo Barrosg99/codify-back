@@ -80,9 +80,13 @@ router.post('/forgot-password', async (req, res) => {
   res.sendStatus(204);
 });
 
-router.put('/password-reset', async (req, res) => {
+router.put('/password-reset', verifyJWT, async (req, res) => {
   const { error } = userSchemas.newPassword.validate(req.body);
   if (error) return res.status(422).json({ error: error.details[0].message });
+
+  await usersController.changePassword(req.userId, req.body.password);
+
+  res.sendStatus(204);
 });
 
 module.exports = router;

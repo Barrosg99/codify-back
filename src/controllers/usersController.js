@@ -103,7 +103,7 @@ class UsersController {
     const user = await this.findByEmail(email);
     if (!user) throw new NotFoundError('User not found');
 
-    const token = jwt.sign({ userId: user.id }, process.env.SECRET, { expiresIn: 300 });
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 300 });
 
     const html = getEmailMessage(user, token);
 
@@ -116,6 +116,16 @@ class UsersController {
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     await sgMail.send(msg);
+  }
+
+  async changePassword(userId, newPassword) {
+    const user = await User.findByPk(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const hashPassword = bcrypt.hashSync(newPassword, 10);
+
+    user.password = hashPassword;
+    await user.save();
   }
 }
 

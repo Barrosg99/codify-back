@@ -69,9 +69,9 @@ async function createUserSession(db) {
 
   const user = await db.query(
     `INSERT INTO users 
-    (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) 
+    (name, password, email, "avatarUrl", "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5, $6) 
     RETURNING *`,
-    ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
+    ['Teste de Teste', password, 'teste@teste.com', 'https://google.com', new Date(), new Date()],
   );
   const sessionUser = await db.query(
     `INSERT INTO sessions 

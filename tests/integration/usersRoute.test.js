@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
+const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
 
@@ -100,6 +101,7 @@ describe('POST /users/sign-in', () => {
       name: 'Osvaldo',
       avatarUrl: 'https://google.com',
       token: expect.any(String),
+      hasInitAnyCourse: false,
     });
   });
 
@@ -237,5 +239,40 @@ describe('POST /signOut', () => {
     const response = await agent.post('/users/signOut').set('Authorization', `Baerer ${userSession.body.token}`);
 
     expect(response.status).toBe(204);
+  });
+});
+
+describe('PUT /users/password-reset', () => {
+  it('should return status code 204 if password change has been successfully made', async () => {
+    const body = {
+      password: 'newPassword',
+      passwordConfirmation: 'newPassword',
+    };
+
+    const token = jwt.sign({ id: userId }, process.env.SECRET, { expiresIn: 300 });
+
+    const response = await agent
+      .put('/users/password-reset')
+      .send(body)
+      .set('Authorization', `Bearer ${token}`);
+
+    const oldPasswordAttempt = await agent
+      .post('/users/sign-in')
+      .send({ email: 'teste@teste.com', password: '123456' });
+
+    const newPasswordAttempt = await agent
+      .post('/users/sign-in')
+      .send({ email: 'teste@teste.com', password: 'newPassword' });
+
+    expect(response.status).toBe(204);
+    expect(oldPasswordAttempt.status).toBe(401);
+    expect(newPasswordAttempt.status).toBe(201);
+    expect(newPasswordAttempt.body).toMatchObject({
+      userId,
+      name: 'Teste de Teste',
+      avatarUrl: 'https://google.com',
+      token: expect.any(String),
+      hasInitAnyCourse: false,
+    });
   });
 });

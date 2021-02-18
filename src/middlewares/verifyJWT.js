@@ -8,8 +8,14 @@ async function verifyJWT(req, res, next) {
 
   jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) throw new AuthError();
-    req.sessionId = decoded.id;
+
+    if (req.originalUrl === '/users/password-reset') {
+      req.userId = decoded.id;
+    } else {
+      req.sessionId = decoded.id;
+    }
   });
+
   next();
 }
 
