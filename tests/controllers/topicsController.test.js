@@ -1,4 +1,4 @@
-
+/* eslint-disable no-undef */
 require('dotenv').config();
 
 const topicsController = require('../../src/controllers/topicsController');
@@ -9,7 +9,8 @@ jest.mock('../../src/models/Topic');
 
 describe('function getOneWithUserProgress', () => {
   it('should return topic with its theories and exercises if valid topicId is sent', async () => {
-    const topicId = 1, userId = 1;
+    const topicId = 1; const
+      userId = 1;
 
     Topic.findByPk.mockImplementationOnce(() => (
       {
@@ -17,17 +18,17 @@ describe('function getOneWithUserProgress', () => {
         theories: [
           {
             dataValues: {
-              users: []
-            }
-          }
+              users: [],
+            },
+          },
         ],
         exercises: [
           {
             dataValues: {
-              users: []
-            }
-          }
-        ]
+              users: [],
+            },
+          },
+        ],
       }
     ));
 
@@ -38,22 +39,23 @@ describe('function getOneWithUserProgress', () => {
       theories: [
         {
           dataValues: {
-            userHasFinished: false
-          }
-        }
+            userHasFinished: false,
+          },
+        },
       ],
       exercises: [
         {
           dataValues: {
-            userHasFinished: false
-          }
-        }
-      ]
+            userHasFinished: false,
+          },
+        },
+      ],
     });
   });
 
   it('should return user progress as true if he/she finished theory or activity', async () => {
-    const topicId = 1, userId = 1;
+    const topicId = 1; const
+      userId = 1;
 
     Topic.findByPk.mockImplementationOnce(() => (
       {
@@ -61,17 +63,17 @@ describe('function getOneWithUserProgress', () => {
         theories: [
           {
             dataValues: {
-              users: [{ userId: 1 }]
-            }
-          }
+              users: [{ userId: 1 }],
+            },
+          },
         ],
         exercises: [
           {
             dataValues: {
-              users: [{ userId: 1 }]
-            }
-          }
-        ]
+              users: [{ userId: 1 }],
+            },
+          },
+        ],
       }
     ));
 
@@ -82,22 +84,23 @@ describe('function getOneWithUserProgress', () => {
       theories: [
         {
           dataValues: {
-            userHasFinished: true
-          }
-        }
+            userHasFinished: true,
+          },
+        },
       ],
       exercises: [
         {
           dataValues: {
-            userHasFinished: true
-          }
-        }
-      ]
+            userHasFinished: true,
+          },
+        },
+      ],
     });
   });
 
   it('should throw NotFoundError if sent topic is invalid', async () => {
-    const topicId = 1, userId = 1;
+    const topicId = 1; const
+      userId = 1;
 
     Topic.findByPk.mockImplementationOnce(() => false);
 
