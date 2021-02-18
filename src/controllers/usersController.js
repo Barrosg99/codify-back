@@ -183,6 +183,14 @@ class UsersController {
   async postUserSignOut(id) {
     return Session.destroy({ where: { id } });
   }
+
+  async sendPwdResetEmail(email) {
+    const user = await this.findByEmail(email);
+    if (!user) throw new NotFoundError('User not found');
+
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 300 });
+    const pwdResetUrl = `${process.env.PWD_RESET_URL}?t=${token}`;
+  }
 }
 
 module.exports = new UsersController();

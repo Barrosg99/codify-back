@@ -59,4 +59,8 @@ router.post('/signOut', verifyJWT, verifyClient, async (req, res) => {
   res.sendStatus(204);
 });
 
+router.post('/forgot-password', async (req, res) => {
+  // await usersController.
+});
+
 module.exports = router;
