@@ -6,13 +6,13 @@ const adminChaptersRouter = require('./adminChaptersRouter');
 const adminTopicsRouter = require('./adminTopicsRouter');
 const adminTheoriesRouter = require('./adminTheoriesRouter');
 const adminExercisesRouter = require('./adminExercisesRouter');
-const { verifyJWT, verifyAdmin } = require('../../middlewares');
+const { verifyJWT } = require('../../middlewares');
 
 router.use('/users', adminUsersRouter);
-router.use('/courses', verifyJWT, verifyAdmin, adminCoursesRouter);
-router.use('/chapters', verifyJWT, verifyAdmin, adminChaptersRouter);
-router.use('/topics', verifyJWT, verifyAdmin, adminTopicsRouter);
-router.use('/theories', verifyJWT, verifyAdmin, adminTheoriesRouter);
-router.use('/exercises', verifyJWT, verifyAdmin, adminExercisesRouter);
+router.use('/courses', verifyJWT, adminCoursesRouter);
+router.use('/chapters', verifyJWT, adminChaptersRouter);
+router.use('/topics', verifyJWT, adminTopicsRouter);
+router.use('/theories', verifyJWT, adminTheoriesRouter);
+router.use('/exercises', verifyJWT, adminExercisesRouter);
 
 module.exports = router;

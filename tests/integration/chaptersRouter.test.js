@@ -11,6 +11,7 @@ const {
 } = require('../utils');
 
 const app = require('../../src/app');
+const Redis = require('../../src/utils/redis');
 
 const agent = supertest(app);
 let adminToken;
@@ -35,13 +36,14 @@ beforeAll(async () => {
     chapters.push(await createChapters(db, courseId, 'Apresentação', 1, 2, 3));
   }
 
-  adminToken = await createAdminSession(db);
+  adminToken = await createAdminSession();
 });
 
 afterAll(async () => {
   await cleanDataBase(db);
   await db.end();
   await sequelize.close();
+  await Redis.close();
 });
 
 describe('GET /admin/chapters', () => {

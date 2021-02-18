@@ -7,7 +7,7 @@ const exercisesController = require('../../controllers/exercisesController');
 
 const registerSchema = require('../../schemas/registerSchema');
 const signInSchema = require('../../schemas/signInSchema');
-const { verifyJWT, verifyClient } = require('../../middlewares');
+const { verifyJWT } = require('../../middlewares');
 
 router.post('/register', async (req, res) => {
   const { error } = registerSchema.validate(req.body);
@@ -28,14 +28,14 @@ router.post('/sign-in', async (req, res) => {
   return res.status(201).send(session);
 });
 
-router.get('/courses/:courseId/progress', verifyJWT, verifyClient, async (req, res) => {
+router.get('/courses/:courseId/progress', verifyJWT, async (req, res) => {
   const courseId = +req.params.courseId;
 
   const userProgress = await coursesController.getCourseProgress(req.userId, courseId);
   res.send(userProgress);
 });
 
-router.post('/theories/:theoryId/progress', verifyJWT, verifyClient, async (req, res) => {
+router.post('/theories/:theoryId/progress', verifyJWT, async (req, res) => {
   const theoryId = +req.params.theoryId;
 
   const userHasDone = await theoriesController.postTheoryProgress(req.userId, theoryId);
@@ -44,7 +44,7 @@ router.post('/theories/:theoryId/progress', verifyJWT, verifyClient, async (req,
   else res.sendStatus(204);
 });
 
-router.post('/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (req, res) => {
+router.post('/exercises/:exerciseId/progress', verifyJWT, async (req, res) => {
   const exerciseId = +req.params.exerciseId;
 
   const userHasDone = await exercisesController.postExerciseProgress(req.userId, exerciseId);
@@ -53,19 +53,19 @@ router.post('/exercises/:exerciseId/progress', verifyJWT, verifyClient, async (r
   else res.sendStatus(204);
 });
 
-router.post('/topics/:topicId/progress', verifyJWT, verifyClient, async (req, res) => {
+router.post('/topics/:topicId/progress', verifyJWT, async (req, res) => {
   const topicId = +req.params.topicId;
 
   const result = await topicsController.postTopicProgress(req.userId, topicId);
   res.send(result);
 });
 
-router.get('/courses/ongoing', verifyJWT, verifyClient, async (req, res) => {
+router.get('/courses/ongoing', verifyJWT, async (req, res) => {
   const ongoingCourses = await usersController.getOngoingCoursesByUser(req.userId);
   res.status(200).send(ongoingCourses);
 });
 
-router.post('/signOut', verifyJWT, verifyClient, async (req, res) => {
+router.post('/signOut', verifyJWT, async (req, res) => {
   await usersController.postUserSignOut(req.sessionId);
   res.sendStatus(204);
 });

@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const Redis = require('../src/utils/redis');
 
 async function createCoursesUtils(db, title, description, color, imageUrl) {
   const course = await db.query('INSERT INTO courses (title, description, color, "imageUrl") values ($1, $2, $3, $4) RETURNING *;', [
@@ -66,14 +66,8 @@ async function cleanDataBase(db) {
   await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
 }
 
-async function createAdminSession(db) {
-  const sessionAdmin = await db.query(`
-  INSERT INTO "adminSessions"
-  ("userId", "createdAt", "updatedAt")
-  VALUES (1,'2019-01-23T09:23:42.079Z','2019-01-23T09:23:42.079Z')
-  RETURNING *`);
-
-  return jwt.sign({ id: sessionAdmin.rows[0].id }, process.env.SECRET);
+async function createAdminSession() {
+  return Redis.setSession({ id: process.env.ADMIN_ID });
 }
 
 async function createUserSession(db) {
@@ -85,13 +79,8 @@ async function createUserSession(db) {
     RETURNING *`,
     ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
   );
-  const sessionUser = await db.query(
-    `INSERT INTO sessions 
-    ("userId", "createdAt", "updatedAt")
-    VALUES ($1 , $2, $3) RETURNING *`,
-    [user.rows[0].id, new Date(), new Date()],
-  );
-  const userToken = jwt.sign({ id: sessionUser.rows[0].id }, process.env.SECRET);
+
+  const userToken = await Redis.setSession({ id: user.rows[0].id });
   const userId = user.rows[0].id;
 
   return { userToken, userId };

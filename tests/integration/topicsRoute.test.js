@@ -17,6 +17,7 @@ const {
 } = require('../utils');
 
 const app = require('../../src/app');
+const Redis = require('../../src/utils/redis');
 
 const agent = supertest(app);
 let userToken;
@@ -65,6 +66,7 @@ afterAll(async () => {
   await cleanDataBase(db);
   await db.end();
   await sequelize.close();
+  await Redis.close();
 });
 
 describe('GET /topics/:topicId/users', () => {
