@@ -1,6 +1,7 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Theory = require('../models/Theory');
+const { NotFoundError } = require('../errors');
+const {
+  Theory, User, Topic, Chapter, TheoryUser, CourseUser,
+} = require('../models');
 
 class TheoriesController {
   getAll({
@@ -46,6 +47,32 @@ class TheoriesController {
       returning: true,
       raw: true,
     });
+  }
+
+  async postTheoryProgress(userId, theoryId) {
+    const user = await User.findByPk(userId);
+    const theory = await Theory.findByPk(theoryId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!theory) throw new NotFoundError('Theory not found');
+
+    const topic = await Topic.findByPk(theory.topicId, {
+      include: {
+        model: Chapter,
+      },
+    });
+    const { courseId } = topic.chapter;
+
+    const association = await TheoryUser.findOne({ where: { userId, theoryId } });
+
+    if (association) {
+      await association.destroy();
+      await CourseUser.decrement('doneActivities', { where: { userId, courseId } });
+      return false;
+    }
+
+    await TheoryUser.create({ userId, theoryId });
+    await CourseUser.increment('doneActivities', { where: { userId, courseId } });
+    return true;
   }
 }
 module.exports = new TheoriesController();

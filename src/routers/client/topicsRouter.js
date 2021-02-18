@@ -1,8 +1,8 @@
 const router = require('express').Router();
 
-const topicsController = require('../controllers/topicsController');
+const topicsController = require('../../controllers/topicsController');
 
-router.get('/:topicId/users/', async (req, res) => {
+router.get('/:topicId/users', async (req, res) => {
   const topicId = +req.params.topicId;
   const topic = await topicsController.getOneWithUserProgress(topicId, req.userId);
 
