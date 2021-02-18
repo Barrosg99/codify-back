@@ -125,6 +125,7 @@ class TopicsController {
     if (!topic) throw new NotFoundError();
 
     const completedTopic = await this._completedAllActivities(userId, topicId);
+
     if (completedTopic) {
       await TopicUser.findOrCreate({ where: { userId, topicId } });
     } else {
@@ -134,12 +135,12 @@ class TopicsController {
       }
     }
 
-    const nextTopic = await this._getNextTopic(topic);
-    if (!nextTopic) {
+    const nextTopicId = await this._getNextTopic(topic);
+    if (!nextTopicId) {
       throw new NotNextTopicError();
     }
 
-    return { nextTopic };
+    return { nextTopic: nextTopicId };
   }
 
   async _completedAllActivities(userId, topicId) {
@@ -162,11 +163,7 @@ class TopicsController {
       },
     });
 
-    if (countTheoryDone !== quantityTheory || countExerciseDone !== quantityExercises) {
-      return false;
-    }
-
-    return true;
+    return (countTheoryDone === quantityTheory && countExerciseDone === quantityExercises);
   }
 
   async _getNextTopic(topic) {
@@ -193,7 +190,50 @@ class TopicsController {
       });
     }
 
-    return nextTopic.id;
+    return nextTopic && nextTopic.id;
+  }
+
+  async getLastTopicDoneAtCourse(courseId, userId) {
+    const chapters = await Chapter.findAll({
+      where: { courseId },
+      attributes: ['id', 'courseId', 'order'],
+      include: {
+        model: Topic,
+        attributes: ['chapterId', 'order'],
+        required: true,
+        include: {
+          model: TopicUser,
+          attributes: ['userId'],
+          where: { userId },
+          required: true,
+        },
+      },
+    });
+
+    const lastChapter = chapters.pop();
+
+    if (lastChapter) {
+      const lastTopic = lastChapter.topics.pop();
+      return this._getNextTopic(lastTopic);
+    }
+
+    return this._getFirstTopicAtFirstChapter(courseId);
+  }
+
+  async _getFirstTopicAtFirstChapter(courseId) {
+    const nextTopic = await Topic.findOne({
+      where: { order: 1 },
+      attributes: ['id'],
+      include: {
+        model: Chapter,
+        attributes: [],
+        where: {
+          courseId,
+          order: 1,
+        },
+      },
+    });
+    return nextTopic && nextTopic.id;
   }
 }
 

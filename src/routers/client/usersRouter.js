@@ -61,7 +61,7 @@ router.post('/topics/:topicId/progress', verifyJWT, verifyClient, async (req, re
 });
 
 router.get('/courses/ongoing', verifyJWT, verifyClient, async (req, res) => {
-  const ongoingCourses = await usersController.getOngoingCoursesByUser(req.userId);
+  const ongoingCourses = await coursesController.getOngoingCoursesByUser(req.userId);
   res.status(200).send(ongoingCourses);
 });
 
