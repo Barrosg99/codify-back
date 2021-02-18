@@ -7,6 +7,7 @@ const exercisesController = require('../../controllers/exercisesController');
 
 const registerSchema = require('../../schemas/registerSchema');
 const signInSchema = require('../../schemas/signInSchema');
+const userSchemas = require('../../schemas/usersSchemas');
 const { verifyJWT, verifyClient } = require('../../middlewares');
 
 router.post('/register', async (req, res) => {
@@ -71,9 +72,17 @@ router.post('/signOut', verifyJWT, verifyClient, async (req, res) => {
 });
 
 router.post('/forgot-password', async (req, res) => {
+  const { error } = userSchemas.recoveryEmail.validate(req.body);
+  if (error) return res.status(422).json({ error: error.details[0].message });
+
   await usersController.sendPwdRecoveryEmail(req.body.email);
 
   res.sendStatus(204);
+});
+
+router.put('/password-reset', async (req, res) => {
+  const { error } = userSchemas.newPassword.validate(req.body);
+  if (error) return res.status(422).json({ error: error.details[0].message });
 });
 
 module.exports = router;
