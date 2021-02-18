@@ -38,6 +38,18 @@ async function createCourseUsersUtils(db, userId) {
   return courseUsers.rows[0];
 }
 
+async function createChapters(db, courseId, name, order, topicsQuantity, exercisesQuantity) {
+  const chapter = await db.query(`
+    INSERT INTO public.chapters
+    ("courseId", name, "order", "topicsQuantity",
+    "exercisesQuantity", "createdAt", "updatedAt")
+    VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *;`, [
+    courseId, name, order, topicsQuantity, exercisesQuantity,
+  ]);
+
+  return chapter.rows[0];
+}
+
 async function cleanDataBase(db) {
   await db.query('DELETE FROM "theoryUsers"');
   await db.query('DELETE FROM "topicUsers"');
@@ -84,6 +96,34 @@ async function createUserSession(db) {
 
   return { userToken, userId };
 }
+
+async function createTopic(db, chapterId) {
+  const testTopic = await db.query(
+    'INSERT INTO topics ("chapterId", name, "order", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [chapterId, 'Teste', 1, new Date(), new Date()],
+  );
+
+  return testTopic.rows[0];
+}
+
+async function createTheory(db, topicId) {
+  const testTheory = await db.query(
+    'INSERT INTO theories ("topicId", "youtubeUrl", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4) RETURNING *',
+    [topicId, 'https://youtube.com', new Date(), new Date()],
+  );
+
+  return testTheory.rows[0];
+}
+
+async function createExercise(db, topicId) {
+  const testExercise = await db.query(
+    'INSERT INTO exercises ("topicId", description, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4) RETURNING *',
+    [topicId, 'Teste', new Date(), new Date()],
+  );
+
+  return testExercise.rows[0];
+}
+
 module.exports = {
   createCoursesUtils,
   createUserUtils,
@@ -91,4 +131,8 @@ module.exports = {
   cleanDataBase,
   createAdminSession,
   createUserSession,
+  createChapters,
+  createTopic,
+  createTheory,
+  createExercise,
 };

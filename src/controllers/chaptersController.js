@@ -5,8 +5,9 @@ class ChaptersController {
   getAll({
     _end, _start, _order, _sort, id,
   }) {
+    const limit = _end ? _end - _start : null;
     let options = {
-      limit: _end - _start,
+      limit,
       offset: _start,
       order: [[_sort, _order]],
       where: { excluded: false },
@@ -56,6 +57,7 @@ class ChaptersController {
 
   async changeTopicsQuantity(id, operation) {
     const chapter = await this.getOne(id);
+
     if (operation === 'plus') {
       chapter.topicsQuantity += 1;
     } else if (operation === 'minus') {
