@@ -20,7 +20,7 @@ router
     res.send(await topicsController.editTopic(req.body));
   })
   .post('/', async (req, res) => {
-    res.send(await topicsController.createTopic(req.body));
+    res.status(201).send(await topicsController.createTopic(req.body));
   })
   .delete('/:id', async (req, res) => {
     res.send(await topicsController.deleteTopic(+req.params.id));

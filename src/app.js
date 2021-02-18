@@ -22,6 +22,7 @@ const NotFoundError = require('./errors/NotFoundError');
 const WrongPasswordError = require('./errors/WrongPasswordError');
 const ConflictError = require('./errors/ConflictError');
 const AuthError = require('./errors/AuthError');
+const BadRequestError = require('./errors/BadRequestError');
 
 app.use('/courses', verifyJWT, verifyClient, coursesRouter);
 app.use('/admin', adminRouter);
@@ -29,12 +30,13 @@ app.use('/users', usersRouter);
 app.use('/topics', verifyJWT, verifyClient, topicsRouter);
 
 app.use((error, req, res, next) => {
-  console.log(error);
+  console.error(error);
 
   if (error instanceof NotFoundError) res.status(404).send(error.message);
   else if (error instanceof WrongPasswordError) res.status(401).send(error.message);
   else if (error instanceof AuthError) res.status(401).send(error.message);
   else if (error instanceof ConflictError) res.status(409).send(error.message);
+  else if (error instanceof BadRequestError) res.status(400).send(error.message);
   else res.status(500).json(error);
 });
 

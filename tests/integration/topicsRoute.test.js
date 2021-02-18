@@ -13,12 +13,14 @@ const {
   createTopic,
   createTheory,
   createExercise,
+  createAdminSession,
 } = require('../utils');
 
 const app = require('../../src/app');
 
 const agent = supertest(app);
 let userToken;
+let adminToken;
 let courseId;
 let topicId;
 let chapterId;
@@ -55,6 +57,8 @@ beforeAll(async () => {
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
+
+  adminToken = await createAdminSession(db);
 });
 
 afterAll(async () => {
@@ -149,5 +153,72 @@ describe('GET /topics/:topicId/users', () => {
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(response.status).toBe(404);
+  });
+});
+
+describe('GET /admin/topics', () => {
+  it('should return 200 with list of topics', async () => {
+    const { body, status } = await agent.get('/admin/topics').set('Authorization', `Bearer ${adminToken}`);
+
+    expect(status).toBe(200);
+    expect(body).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        chapterId,
+        order: 1,
+        name: 'Teste',
+      }),
+    ]));
+  });
+});
+
+describe('GET /admin/topics/:id', () => {
+  it('should return one topic by the id', async () => {
+    const { body, status } = await agent.get(`/admin/topics/${topicId}`).set('Authorization', `Bearer ${adminToken}`);
+    expect(status).toBe(200);
+    expect(body).toEqual(expect.objectContaining({
+      chapterId,
+      order: 1,
+      name: 'Teste',
+    }));
+  });
+});
+
+describe('PUT /admin/topics/:id', () => {
+  it('should update topic data', async () => {
+    const topic = {
+      id: topicId,
+      chapterId,
+      name: 'Novo Teste',
+      order: 47,
+    };
+
+    const { body, status } = await agent.put(`/admin/topics/${topicId}`).set('Authorization', `Bearer ${adminToken}`).send(topic);
+
+    expect(status).toBe(200);
+    expect(body).toEqual(expect.objectContaining(topic));
+  });
+});
+
+describe('POST /admin/topics', () => {
+  it('should create topic and return it', async () => {
+    const topic = {
+      chapterId,
+      name: 'Novo Tópico',
+      order: 66,
+    };
+
+    const { status, body } = await agent.post('/admin/topics').set('Authorization', `Bearer ${adminToken}`).send(topic);
+
+    expect(status).toBe(201);
+    expect(body).toEqual(expect.objectContaining(topic));
+  });
+});
+
+describe('DEL /admin/topics/:id', () => {
+  it('should change excluded flag to true', async () => {
+    const { status, body } = await agent.del(`/admin/topics/${topicId}`).set('Authorization', `Bearer ${adminToken}`);
+
+    expect(status).toBe(200);
+    expect(body.excluded).toBe(true);
   });
 });

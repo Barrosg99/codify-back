@@ -4,7 +4,7 @@ const querySchema = require('../../schemas/querySchema');
 
 router
   .post('/', async (req, res) => {
-    res.send(await chaptersController.createChapter(req.body));
+    res.status(201).send(await chaptersController.createChapter(req.body));
   })
   .get('/', async (req, res) => {
     const { error, value } = querySchema.validate(req.query);
