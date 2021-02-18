@@ -205,7 +205,7 @@ class UsersController {
     const msg = {
       to: email,
       from: 'noreply.codify@gmail.com',
-      subject: 'Codify - Redefinição de senha',
+      subject: 'Codify - Recuperação de senha',
       html,
     };
 
