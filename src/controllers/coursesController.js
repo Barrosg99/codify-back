@@ -1,13 +1,7 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Course = require('../models/Course');
-const Chapter = require('../models/Chapter');
-const Topic = require('../models/Topic');
-const TopicUser = require('../models/TopicUser');
-const User = require('../models/User');
-const CourseUser = require('../models/CourseUser');
-const ConflictError = require('../errors/ConflictError');
-const NotFoundError = require('../errors/NotFoundError');
+const {
+  CourseUser, User, TopicUser, Topic, Chapter, Course,
+} = require('../models');
+const { ConflictError, NotFoundError } = require('../errors');
 
 class CoursesController {
   getAll() {
@@ -109,6 +103,32 @@ class CoursesController {
     user.update({ hasInitAnyCourse: true });
 
     return CourseUser.findOrCreate({ where: { courseId, userId } });
+  }
+
+  async getCourseProgress(userId, courseId) {
+    let userProgress; let
+      hasStarted = false;
+
+    const user = await User.findByPk(userId);
+    const course = await Course.findByPk(courseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!course) throw new NotFoundError('Course not found');
+
+    const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
+    if (!userCourseData) userProgress = 0;
+    else {
+      const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
+
+      hasStarted = true;
+      userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
+    }
+
+    return {
+      userId,
+      courseId,
+      hasStarted,
+      progress: userProgress,
+    };
   }
 }
 

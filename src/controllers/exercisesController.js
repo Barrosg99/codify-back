@@ -1,8 +1,10 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
-const Exercise = require('../models/Exercise');
+const {
+  Exercise, User, Chapter, ExerciseUser, CourseUser, Topic,
+} = require('../models');
 const chaptersController = require('./chaptersController');
 const topicsController = require('./topicsController');
+
+const { NotFoundError } = require('../errors');
 
 class ExercisesController {
   getAll({
@@ -60,6 +62,33 @@ class ExercisesController {
     exercise.excluded = true;
     await exercise.save();
     return exercise;
+  }
+
+  async postExerciseProgress(userId, exerciseId) {
+    const user = await User.findByPk(userId);
+    const exercise = await Exercise.findByPk(exerciseId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!exercise) throw new NotFoundError('Exercise not found');
+
+    const topic = await Topic.findByPk(exercise.topicId, {
+      include: {
+        model: Chapter,
+      },
+    });
+
+    const { courseId } = topic.chapter;
+
+    const association = await ExerciseUser.findOne({ where: { userId, exerciseId } });
+
+    if (association) {
+      await association.destroy();
+      await CourseUser.decrement('doneActivities', { where: { userId, courseId } });
+      return false;
+    }
+
+    await ExerciseUser.create({ userId, exerciseId });
+    await CourseUser.increment('doneActivities', { where: { userId, courseId } });
+    return true;
   }
 }
 
