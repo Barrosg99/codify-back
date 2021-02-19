@@ -146,15 +146,3 @@ describe('Testing postAdminSignIn of usersController', () => {
     spy.mockRestore();
   });
 });
-
-describe('Testing getOngoingCoursesByUser', () => {
-  it('Should return a throw error trying to search for user courses that dont exist', async () => {
-    User.findOne.mockImplementation(null);
-
-    async function user() {
-      return usersController.getOngoingCoursesByUser(9999);
-    }
-
-    expect(user).rejects.toThrow(NotFoundError);
-  });
-});

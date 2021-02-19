@@ -86,10 +86,10 @@ async function createUserSession(db) {
   return { userToken, userId };
 }
 
-async function createTopic(db, chapterId) {
+async function createTopic(db, chapterId, order = 1) {
   const testTopic = await db.query(
     'INSERT INTO topics ("chapterId", name, "order", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [chapterId, 'Teste', 1, new Date(), new Date()],
+    [chapterId, 'Teste', order, new Date(), new Date()],
   );
 
   return testTopic.rows[0];

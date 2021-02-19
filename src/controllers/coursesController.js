@@ -1,7 +1,9 @@
+/* eslint-disable no-await-in-loop */
 const {
   CourseUser, User, TopicUser, Topic, Chapter, Course,
 } = require('../models');
 const { ConflictError, NotFoundError } = require('../errors');
+const topicsController = require('./topicsController');
 
 class CoursesController {
   getAll() {
@@ -129,6 +131,36 @@ class CoursesController {
       hasStarted,
       progress: userProgress,
     };
+  }
+
+  async getOngoingCoursesByUser(userId) {
+    const courses = await Course.findAll({
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+      include: {
+        model: User,
+        attributes: ['id', 'hasInitAnyCourse'],
+        through: {
+          model: CourseUser,
+          attributes: ['userId'],
+          where: {
+            userId,
+          },
+          order: [
+            ['updatedAt', 'DESC'],
+          ],
+        },
+      },
+    });
+
+    for (let i = 0; i < courses.length; i += 1) {
+      const course = courses[i];
+      const nextTopicId = await topicsController.getLastTopicDoneAtCourse(course.id, userId);
+      course.dataValues.nextTopicId = nextTopicId;
+    }
+
+    return courses;
   }
 }
 

@@ -3,13 +3,14 @@
 require('dotenv').config();
 
 const coursesController = require('../../src/controllers/coursesController');
+const topicsController = require('../../src/controllers/topicsController');
 const ConflictError = require('../../src/errors/ConflictError');
 const NotFoundError = require('../../src/errors/NotFoundError');
 const {
   Course, CourseUser, Chapter, User,
 } = require('../../src/models');
 
-jest.mock('../../src/models/Course.js');
+jest.mock('../../src/models/Course');
 jest.mock('../../src/models/CourseUser');
 jest.mock('../../src/models/Chapter');
 jest.mock('../../src/models/User');
@@ -172,5 +173,42 @@ describe('Testing function getCourseProgress of courseController', () => {
     const testedFunction = coursesController.getCourseProgress();
 
     expect(testedFunction).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe('Testing function onGoingCoursesByUser', () => {
+  it('should return array with next topic id', async () => {
+    const userId = 1;
+
+    Course.findAll.mockImplementationOnce(() => new Array(5).fill({ id: 1, dataValues: {} }));
+
+    const spyFn = jest.spyOn(topicsController, 'getLastTopicDoneAtCourse');
+    topicsController.getLastTopicDoneAtCourse.mockResolvedValue(5);
+
+    const courses = await coursesController.getOngoingCoursesByUser(userId);
+
+    expect(spyFn).toHaveBeenCalledTimes(5);
+    expect(spyFn).toHaveBeenCalledWith(1, 1);
+    expect(courses).toEqual(expect.arrayContaining([
+      { id: 1, dataValues: { nextTopicId: 5 } },
+      { id: 1, dataValues: { nextTopicId: 5 } },
+      { id: 1, dataValues: { nextTopicId: 5 } },
+      { id: 1, dataValues: { nextTopicId: 5 } },
+      { id: 1, dataValues: { nextTopicId: 5 } },
+    ]));
+
+    spyFn.mockRestore();
+  });
+});
+
+describe('Testing getOngoingCoursesByUser', () => {
+  it('Should return a throw error trying to search for user courses that dont exist', async () => {
+    User.findOne.mockImplementation(null);
+
+    async function user() {
+      return coursesController.getOngoingCoursesByUser(9999);
+    }
+
+    expect(user).rejects.toThrow(NotFoundError);
   });
 });
