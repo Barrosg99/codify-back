@@ -43,6 +43,9 @@ beforeAll(async () => {
   const testTopic = await createTopic(db, chapterId);
   topicId = testTopic.id;
 
+  const nextTestTopic = await createTopic(db, chapterId, 2);
+  nextTopicId = nextTestTopic.id;
+
   const testTheory = await createTheory(db, topicId);
   theoryId = testTheory.id;
 
@@ -395,5 +398,20 @@ describe('POST /users/exercises/:exerciseId/progress', () => {
 });
 
 describe('POST /users/topics/:topicId/progress', () => {
+  it('return next topic when done topic', async () => {
+    const response = await agent
+      .post(`/users/topics/${topicId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
 
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ nextTopic: nextTopicId });
+  });
+
+  it('return 403 when current topic is the last', async () => {
+    const response = await agent
+      .post(`/users/topics/${nextTopicId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(403);
+  });
 });
