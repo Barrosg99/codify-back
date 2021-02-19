@@ -215,7 +215,7 @@ describe('GET users/courses/ongoing', () => {
 
     await agent.post('/users/sign-in').send(body);
 
-    const response = await agent.get('/users/courses/ongoing').set('Authorization', `Baerer ${userToken}`);
+    const response = await agent.get('/users/courses/ongoing').set('Authorization', `Bearer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(expect.arrayContaining([]));
   });

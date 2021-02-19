@@ -3,8 +3,6 @@ const sgMail = require('@sendgrid/mail');
 
 const {
   AdminSession,
-  CourseUser,
-  Course,
   Session,
   User,
 } = require('../models');
@@ -75,23 +73,6 @@ class UsersController {
 
   findAdminSessionById(id) {
     return AdminSession.findByPk(id);
-  }
-
-  getOngoingCoursesByUser(id) {
-    return Course.findAll({
-      include: {
-        model: User,
-        through: {
-          model: CourseUser,
-          where: {
-            userId: id,
-          },
-          order: [
-            ['updatedAt', 'DESC'],
-          ],
-        },
-      },
-    });
   }
 
   async postUserSignOut(id) {
