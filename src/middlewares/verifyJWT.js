@@ -1,19 +1,21 @@
+/* eslint-disable no-unused-vars */
 const jwt = require('jsonwebtoken');
 const { AuthError } = require('../errors');
+const Redis = require('../utils/redis');
 
 async function verifyJWT(req, res, next) {
   const header = req.header('Authorization');
   const token = header.split(' ')[1];
   if (!token || !header) throw new AuthError();
 
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET, async (err, decoded) => {
     if (err) throw new AuthError();
 
-    if (req.originalUrl === '/users/password-reset') {
-      req.userId = decoded.id;
-    } else {
-      req.sessionId = decoded.id;
-    }
+    const user = await Redis.getSession(token);
+    if (!user) throw new AuthError();
+
+    req.userId = user.id;
+    req.sessionId = token;
   });
 
   next();

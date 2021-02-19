@@ -8,11 +8,17 @@ const usersController = require('../../src/controllers/usersController');
 
 const { NotFoundError, AuthError, WrongPasswordError } = require('../../src/errors');
 const {
-  AdminSession, Session, User,
+  User,
 } = require('../../src/models');
+
+const Redis = require('../../src/utils/redis');
 
 jest.mock('../../src/models/Session');
 jest.mock('../../src/models/User');
+
+jest.mock('../../src/utils/redis', () => ({
+  setSession: ({ id }) => id,
+}));
 
 jest.mock('jsonwebtoken', () => ({
   sign: () => 'token',
@@ -70,23 +76,20 @@ describe('creating new session', () => {
     const password = 'password';
 
     const spy = jest.spyOn(usersController, 'findByEmail');
-    usersController.findByEmail.mockImplementationOnce((emailUser) => (
+    usersController.findByEmail.mockResolvedValueOnce(
       {
-        id: 1, name: 'Teste', email: emailUser, password: 'password', avatarUrl: 'https://avatar.com',
-      }
-    ));
-
-    Session.create.mockResolvedValue(() => true);
+        id: 1, name: 'Teste', email: userEmail, password: 'password', avatarUrl: 'https://avatar.com',
+      },
+    );
 
     const response = await usersController.createSession(userEmail, password);
 
-    expect(usersController.findByEmail).toHaveBeenCalled();
     expect(usersController.findByEmail).toHaveBeenCalledWith(userEmail);
     expect(response).toMatchObject({
       userId: 1,
       name: 'Teste',
       avatarUrl: 'https://avatar.com',
-      token: 'token',
+      token: 1,
     });
 
     spy.mockRestore();
@@ -135,14 +138,16 @@ describe('Testing postAdminSignIn of usersController', () => {
   });
 
   it('Should return a token if username and password are correct.', async () => {
-    const spy = jest.spyOn(AdminSession, 'create');
-    AdminSession.create.mockImplementationOnce((({ userId }) => userId));
+    const spy = jest.spyOn(Redis, 'setSession');
+
     const login = await usersController.postAdminSignIn(
       process.env.ADMIN_USERNAME,
       process.env.ADMIN_PASSWORD,
     );
-    expect(AdminSession.create).toHaveBeenCalledWith({ userId: process.env.ADMIN_ID });
-    expect(login).toEqual(expect.any(String));
+
+    expect(Redis.setSession).toHaveBeenCalledWith({ id: process.env.ADMIN_ID });
+    expect(login).toEqual(process.env.ADMIN_ID);
+
     spy.mockRestore();
   });
 });

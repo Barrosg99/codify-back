@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const sgMail = require('@sendgrid/mail');
 
@@ -9,6 +8,8 @@ const {
   Session,
   User,
 } = require('../models');
+
+const Redis = require('../utils/redis');
 
 const {
   NotFoundError,
@@ -44,8 +45,7 @@ class UsersController {
       throw new WrongPasswordError('Password is incorrect');
     }
 
-    const session = await Session.create({ userId: user.id });
-    const token = jwt.sign({ id: session.id }, process.env.SECRET);
+    const token = await Redis.setSession({ id: user.id });
 
     return {
       userId: user.id,
@@ -65,13 +65,12 @@ class UsersController {
       throw new AuthError('Wrong username or password');
     }
 
-    const session = await AdminSession.create({ userId: process.env.ADMIN_ID });
-    const token = jwt.sign({ id: session.id }, process.env.SECRET);
+    const token = await Redis.setSession({ id: process.env.ADMIN_ID });
     return token;
   }
 
   async postAdminSignOut(id) {
-    return AdminSession.destroy({ where: { id } });
+    return Redis.deleteSession(id);
   }
 
   findAdminSessionById(id) {
@@ -96,7 +95,7 @@ class UsersController {
   }
 
   async postUserSignOut(id) {
-    return Session.destroy({ where: { id } });
+    return Redis.deleteSession(id);
   }
 
   async sendPwdRecoveryEmail(email) {

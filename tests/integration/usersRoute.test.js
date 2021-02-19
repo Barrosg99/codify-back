@@ -7,7 +7,12 @@ const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
 
-const { createCoursesUtils, createUserSession, cleanDataBase } = require('../utils');
+const {
+  createCoursesUtils,
+  createUserSession,
+  cleanDataBase,
+} = require('../utils');
+const Redis = require('../../src/utils/redis');
 
 const agent = supertest(app);
 let userToken;
@@ -25,6 +30,7 @@ beforeAll(async () => {
     '#F5F100',
     'https://i.imgur.com/lWUs38z.png',
   );
+
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
@@ -34,6 +40,7 @@ afterAll(async () => {
   await cleanDataBase(db);
   await db.end();
   await sequelize.close();
+  await Redis.close();
 });
 
 describe('POST /users/register', () => {
@@ -145,11 +152,6 @@ describe('POST /users/sign-in', () => {
 
 describe('GET /users/courses/:courseId/progress', () => {
   it('should return user progress in a course if both exist with no progress if user has not started the course', async () => {
-    await db.query(
-      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [courseId, 'Teste', 1, 9, 0, new Date(), new Date()],
-    );
-
     const response = await agent
       .get(`/users/courses/${courseId}/progress`)
       .set('Authorization', `Bearer ${userToken}`);
@@ -176,7 +178,7 @@ describe('GET /users/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: true,
-      progress: 22,
+      progress: 40,
     });
   });
 
