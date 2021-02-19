@@ -126,6 +126,8 @@ class UsersController {
 
     user.password = hashPassword;
     await user.save();
+
+    await Session.destroy({ where: { userId } });
   }
 }
 
