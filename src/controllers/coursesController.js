@@ -44,6 +44,10 @@ class CoursesController {
       },
     });
 
+    if (!course || course.chapters.length === 0) {
+      return course;
+    }
+
     let lastTopicId = course.chapters[0].topics[0].id;
     course.chapters.forEach((c) => {
       c.topics.forEach((t) => {
@@ -141,6 +145,7 @@ class CoursesController {
       include: {
         model: User,
         attributes: ['id', 'hasInitAnyCourse'],
+        required: true,
         through: {
           model: CourseUser,
           attributes: ['userId'],
