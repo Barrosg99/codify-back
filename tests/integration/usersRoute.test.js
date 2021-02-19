@@ -215,25 +215,91 @@ describe('GET /users/courses/:courseId/progress', () => {
   });
 });
 
-describe('GET users/courses/ongoing', () => {
-  it('Should return an ordered list of this users courses', async () => {
-    const newUser = {
-      name: 'Hermione',
-      email: 'hermione@gmail.com',
-      password: '12345',
-      passwordConfirmation: '12345',
-      avatarUrl: 'https://google.com',
-    };
-
-    const user = await agent.post('/users/register').send(newUser);
-
-    const body = { email: user.body.email, password: '12345' };
-
-    await agent.post('/users/sign-in').send(body);
-
+describe('GET /users/courses/ongoing', () => {
+  it('Should return an empty list when user dont have init course yet', async () => {
     const response = await agent.get('/users/courses/ongoing').set('Authorization', `Bearer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(expect.arrayContaining([]));
+  });
+
+  it('Should return list with one course when user have init only one course but not finish any topic', async () => {
+    await db.query(
+      'INSERT INTO "courseUsers" ("userId", "courseId", "createdAt", "updatedAt") VALUES ($1,$2, $3, $4)',
+      [userId, courseId, new Date(), new Date()],
+    );
+
+    await db.query(
+      'UPDATE "users" SET "hasInitAnyCourse"=$1 WHERE id=$2',
+      [true, userId],
+    );
+
+    const response = await agent.get('/users/courses/ongoing').set('Authorization', `Bearer ${userToken}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([{
+      id: courseId,
+      title: 'JavaScript do zero ao avançado',
+      description: 'Curso para você ficar voando mesmo, tipo monstrão no JS',
+      color: '#F5F100',
+      imageUrl: 'https://i.imgur.com/lWUs38z.png',
+      nextTopicId: topicId,
+      users: expect.arrayContaining([{
+        id: userId,
+        hasInitAnyCourse: true,
+        courseUser: { userId },
+      }]),
+    }]));
+  });
+
+  it('Should return list with two course when user have init more then one course but not finish any topic', async () => {
+    await db.query(
+      'INSERT INTO "courseUsers" ("userId", "courseId", "createdAt", "updatedAt") VALUES ($1,$2, $3, $4)',
+      [userId, courseId, new Date(), new Date()],
+    );
+
+    await db.query(
+      'UPDATE "users" SET "hasInitAnyCourse"=$1 WHERE id=$2',
+      [true, userId],
+    );
+    await db.query(
+      'INSERT INTO "courseUsers" ("userId", "courseId", "createdAt", "updatedAt") VALUES ($1,$2, $3, $4)',
+      [userId, courseId, new Date(), new Date()],
+    );
+
+    await db.query(
+      'UPDATE "users" SET "hasInitAnyCourse"=$1 WHERE id=$2',
+      [true, userId],
+    );
+
+    const response = await agent.get('/users/courses/ongoing').set('Authorization', `Bearer ${userToken}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([
+      {
+        id: courseId,
+        title: 'JavaScript do zero ao avançado',
+        description: 'Curso para você ficar voando mesmo, tipo monstrão no JS',
+        color: '#F5F100',
+        imageUrl: 'https://i.imgur.com/lWUs38z.png',
+        nextTopicId: topicId,
+        users: expect.arrayContaining([{
+          id: userId,
+          hasInitAnyCourse: true,
+          courseUser: { userId },
+        }]),
+      },
+      {
+        id: courseId,
+        title: 'JavaScript do zero ao avançado',
+        description: 'Curso para você ficar voando mesmo, tipo monstrão no JS',
+        color: '#F5F100',
+        imageUrl: 'https://i.imgur.com/lWUs38z.png',
+        nextTopicId: topicId,
+        users: expect.arrayContaining([{
+          id: userId,
+          hasInitAnyCourse: true,
+          courseUser: { userId },
+        }]),
+      },
+    ]));
   });
 });
 
@@ -326,4 +392,8 @@ describe('POST /users/exercises/:exerciseId/progress', () => {
 
     expect(response.status).toBe(401);
   });
+});
+
+describe('POST /users/topics/:topicId/progress', () => {
+
 });
