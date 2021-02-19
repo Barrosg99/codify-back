@@ -145,6 +145,7 @@ class CoursesController {
       include: {
         model: User,
         attributes: ['id', 'hasInitAnyCourse'],
+        required: true,
         through: {
           model: CourseUser,
           attributes: ['userId'],
