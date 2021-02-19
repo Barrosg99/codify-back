@@ -152,18 +152,6 @@ describe('Testing postAdminSignIn of usersController', () => {
   });
 });
 
-describe('Testing getOngoingCoursesByUser', () => {
-  it('Should return a throw error trying to search for user courses that dont exist', async () => {
-    User.findOne.mockImplementation(null);
-
-    async function user() {
-      return usersController.getOngoingCoursesByUser(9999);
-    }
-
-    expect(user).rejects.toThrow(NotFoundError);
-  });
-});
-
 describe('function sendPwdRecoveryEmail', () => {
   it('should send email to user if sent user id is valid', async () => {
     const sgMail = require('@sendgrid/mail');

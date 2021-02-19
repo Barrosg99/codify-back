@@ -143,7 +143,7 @@ class CoursesController {
         attributes: ['id', 'hasInitAnyCourse'],
         through: {
           model: CourseUser,
-          attributes: ['id'],
+          attributes: ['userId'],
           where: {
             userId,
           },
