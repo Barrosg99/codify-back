@@ -102,7 +102,7 @@ class UsersController {
     const user = await this.findByEmail(email);
     if (!user) throw new NotFoundError('User not found');
 
-    const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 300 });
+    const token = await Redis.setSession({ id: user.id });
 
     const html = getEmailMessage(user, token);
 
@@ -117,7 +117,7 @@ class UsersController {
     await sgMail.send(msg);
   }
 
-  async changePassword(userId, newPassword) {
+  async changePassword(userId, sessionId, newPassword) {
     const user = await User.findByPk(userId);
     if (!user) throw new NotFoundError('User not found');
 
@@ -126,7 +126,7 @@ class UsersController {
     user.password = hashPassword;
     await user.save();
 
-    await Session.destroy({ where: { userId } });
+    await Redis.deleteSession(sessionId);
   }
 }
 

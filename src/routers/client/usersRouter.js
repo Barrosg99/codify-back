@@ -32,6 +32,8 @@ router.post('/sign-in', async (req, res) => {
 router.get('/courses/:courseId/progress', verifyJWT, async (req, res) => {
   const courseId = +req.params.courseId;
 
+  console.log(req.userId);
+
   const userProgress = await coursesController.getCourseProgress(req.userId, courseId);
   res.send(userProgress);
 });
@@ -84,7 +86,7 @@ router.put('/password-reset', verifyJWT, async (req, res) => {
   const { error } = userSchemas.newPassword.validate(req.body);
   if (error) return res.status(422).json({ error: error.details[0].message });
 
-  await usersController.changePassword(req.userId, req.body.password);
+  await usersController.changePassword(req.userId, req.sessionId, req.body.password);
 
   res.sendStatus(204);
 });
