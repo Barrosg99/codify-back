@@ -20,10 +20,7 @@ const Redis = require('../../src/utils/redis');
 const agent = supertest(app);
 let userToken;
 let userId;
-let chapterId;
-let topicId;
-let theoryId;
-let exerciseId;
+let courseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -130,6 +127,7 @@ describe('POST /users/sign-in', () => {
       name: 'Osvaldo',
       avatarUrl: 'https://google.com',
       token: expect.any(String),
+      hasInitAnyCourse: false,
     });
   });
 
@@ -203,7 +201,7 @@ describe('GET /users/courses/:courseId/progress', () => {
     });
   });
 
-  it('should return status code 404 if invalid user id is sent', async () => {
+  it('should return status code 401 if invalid token is sent', async () => {
     const response = await agent
       .get(`/users/courses/${courseId}/progress`)
       .set('Authorization', 'Bearer bcshacbhdbchdshc');
@@ -308,6 +306,25 @@ describe('GET /users/courses/ongoing', () => {
   });
 });
 
+describe('POST /users/topics/:topicId/progress', () => {
+  it('return next topic when done topic', async () => {
+    const response = await agent
+      .post(`/users/topics/${topicId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ nextTopic: nextTopicId });
+  });
+
+  it('return 403 when current topic is the last', async () => {
+    const response = await agent
+      .post(`/users/topics/${nextTopicId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(403);
+  });
+});
+
 describe('POST /signOut', () => {
   it('Should only return status 204 after ending the users session', async () => {
     const newUser = {
@@ -331,89 +348,50 @@ describe('POST /signOut', () => {
   });
 });
 
-describe('POST /users/theories/:theoryId/progress', () => {
-  it('should return status code 201 if user progress has been successfully created', async () => {
-    const response = await agent
-      .post(`/users/theories/${theoryId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
+describe('PUT /users/password-reset', () => {
+  it('should return status code 204 if password change has been successfully made', async () => {
+    const newUser = {
+      name: 'Cuca',
+      email: 'cuca@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
 
-    expect(response.status).toBe(201);
-  });
+    const user = await agent.post('/users/register').send(newUser);
 
-  it('should return status code 204 if user progress has been successfully deleted', async () => {
+    const { email } = user.body;
+    const loginBody = { email, password: '12345' };
+
+    const userSession = await agent.post('/users/sign-in').send(loginBody);
+
+    const body = {
+      password: 'newPassword',
+      passwordConfirmation: 'newPassword',
+    };
+
     const response = await agent
-      .post(`/users/theories/${theoryId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
+      .put('/users/password-reset')
+      .send(body)
+      .set('Authorization', `Bearer ${userSession.body.token}`);
+
+    const oldPasswordAttempt = await agent
+      .post('/users/sign-in')
+      .send({ email: 'cuca@gmail.com', password: '12345' });
+
+    const newPasswordAttempt = await agent
+      .post('/users/sign-in')
+      .send({ email: 'cuca@gmail.com', password: 'newPassword' });
 
     expect(response.status).toBe(204);
-  });
-
-  it('should return status code 404 if sent theory id is invalid', async () => {
-    const response = await agent
-      .post('/users/theories/5561128/progress')
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(404);
-  });
-
-  it('should return status code 401 if sent token is invalid', async () => {
-    const response = await agent
-      .post(`/users/theories/${theoryId}/progress`)
-      .set('Authorization', 'Bearer invalidToken');
-
-    expect(response.status).toBe(401);
-  });
-});
-
-describe('POST /users/exercises/:exerciseId/progress', () => {
-  it('should return status code 201 if user progress has been successfully created', async () => {
-    const response = await agent
-      .post(`/users/exercises/${exerciseId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(201);
-  });
-
-  it('should return status code 204 if user progress has been successfully deleted', async () => {
-    const response = await agent
-      .post(`/users/exercises/${exerciseId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(204);
-  });
-
-  it('should return status code 404 if sent theory id is invalid', async () => {
-    const response = await agent
-      .post('/users/exercises/5561128/progress')
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(404);
-  });
-
-  it('should return status code 401 if sent token is invalid', async () => {
-    const response = await agent
-      .post(`/users/exercises/${exerciseId}/progress`)
-      .set('Authorization', 'Bearer invalidToken');
-
-    expect(response.status).toBe(401);
-  });
-});
-
-describe('POST /users/topics/:topicId/progress', () => {
-  it('return next topic when done topic', async () => {
-    const response = await agent
-      .post(`/users/topics/${topicId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ nextTopic: nextTopicId });
-  });
-
-  it('return 403 when current topic is the last', async () => {
-    const response = await agent
-      .post(`/users/topics/${nextTopicId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(403);
+    expect(oldPasswordAttempt.status).toBe(401);
+    expect(newPasswordAttempt.status).toBe(201);
+    expect(newPasswordAttempt.body).toMatchObject({
+      userId: user.body.id,
+      name: 'Cuca',
+      avatarUrl: 'https://google.com',
+      token: expect.any(String),
+      hasInitAnyCourse: expect.any(Boolean),
+    });
   });
 });

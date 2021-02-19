@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const sgMail = require('@sendgrid/mail');
 
 const {
   AdminSession,
@@ -13,6 +14,8 @@ const {
   WrongPasswordError,
   AuthError,
 } = require('../errors');
+
+const { getEmailMessage } = require('../utils/helpers');
 
 class UsersController {
   async create({
@@ -74,6 +77,37 @@ class UsersController {
 
   async postUserSignOut(id) {
     return Redis.deleteSession(id);
+  }
+
+  async sendPwdRecoveryEmail(email) {
+    const user = await this.findByEmail(email);
+    if (!user) throw new NotFoundError('User not found');
+
+    const token = await Redis.setSession({ id: user.id });
+
+    const html = getEmailMessage(user, token);
+
+    const msg = {
+      to: email,
+      from: 'noreply.codify@gmail.com',
+      subject: 'Codify - Recuperação de senha',
+      html,
+    };
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    await sgMail.send(msg);
+  }
+
+  async changePassword(userId, sessionId, newPassword) {
+    const user = await User.findByPk(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const hashPassword = bcrypt.hashSync(newPassword, 10);
+
+    user.password = hashPassword;
+    await user.save();
+
+    await Redis.deleteSession(sessionId);
   }
 }
 

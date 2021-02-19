@@ -17,6 +17,7 @@ async function verifyJWT(req, res, next) {
 
   req.userId = user.id;
   req.sessionId = token;
+
   next();
 }
 
