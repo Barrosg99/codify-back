@@ -8,15 +8,15 @@ async function verifyJWT(req, res, next) {
   const token = header.split(' ')[1];
   if (!token || !header) throw new AuthError();
 
-  jwt.verify(token, process.env.SECRET, async (err, decoded) => {
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) throw new AuthError();
-
-    const user = await Redis.getSession(token);
-    if (!user) throw new AuthError();
-
-    req.userId = user.id;
-    req.sessionId = token;
   });
+
+  const user = await Redis.getSession(token);
+  if (!user) throw new AuthError();
+
+  req.userId = user.id;
+  req.sessionId = token;
 
   next();
 }

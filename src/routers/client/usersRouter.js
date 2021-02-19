@@ -32,8 +32,6 @@ router.post('/sign-in', async (req, res) => {
 router.get('/courses/:courseId/progress', verifyJWT, async (req, res) => {
   const courseId = +req.params.courseId;
 
-  console.log(req.userId);
-
   const userProgress = await coursesController.getCourseProgress(req.userId, courseId);
   res.send(userProgress);
 });

@@ -175,6 +175,6 @@ describe('function sendPwdRecoveryEmail', () => {
       html: expect.any(String),
     });
     expect(sgMail.send.mock.calls[0][0].html).toMatch(userName);
-    expect(sgMail.send.mock.calls[0][0].html).toMatch(/\?t=token/);
+    expect(sgMail.send.mock.calls[0][0].html).toMatch(/\/1/);
   });
 });

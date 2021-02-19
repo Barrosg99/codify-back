@@ -3,7 +3,6 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 const supertest = require('supertest');
-const jwt = require('jsonwebtoken');
 const sequelize = require('../../src/utils/database');
 const app = require('../../src/app');
 
@@ -21,6 +20,7 @@ const Redis = require('../../src/utils/redis');
 const agent = supertest(app);
 let userToken;
 let userId;
+let courseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -201,7 +201,7 @@ describe('GET /users/courses/:courseId/progress', () => {
     });
   });
 
-  it('should return status code 404 if invalid user id is sent', async () => {
+  it('should return status code 401 if invalid token is sent', async () => {
     const response = await agent
       .get(`/users/courses/${courseId}/progress`)
       .set('Authorization', 'Bearer bcshacbhdbchdshc');
@@ -306,6 +306,25 @@ describe('GET /users/courses/ongoing', () => {
   });
 });
 
+describe('POST /users/topics/:topicId/progress', () => {
+  it('return next topic when done topic', async () => {
+    const response = await agent
+      .post(`/users/topics/${topicId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ nextTopic: nextTopicId });
+  });
+
+  it('return 403 when current topic is the last', async () => {
+    const response = await agent
+      .post(`/users/topics/${nextTopicId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(403);
+  });
+});
+
 describe('POST /signOut', () => {
   it('Should only return status 204 after ending the users session', async () => {
     const newUser = {
@@ -331,54 +350,48 @@ describe('POST /signOut', () => {
 
 describe('PUT /users/password-reset', () => {
   it('should return status code 204 if password change has been successfully made', async () => {
+    const newUser = {
+      name: 'Cuca',
+      email: 'cuca@gmail.com',
+      password: '12345',
+      passwordConfirmation: '12345',
+      avatarUrl: 'https://google.com',
+    };
+
+    const user = await agent.post('/users/register').send(newUser);
+
+    const { email } = user.body;
+    const loginBody = { email, password: '12345' };
+
+    const userSession = await agent.post('/users/sign-in').send(loginBody);
+
     const body = {
       password: 'newPassword',
       passwordConfirmation: 'newPassword',
     };
 
-    const token = jwt.sign({ id: userId }, process.env.SECRET, { expiresIn: 300 });
-
     const response = await agent
       .put('/users/password-reset')
       .send(body)
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${userSession.body.token}`);
 
     const oldPasswordAttempt = await agent
       .post('/users/sign-in')
-      .send({ email: 'teste@teste.com', password: '123456' });
+      .send({ email: 'cuca@gmail.com', password: '12345' });
 
     const newPasswordAttempt = await agent
       .post('/users/sign-in')
-      .send({ email: 'teste@teste.com', password: 'newPassword' });
+      .send({ email: 'cuca@gmail.com', password: 'newPassword' });
 
     expect(response.status).toBe(204);
     expect(oldPasswordAttempt.status).toBe(401);
     expect(newPasswordAttempt.status).toBe(201);
     expect(newPasswordAttempt.body).toMatchObject({
-      userId,
-      name: 'Teste de Teste',
+      userId: user.body.id,
+      name: 'Cuca',
       avatarUrl: 'https://google.com',
       token: expect.any(String),
-      hasInitAnyCourse: false,
+      hasInitAnyCourse: expect.any(Boolean),
     });
-  });
-});
-
-describe('POST /users/topics/:topicId/progress', () => {
-  it('return next topic when done topic', async () => {
-    const response = await agent
-      .post(`/users/topics/${topicId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ nextTopic: nextTopicId });
-  });
-
-  it('return 403 when current topic is the last', async () => {
-    const response = await agent
-      .post(`/users/topics/${nextTopicId}/progress`)
-      .set('Authorization', `Bearer ${userToken}`);
-
-    expect(response.status).toBe(403);
   });
 });
