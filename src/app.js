@@ -11,7 +11,7 @@ app.use(express.json());
 
 require('./utils/loadRelationships');
 
-const { verifyJWT, verifyClient } = require('./middlewares');
+const { verifyJWT } = require('./middlewares');
 
 const adminRouter = require('./routers/admin/adminRouter');
 
@@ -27,10 +27,10 @@ const {
   NotNextTopicError,
 } = require('./errors');
 
-app.use('/courses', verifyJWT, verifyClient, coursesRouter);
+app.use('/courses', verifyJWT, coursesRouter);
 app.use('/admin', adminRouter);
 app.use('/users', usersRouter);
-app.use('/topics', verifyJWT, verifyClient, topicsRouter);
+app.use('/topics', verifyJWT, topicsRouter);
 
 app.use((error, req, res, next) => {
   console.error(error);

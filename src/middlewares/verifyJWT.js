@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 const jwt = require('jsonwebtoken');
 const { AuthError } = require('../errors');
+const Redis = require('../utils/redis');
 
 async function verifyJWT(req, res, next) {
   const header = req.header('Authorization');
@@ -8,8 +10,13 @@ async function verifyJWT(req, res, next) {
 
   jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) throw new AuthError();
-    req.sessionId = decoded.id;
   });
+
+  const user = await Redis.getSession(token);
+  if (!user) throw new AuthError();
+
+  req.userId = user.id;
+  req.sessionId = token;
   next();
 }
 
