@@ -112,8 +112,8 @@ class CoursesController {
   }
 
   async getCourseProgress(userId, courseId) {
-    let userProgress; let
-      hasStarted = false;
+    let userProgress;
+    let hasStarted = false;
 
     const user = await User.findByPk(userId);
     const course = await Course.findByPk(courseId);

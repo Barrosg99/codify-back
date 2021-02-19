@@ -5,4 +5,13 @@ const adminSignIn = Joi.object({
   password: Joi.string().required(),
 });
 
-module.exports = { adminSignIn };
+const recoveryEmail = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+const newPassword = Joi.object({
+  password: Joi.string().required(),
+  passwordConfirmation: Joi.string().valid(Joi.ref('password')).required(),
+});
+
+module.exports = { adminSignIn, recoveryEmail, newPassword };

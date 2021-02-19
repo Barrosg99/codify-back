@@ -1,3 +1,6 @@
+/* eslint-disable global-require */
+/* eslint-disable no-shadow */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 require('dotenv').config();
 
@@ -25,6 +28,8 @@ jest.mock('bcrypt', () => ({
   compareSync: (password, hashPassword) => password === hashPassword,
   hashSync: () => 'password',
 }));
+
+jest.mock('@sendgrid/mail');
 
 describe('findByEmail', () => {
   it('should call with the right parameters and return an object', async () => {
@@ -144,5 +149,32 @@ describe('Testing postAdminSignIn of usersController', () => {
     expect(login).toEqual(process.env.ADMIN_ID);
 
     spy.mockRestore();
+  });
+});
+
+describe('function sendPwdRecoveryEmail', () => {
+  it('should send email to user if sent user id is valid', async () => {
+    const sgMail = require('@sendgrid/mail');
+    const email = 'teste@teste.com';
+    const userName = 'Eustáquio';
+
+    const spy = jest.spyOn(usersController, 'findByEmail');
+    usersController.findByEmail.mockResolvedValueOnce({ id: 1, name: userName });
+
+    await usersController.sendPwdRecoveryEmail(email);
+
+    spy.mockRestore();
+
+    expect(sgMail.setApiKey).toHaveBeenCalled();
+    expect(sgMail.setApiKey).toHaveBeenCalledWith(process.env.SENDGRID_API_KEY);
+    expect(sgMail.send).toHaveBeenCalled();
+    expect(sgMail.send).toHaveBeenCalledWith({
+      to: email,
+      from: 'noreply.codify@gmail.com',
+      subject: 'Codify - Recuperação de senha',
+      html: expect.any(String),
+    });
+    expect(sgMail.send.mock.calls[0][0].html).toMatch(userName);
+    expect(sgMail.send.mock.calls[0][0].html).toMatch(/\/1/);
   });
 });
