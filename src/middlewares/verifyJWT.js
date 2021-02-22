@@ -15,6 +15,8 @@ async function verifyJWT(req, res, next) {
   const user = await Redis.getSession(token);
   if (!user) throw new AuthError();
 
+  await Redis.renewSession(token);
+
   req.userId = user.id;
   req.sessionId = token;
   next();
