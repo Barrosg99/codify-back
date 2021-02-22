@@ -7,7 +7,7 @@ router
     res.status(201).send(await chaptersController.createChapter(req.body));
   })
   .get('/', async (req, res) => {
-    const { error, value } = querySchema.validate(req.query);
+    const { error, value } = querySchema.validate(req.query, { allowUnknown: true });
     if (error) return res.status(422).send({ error: error.details[0].message });
 
     const { rows, count } = await chaptersController.getAll(value);
