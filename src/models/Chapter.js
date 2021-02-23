@@ -42,6 +42,11 @@ Chapter.init(
       defaultValue: false,
       allowNull: true,
     },
+    theoryQuantity: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   },
   {
     sequelize,

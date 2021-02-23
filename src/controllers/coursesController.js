@@ -159,6 +159,10 @@ class CoursesController {
       },
     });
 
+    if (!courses) {
+      throw new NotFoundError();
+    }
+
     for (let i = 0; i < courses.length; i += 1) {
       const course = courses[i];
       const nextTopicId = await topicsController.getLastTopicDoneAtCourse(course.id, userId);

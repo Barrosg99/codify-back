@@ -191,6 +191,10 @@ class TopicsController {
       });
     }
 
+    if (!nextTopic) {
+      throw new NotNextTopicError();
+    }
+
     return nextTopic && nextTopic.id;
   }
 
@@ -234,6 +238,10 @@ class TopicsController {
         },
       },
     });
+
+    if (!nextTopic) {
+      throw new NotNextTopicError();
+    }
     return nextTopic && nextTopic.id;
   }
 }

@@ -47,6 +47,7 @@ describe('findByEmail', () => {
 describe('create', () => {
   it('should call with the right parameters and return an object', async () => {
     jest.spyOn(User, 'create');
+    jest.spyOn(User, 'findOne');
 
     const user = {
       name: 'joao',
@@ -55,7 +56,8 @@ describe('create', () => {
       avatarUrl: 'url.com.br',
     };
 
-    User.create.mockImplementation(() => ({ dataValues: { ...user } }));
+    User.findOne.mockImplementationOnce(() => null);
+    User.create.mockImplementationOnce(() => ({ dataValues: { ...user } }));
 
     const result = await usersController.create(user);
 
