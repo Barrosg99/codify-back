@@ -90,7 +90,7 @@ describe('GET /topics/:topicId/users', () => {
       exercises: expect.arrayContaining([
         expect.objectContaining({
           exerciseId,
-          description: 'Teste',
+          enunciated: 'Teste',
           userHasFinished: false,
         }),
       ]),
@@ -127,7 +127,7 @@ describe('GET /topics/:topicId/users', () => {
       exercises: expect.arrayContaining([
         expect.objectContaining({
           exerciseId,
-          description: 'Teste',
+          enunciated: 'Teste',
           userHasFinished: true,
         }),
       ]),

@@ -14,31 +14,76 @@ module.exports = {
     await queryInterface.bulkInsert('exercises', [
       {
         topicId: topic1[0][0].id,
-        description: 'BRTT DE DRAVEN MANO COMASIN 1',
+        enunciated: `
+          <h3>Exercício 1</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br><br>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br>
+          Exemplo:
+          <br>
+          Quando enviado ... retorna ...
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic1[0][0].id,
-        description: 'BRTT DE DRAVEN MANO COMASIN 2',
+        enunciated: `
+          <h3><strong>Exercício 2<strong></h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br><br>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br>
+          Exemplo:
+          <br>
+          Quando enviado ... retorna ...
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic2[0][0].id,
-        description: 'BRTT DE DRAVEN MANO COMASIN 1',
+        enunciated: `
+          <h3>Exercício 1</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br><br>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br>
+          Exemplo:
+          <br>
+          Quando enviado ... retorna ...
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic3[0][0].id,
-        description: 'BRTT DE DRAVEN MANO COMASIN 1',
+        enunciated: `
+          <h3>Exercício 1</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br><br>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br>
+          Exemplo:
+          <br>
+          Quando enviado ... retorna ...
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic4[0][0].id,
-        description: 'BRTT DE DRAVEN MANO COMASIN 1',
+        enunciated: `
+          <h3>Exercício 1</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br><br>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
+          <br>
+          Exemplo:
+          <br>
+          Quando enviado ... retorna ...
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

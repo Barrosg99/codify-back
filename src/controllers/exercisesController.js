@@ -25,7 +25,7 @@ class ExercisesController {
     return Exercise.findByPk(id);
   }
 
-  async editExercise({ id, topicId, description }) {
+  async editExercise({ id, topicId, enunciated }) {
     const exercise = await this.getOne(id);
     if (!exercise) throw new NotFoundError('Exercise id is not valid');
 
@@ -39,19 +39,19 @@ class ExercisesController {
     }
 
     exercise.topicId = topicId;
-    exercise.description = description;
+    exercise.enunciated = enunciated;
 
     await exercise.save();
 
     return exercise;
   }
 
-  async createExercise({ topicId, description }) {
+  async createExercise({ topicId, enunciated }) {
     const topic = await topicsController.getOne(topicId);
 
     await chaptersController.changeExerciseQuantity(topic.chapterId, 'plus');
 
-    return Exercise.create({ topicId, description });
+    return Exercise.create({ topicId, enunciated });
   }
 
   async deleteExercise(id) {

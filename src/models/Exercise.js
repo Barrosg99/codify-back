@@ -19,7 +19,7 @@ Exercise.init(
         key: 'id',
       },
     },
-    description: {
+    enunciated: {
       type: Sequelize.STRING,
       allowNull: false,
     },
