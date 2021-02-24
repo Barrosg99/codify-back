@@ -134,7 +134,7 @@ class UsersController {
     if (email) user.email = email;
     if (name) user.name = name;
 
-    await user.save();
+    return user.save();
   }
 }
 
