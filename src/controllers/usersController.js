@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const sgMail = require('@sendgrid/mail');
+const axios = require('axios');
 
 const {
   AdminSession,
@@ -14,6 +14,7 @@ const {
   WrongPasswordError,
   AuthError,
   ConflictError,
+  SendGridError,
 } = require('../errors');
 
 const { getEmailMessage } = require('../utils/helpers');
@@ -101,8 +102,33 @@ class UsersController {
       html,
     };
 
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    await sgMail.send(msg);
+    const data = {
+      personalizations: [
+        {
+          to: [
+            {
+              email,
+              name: user.name,
+            },
+          ],
+          subject: 'Codify - Recuperação de senha',
+        },
+      ],
+      from: {
+        email: 'noreply.codify@gmail.com',
+        name: 'Codify',
+      },
+      reply_to: {
+        email: 'noreply.codify@gmail.com',
+        name: 'Codify',
+      },
+      content: [{ value: html, type: 'text/html' }],
+    };
+
+    const request = await axios.post('https://api.sendgrid.com/v3/mail/send', { ...data }, { headers: { Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`, 'Content-Type': 'application/json' } });
+    if (request.status !== 202) {
+      throw new SendGridError('Email could not be send');
+    }
   }
 
   async changePassword(userId, sessionId, newPassword) {
