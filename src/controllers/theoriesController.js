@@ -2,6 +2,8 @@ const { NotFoundError } = require('../errors');
 const {
   Theory, User, Topic, Chapter, TheoryUser, CourseUser,
 } = require('../models');
+const chaptersController = require('./chaptersController');
+const topicsController = require('./topicsController');
 
 class TheoriesController {
   getAll({
@@ -35,13 +37,22 @@ class TheoriesController {
     return theory;
   }
 
-  createTheory({ topicId, youtubeUrl }) {
+  async createTheory({ topicId, youtubeUrl }) {
+    const topic = await topicsController.getOne(topicId);
+
+    await chaptersController.changeTheoryQuantity(topic.chapterId, 'plus');
     return Theory.create({
       topicId, youtubeUrl,
     });
   }
 
   async deleteTheory(id) {
+    const theory = await this.getOne(id);
+
+    const topic = await topicsController.getOne(theory.topicId);
+
+    await chaptersController.changeTheoryQuantity(topic.chapterId, 'minus');
+
     return Theory.update({ excluded: true }, {
       where: { id },
       returning: true,

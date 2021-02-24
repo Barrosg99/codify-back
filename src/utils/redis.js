@@ -28,7 +28,6 @@ class Redis {
     const key = jwt.sign(payload, process.env.SECRET);
 
     await clientInstance.set(key, JSON.stringify(payload), 'EX', process.env.SESSION_EXPIRATION);
-
     return key;
   }
 
@@ -42,6 +41,12 @@ class Redis {
   static deleteSession(key) {
     const clientInstance = this.getInstance();
     return clientInstance.del(key);
+  }
+
+  static async renewSession(key) {
+    const clientInstance = this.getInstance();
+
+    await clientInstance.expire(key, process.env.SESSION_EXPIRATION);
   }
 
   static async close() {

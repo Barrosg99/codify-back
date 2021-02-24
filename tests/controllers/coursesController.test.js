@@ -80,6 +80,7 @@ describe('function getOne - gets one course data', () => {
           id: 1,
           name: 'Apresentação',
           topicsQuantity: 2,
+          theoryQuantity: 0,
           exercisesQuantity: 5,
         },
       ],
@@ -98,6 +99,7 @@ describe('function getOne - gets one course data', () => {
           id: 1,
           name: 'Apresentação',
           topicsQuantity: 2,
+          theoryQuantity: 0,
           exercisesQuantity: 5,
         },
       ],
@@ -105,7 +107,7 @@ describe('function getOne - gets one course data', () => {
   });
 
   it('should throw NotFoundError if required course is not on database', async () => {
-    Course.findByPk.mockResolvedValueOnce(null);
+    Course.findByPk.mockImplementation(() => null);
 
     const response = coursesController.getOne(1);
 

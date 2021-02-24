@@ -13,6 +13,7 @@ const {
   NotFoundError,
   WrongPasswordError,
   AuthError,
+  ConflictError,
 } = require('../errors');
 
 const { getEmailMessage } = require('../utils/helpers');
@@ -21,6 +22,12 @@ class UsersController {
   async create({
     name, password, email, avatarUrl,
   }) {
+    const emailAlredyUsed = await this.findByEmail(email);
+
+    if (emailAlredyUsed) {
+      throw new ConflictError();
+    }
+
     avatarUrl = !avatarUrl ? null : avatarUrl;
     password = bcrypt.hashSync(password, 10);
     const user = await User.create({

@@ -139,3 +139,39 @@ describe('Function changeExercisesQuantity', () => {
     spyFn.mockRestore();
   });
 });
+
+describe('Function changeTheoryQuantity', () => {
+  it('should add 1 to theory quantity', async () => {
+    const chapter = {
+      theoryQuantity: 0,
+      save: () => true,
+    };
+
+    const spyFn = jest.spyOn(chaptersController, 'getOne');
+    chaptersController.getOne.mockResolvedValueOnce(chapter);
+
+    await chaptersController.changeTheoryQuantity(1, 'plus');
+
+    expect(spyFn).toHaveBeenCalledWith(1);
+    expect(chapter.theoryQuantity).toBe(1);
+
+    spyFn.mockRestore();
+  });
+
+  it('should deduct 1 to theory quantity', async () => {
+    const chapter = {
+      theoryQuantity: 1,
+      save: () => true,
+    };
+
+    const spyFn = jest.spyOn(chaptersController, 'getOne');
+    chaptersController.getOne.mockResolvedValueOnce(chapter);
+
+    await chaptersController.changeTheoryQuantity(1, 'minus');
+
+    expect(spyFn).toHaveBeenCalledWith(1);
+    expect(chapter.theoryQuantity).toBe(0);
+
+    spyFn.mockRestore();
+  });
+});

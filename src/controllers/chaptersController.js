@@ -76,6 +76,17 @@ class ChaptersController {
     }
     await chapter.save();
   }
+
+  async changeTheoryQuantity(id, operation) {
+    const chapter = await this.getOne(id);
+
+    if (operation === 'plus') {
+      chapter.theoryQuantity += 1;
+    } else if (operation === 'minus') {
+      chapter.theoryQuantity -= 1;
+    }
+    await chapter.save();
+  }
 }
 
 module.exports = new ChaptersController();
