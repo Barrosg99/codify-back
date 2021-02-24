@@ -24,6 +24,11 @@ module.exports = {
           <br>
           Quando enviado ... retorna ...
         `),
+        initialCode: String(`
+          function nomeDoExercicio() {
+            // Insira seu código aqui
+          }
+        `),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -38,6 +43,11 @@ module.exports = {
           Exemplo:
           <br>
           Quando enviado ... retorna ...
+        `),
+        initialCode: String(`
+          function nomeDoExercicio() {
+            // Insira seu código aqui
+          }
         `),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -54,6 +64,11 @@ module.exports = {
           <br>
           Quando enviado ... retorna ...
         `),
+        initialCode: String(`
+          function nomeDoExercicio() {
+            // Insira seu código aqui
+          }
+        `),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -69,6 +84,11 @@ module.exports = {
           <br>
           Quando enviado ... retorna ...
         `),
+        initialCode: String(`
+          function nomeDoExercicio() {
+            // Insira seu código aqui
+          }
+        `),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -83,6 +103,11 @@ module.exports = {
           Exemplo:
           <br>
           Quando enviado ... retorna ...
+        `),
+        initialCode: String(`
+          function nomeDoExercicio() {
+            // Insira seu código aqui
+          }
         `),
         createdAt: new Date(),
         updatedAt: new Date(),

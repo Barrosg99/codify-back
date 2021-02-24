@@ -20,7 +20,11 @@ Exercise.init(
       },
     },
     enunciated: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    initialCode: {
+      type: Sequelize.TEXT,
       allowNull: false,
     },
     excluded: {

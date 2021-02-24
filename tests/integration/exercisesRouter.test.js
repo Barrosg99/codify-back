@@ -89,6 +89,7 @@ describe('PUT /admin/exercises/:id', () => {
       id: exerciseId,
       topicId,
       enunciated: 'Teste Novo',
+      initialCode: 'Teste',
     };
 
     const { status, body } = await agent.put(`/admin/exercises/${exerciseId}`).set('Authorization', `Bearer ${adminToken}`).send(exercise);
@@ -103,6 +104,7 @@ describe('POST /admin/exercises', () => {
     const exercise = {
       topicId,
       enunciated: 'Teste Criado',
+      initialCode: 'Teste',
     };
 
     const { status, body } = await agent.post('/admin/exercises').set('Authorization', `Bearer ${adminToken}`).send(exercise);
