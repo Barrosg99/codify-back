@@ -95,13 +95,6 @@ class UsersController {
 
     const html = getEmailMessage(user, token);
 
-    const msg = {
-      to: email,
-      from: 'noreply.codify@gmail.com',
-      subject: 'Codify - Recuperação de senha',
-      html,
-    };
-
     const data = {
       personalizations: [
         {
