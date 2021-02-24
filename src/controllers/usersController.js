@@ -30,9 +30,11 @@ class UsersController {
 
     avatarUrl = !avatarUrl ? null : avatarUrl;
     password = bcrypt.hashSync(password, 10);
+
     const user = await User.create({
       name, email, password, avatarUrl,
     }, { returning: true, raw: true });
+
     delete user.dataValues.password;
     return user;
   }
@@ -116,6 +118,23 @@ class UsersController {
     await user.save();
 
     await Redis.deleteSession(sessionId);
+  }
+
+  async changeUserData(userId, { email, name }) {
+    const user = await User.findByPk(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    if (email) {
+      const emailAlredyUsed = await this.findByEmail(email);
+      if (emailAlredyUsed) {
+        throw new ConflictError();
+      }
+    }
+
+    if (email) user.email = email;
+    if (name) user.name = name;
+
+    await user.save();
   }
 }
 
