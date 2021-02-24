@@ -48,6 +48,7 @@ class UsersController {
     return {
       userId: user.id,
       name: user.name,
+      email: user.email,
       avatarUrl: user.avatarUrl,
       token,
       hasInitAnyCourse: user.hasInitAnyCourse,
