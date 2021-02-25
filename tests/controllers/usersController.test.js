@@ -6,7 +6,9 @@ require('dotenv').config();
 
 const usersController = require('../../src/controllers/usersController');
 
-const { NotFoundError, AuthError, WrongPasswordError } = require('../../src/errors');
+const {
+  NotFoundError, AuthError, WrongPasswordError, ConflictError,
+} = require('../../src/errors');
 const {
   User,
 } = require('../../src/models');
@@ -178,5 +180,44 @@ describe('function sendPwdRecoveryEmail', () => {
     });
     expect(sgMail.send.mock.calls[0][0].html).toMatch(userName);
     expect(sgMail.send.mock.calls[0][0].html).toMatch(/\/1/);
+  });
+});
+
+describe('function changeUserData', () => {
+  it('should throw notFoundError if user not found', () => {
+    User.findByPk.mockResolvedValueOnce(null);
+
+    const testFn = usersController.changeUserData(1, { email: '', name: '' });
+
+    expect(testFn).rejects.toThrow(NotFoundError);
+  });
+
+  it('should throw conflictError if email already exist', () => {
+    User.findByPk.mockResolvedValueOnce(true);
+
+    const spy = jest.spyOn(usersController, 'findByEmail');
+    spy.mockResolvedValueOnce(true);
+
+    const testFn = usersController.changeUserData(1, { email: 'a@a' });
+
+    expect(testFn).rejects.toThrow(ConflictError);
+    // expect(usersController.findByEmail).toHaveBeenCalledWith('a@a');
+
+    spy.mockRestore();
+  });
+
+  it('should not throw if email and user are ok', async () => {
+    User.findByPk.mockResolvedValueOnce({
+      save: () => 'potato',
+    });
+
+    const spy = jest.spyOn(usersController, 'findByEmail');
+    spy.mockResolvedValueOnce(false);
+
+    const response = await usersController.changeUserData(1, { email: 'a@a', name: 'aba' });
+
+    expect(response).toBe('potato');
+
+    spy.mockRestore();
   });
 });

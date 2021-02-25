@@ -63,6 +63,7 @@ async function cleanDataBase(db) {
   await db.query('DELETE FROM sessions');
   await db.query('DELETE FROM courses');
   await db.query('DELETE FROM users');
+  await Redis.resetRedisDB();
   await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
 }
 
@@ -82,8 +83,9 @@ async function createUserSession(db) {
 
   const userToken = await Redis.setSession({ id: user.rows[0].id });
   const userId = user.rows[0].id;
+  const userEmail = user.rows[0].email;
 
-  return { userToken, userId };
+  return { userToken, userId, userEmail };
 }
 
 async function createTopic(db, chapterId, order = 1) {
