@@ -29,13 +29,14 @@ function nomeDoExercicio() {
   // Insira seu código aqui
 }`),
         tests: `
-describe('testedFunction', () => {
+describe('nomeDoExercicio', () => {
   it('should return the passed parameter (10)', () => {
     const param = 10;
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
+
   });
   
   it('should return the passed parameter (20)', () => {
@@ -43,7 +44,7 @@ describe('testedFunction', () => {
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
 });
         `,
@@ -68,13 +69,13 @@ function nomeDoExercicio() {
   // Insira seu código aqui
 }`),
         tests: `
-describe('testedFunction', () => {
+describe('nomeDoExercicio', () => {
   it('should return the passed parameter (10)', () => {
     const param = 10;
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
   
   it('should return the passed parameter (20)', () => {
@@ -82,7 +83,7 @@ describe('testedFunction', () => {
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
 });
         `,
@@ -108,13 +109,13 @@ function nomeDoExercicio() {
   // Insira seu código aqui
 }`),
         tests: `
-describe('testedFunction', () => {
+describe('nomeDoExercicio', () => {
   it('should return the passed parameter (10)', () => {
     const param = 10;
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
   
   it('should return the passed parameter (20)', () => {
@@ -122,7 +123,7 @@ describe('testedFunction', () => {
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
 });
         `,
@@ -147,13 +148,13 @@ function nomeDoExercicio() {
   // Insira seu código aqui
 }`),
         tests: `
-describe('testedFunction', () => {
+describe('nomeDoExercicio', () => {
   it('should return the passed parameter (10)', () => {
     const param = 10;
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
   
   it('should return the passed parameter (20)', () => {
@@ -161,7 +162,7 @@ describe('testedFunction', () => {
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
 });
         `,
@@ -186,13 +187,13 @@ function nomeDoExercicio() {
   // Insira seu código aqui
 }`),
         tests: `
-describe('testedFunction', () => {
+describe('nomeDoExercicio', () => {
   it('should return the passed parameter (10)', () => {
     const param = 10;
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
   
   it('should return the passed parameter (20)', () => {
@@ -200,7 +201,7 @@ describe('testedFunction', () => {
 
     const result = nomeDoExercicio(param);
 
-    expect(result).to.be(param);
+    expect(result).to.equal(param);
   });
 });
         `,
