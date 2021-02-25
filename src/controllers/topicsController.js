@@ -47,7 +47,7 @@ class TopicsController {
         },
         {
           model: Exercise,
-          attributes: [['id', 'exerciseId'], 'enunciated', 'initialCode'],
+          attributes: [['id', 'exerciseId'], 'enunciated', 'initialCode', 'language', 'tests'],
           include: {
             model: User,
             attributes: [['id', 'userId']],
@@ -60,7 +60,6 @@ class TopicsController {
         },
       ],
     });
-
     if (!topic) throw new NotFoundError();
 
     topic.theories.forEach((t) => {

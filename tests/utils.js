@@ -106,8 +106,8 @@ async function createTheory(db, topicId) {
 
 async function createExercise(db, topicId) {
   const testExercise = await db.query(
-    'INSERT INTO exercises ("topicId", enunciated, "createdAt", "updatedAt", "initialCode", language) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [topicId, 'Teste', new Date(), new Date(), 'Teste', 'javascript'],
+    'INSERT INTO exercises ("topicId", enunciated, "createdAt", "updatedAt", "initialCode", language, tests) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+    [topicId, 'Teste', new Date(), new Date(), 'Teste', 'javascript', 'tests...'],
   );
 
   return testExercise.rows[0];

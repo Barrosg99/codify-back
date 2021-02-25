@@ -90,6 +90,7 @@ describe('PUT /admin/exercises/:id', () => {
       topicId,
       enunciated: 'Teste Novo',
       initialCode: 'Teste',
+      tests: 'Teste',
       language: 'javascript',
     };
 
@@ -106,6 +107,7 @@ describe('POST /admin/exercises', () => {
       topicId,
       enunciated: 'Teste Criado',
       initialCode: 'Teste',
+      tests: 'Teste',
       language: 'javascript',
     };
 

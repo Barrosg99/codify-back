@@ -24,7 +24,29 @@ module.exports = {
           \n<br>
           Quando enviado ... retorna ...
         `),
-        initialCode: String('function nomeDoExercicio() { // Insira seu código aqui }'),
+        initialCode: String(`
+function nomeDoExercicio() {
+  // Insira seu código aqui
+}`),
+        tests: `
+describe('testedFunction', () => {
+  it('should return the passed parameter (10)', () => {
+    const param = 10;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+  
+  it('should return the passed parameter (20)', () => {
+    const param = 20;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+});
+        `,
         language: 'javascript',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -41,7 +63,29 @@ module.exports = {
           \n<br>
           Quando enviado ... retorna ...
         `),
-        initialCode: String('function nomeDoExercicio() { // Insira seu código aqui }'),
+        initialCode: String(`
+function nomeDoExercicio() {
+  // Insira seu código aqui
+}`),
+        tests: `
+describe('testedFunction', () => {
+  it('should return the passed parameter (10)', () => {
+    const param = 10;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+  
+  it('should return the passed parameter (20)', () => {
+    const param = 20;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+});
+        `,
         language: 'javascript',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -58,8 +102,30 @@ module.exports = {
           \n<br>
           Quando enviado ... retorna ...
         `),
-        initialCode: String('function nomeDoExercicio() { // Insira seu código aqui }'),
         language: 'javascript',
+        initialCode: String(`
+function nomeDoExercicio() {
+  // Insira seu código aqui
+}`),
+        tests: `
+describe('testedFunction', () => {
+  it('should return the passed parameter (10)', () => {
+    const param = 10;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+  
+  it('should return the passed parameter (20)', () => {
+    const param = 20;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+});
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -75,8 +141,30 @@ module.exports = {
           \n<br>
           Quando enviado ... retorna ...
         `),
-        initialCode: String('function nomeDoExercicio() { // Insira seu código aqui }'),
         language: 'javascript',
+        initialCode: String(`
+function nomeDoExercicio() {
+  // Insira seu código aqui
+}`),
+        tests: `
+describe('testedFunction', () => {
+  it('should return the passed parameter (10)', () => {
+    const param = 10;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+  
+  it('should return the passed parameter (20)', () => {
+    const param = 20;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+});
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -92,8 +180,30 @@ module.exports = {
           \n<br>
           Quando enviado ... retorna ...
         `),
-        initialCode: String('function nomeDoExercicio() { // Insira seu código aqui }'),
         language: 'javascript',
+        initialCode: String(`
+function nomeDoExercicio() {
+  // Insira seu código aqui
+}`),
+        tests: `
+describe('testedFunction', () => {
+  it('should return the passed parameter (10)', () => {
+    const param = 10;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+  
+  it('should return the passed parameter (20)', () => {
+    const param = 20;
+
+    const result = nomeDoExercicio(param);
+
+    expect(result).to.be(param);
+  });
+});
+        `,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
