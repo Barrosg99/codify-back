@@ -27,6 +27,10 @@ Exercise.init(
       type: Sequelize.TEXT,
       allowNull: false,
     },
+    language: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     excluded: {
       type: Sequelize.BOOLEAN,
       defaultValue: false,

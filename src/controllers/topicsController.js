@@ -47,7 +47,7 @@ class TopicsController {
         },
         {
           model: Exercise,
-          attributes: [['id', 'exerciseId'], 'enunciated'],
+          attributes: [['id', 'exerciseId'], 'enunciated', 'initialCode'],
           include: {
             model: User,
             attributes: [['id', 'userId']],

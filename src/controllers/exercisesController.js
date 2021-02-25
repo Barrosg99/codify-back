@@ -49,12 +49,16 @@ class ExercisesController {
     return exercise;
   }
 
-  async createExercise({ topicId, enunciated, initialCode }) {
+  async createExercise({
+    topicId, enunciated, initialCode, language,
+  }) {
     const topic = await topicsController.getOne(topicId);
 
     await chaptersController.changeExerciseQuantity(topic.chapterId, 'plus');
 
-    return Exercise.create({ topicId, enunciated, initialCode });
+    return Exercise.create({
+      topicId, enunciated, initialCode, language,
+    });
   }
 
   async deleteExercise(id) {
