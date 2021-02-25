@@ -11,6 +11,10 @@ Exercise.init(
       autoIncrement: true,
       allowNull: false,
     },
+    title: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
     topicId: {
       type: Sequelize.INTEGER,
       allowNull: false,
