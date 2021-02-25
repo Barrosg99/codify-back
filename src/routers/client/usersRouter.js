@@ -88,7 +88,7 @@ router.put('/password-reset', verifyJWT, async (req, res) => {
   res.sendStatus(204);
 });
 
-router.put('/change-data', verifyJWT, async (req, res) => {
+router.put('/:id/change-data', verifyJWT, async (req, res) => {
   const { error } = userSchemas.updateUser.validate(req.body);
   if (error) return res.status(422).json({ error: error.details[0].message });
 

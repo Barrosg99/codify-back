@@ -120,7 +120,7 @@ class UsersController {
     await Redis.deleteSession(sessionId);
   }
 
-  async changeUserData(userId, { email, name }) {
+  async changeUserData(userId, { email, name, password }) {
     const user = await User.findByPk(userId);
     if (!user) throw new NotFoundError('User not found');
 
@@ -133,6 +133,11 @@ class UsersController {
 
     if (email) user.email = email;
     if (name) user.name = name;
+    if (password) {
+      const hashPassword = bcrypt.hashSync(password, 10);
+
+      user.password = hashPassword;
+    }
 
     return user.save();
   }

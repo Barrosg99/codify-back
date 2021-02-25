@@ -423,10 +423,12 @@ describe('PUT /users/change-data', () => {
     expect(response.status).toBe(409);
   });
 
-  it('should change email and name and return 204', async () => {
+  it('should change email, name and password and return 204', async () => {
     const body = {
       email: 'gb1999@hotmail.com',
       name: 'Bananana',
+      password: 'abba',
+      passwordConfirmation: 'abba',
     };
 
     const { status } = await agent
