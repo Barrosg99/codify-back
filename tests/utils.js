@@ -63,6 +63,7 @@ async function cleanDataBase(db) {
   await db.query('DELETE FROM sessions');
   await db.query('DELETE FROM courses');
   await db.query('DELETE FROM users');
+  await Redis.resetRedisDB();
   await db.query('ALTER SEQUENCE courses_id_seq RESTART WITH 1;');
 }
 
