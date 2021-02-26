@@ -48,6 +48,10 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
+        feedback: String(`
+function nomeDoExercicio(param) {
+  return param
+}`),
         language: 'javascript',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -88,6 +92,10 @@ describe('nomeDoExercicio', () => {
 });
         `,
         language: 'javascript',
+        feedback: String(`
+function nomeDoExercicio(param) {
+  return param
+}`),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -127,6 +135,10 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
+        feedback: String(`
+function nomeDoExercicio(param) {
+  return param
+}`),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -166,6 +178,10 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
+        feedback: String(`
+function nomeDoExercicio(param) {
+  return param
+}`),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -205,6 +221,10 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
+        feedback: String(`
+function nomeDoExercicio(param) {
+  return param
+}`),
         createdAt: new Date(),
         updatedAt: new Date(),
       },

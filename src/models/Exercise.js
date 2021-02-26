@@ -35,6 +35,10 @@ Exercise.init(
       type: Sequelize.TEXT,
       allowNull: false,
     },
+    feedback: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
     excluded: {
       type: Sequelize.BOOLEAN,
       defaultValue: false,
