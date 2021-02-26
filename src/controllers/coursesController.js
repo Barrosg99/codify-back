@@ -6,8 +6,17 @@ const { ConflictError, NotFoundError } = require('../errors');
 const topicsController = require('./topicsController');
 
 class CoursesController {
-  getAll() {
-    return Course.findAll();
+  getAll({
+    _end, _start, _order, _sort,
+  }) {
+    const limit = _end ? _end - _start : null;
+    const options = {
+      limit,
+      offset: _start,
+      order: [[_sort, _order]],
+      where: { excluded: false },
+    };
+    return Course.findAndCountAll(options);
   }
 
   async getOne(id) {
@@ -91,10 +100,6 @@ class CoursesController {
 
     await course.destroy({ where: { id } });
     return course;
-  }
-
-  count() {
-    return Course.count();
   }
 
   async getSuggestions(limit = null) {
