@@ -77,7 +77,7 @@ class ExercisesController {
     return exercise;
   }
 
-  async postExerciseProgress(userId, exerciseId) {
+  async postExerciseProgress(userId, exerciseId, solutionUser) {
     const user = await User.findByPk(userId);
     const exercise = await Exercise.findByPk(exerciseId);
     if (!user) throw new NotFoundError('User not found');
@@ -99,7 +99,7 @@ class ExercisesController {
       return false;
     }
 
-    await ExerciseUser.create({ userId, exerciseId });
+    await ExerciseUser.create({ userId, exerciseId, solutionUser });
     await CourseUser.increment('doneActivities', { where: { userId, courseId } });
     return true;
   }

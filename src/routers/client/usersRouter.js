@@ -11,6 +11,7 @@ const coursesController = require('../../controllers/coursesController');
 const exercisesController = require('../../controllers/exercisesController');
 
 const registerSchema = require('../../schemas/registerSchema');
+const exerciseSchema = require('../../schemas/exerciseSchema');
 const signInSchema = require('../../schemas/signInSchema');
 const userSchemas = require('../../schemas/usersSchemas');
 const { verifyJWT } = require('../../middlewares');
@@ -50,9 +51,17 @@ router.post('/theories/:theoryId/progress', verifyJWT, async (req, res) => {
 });
 
 router.post('/exercises/:exerciseId/progress', verifyJWT, async (req, res) => {
-  const exerciseId = +req.params.exerciseId;
+  const { error } = exerciseSchema.validate(req.body);
+  if (error) return res.status(422).send({ error: error.details[0].message });
 
-  const userHasDone = await exercisesController.postExerciseProgress(req.userId, exerciseId);
+  const exerciseId = +req.params.exerciseId;
+  const { solutionUser } = req.body;
+
+  const userHasDone = await exercisesController.postExerciseProgress(
+    req.userId,
+    exerciseId,
+    solutionUser,
+  );
 
   if (userHasDone) res.sendStatus(201);
   else res.sendStatus(204);

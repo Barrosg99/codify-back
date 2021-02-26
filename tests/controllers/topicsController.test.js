@@ -78,7 +78,7 @@ describe('function getOneWithUserProgress', () => {
         exercises: [
           {
             dataValues: {
-              users: [{ userId: 1 }],
+              users: [{ userId: 1, exerciseUser: { solutionUser: 'Teste' } }],
             },
           },
         ],

@@ -53,7 +53,7 @@ class TopicsController {
             attributes: [['id', 'userId']],
             through: {
               where: { userId },
-              attributes: [],
+              attributes: ['solutionUser'],
               required: false,
             },
           },
@@ -70,8 +70,13 @@ class TopicsController {
     });
 
     topic.exercises.forEach((e) => {
-      if (e.dataValues.users.length > 0) e.dataValues.userHasFinished = true;
-      else e.dataValues.userHasFinished = false;
+      if (e.dataValues.users.length > 0) {
+        e.dataValues.userHasFinished = true;
+        e.dataValues.solutionUser = e.dataValues.users[0].exerciseUser.solutionUser;
+      } else {
+        e.dataValues.userHasFinished = false;
+        e.dataValues.solutionUser = null;
+      }
 
       delete e.dataValues.users;
     });

@@ -2,14 +2,16 @@ const router = require('express').Router();
 
 const coursesController = require('../../controllers/coursesController');
 const coursesSchemas = require('../../schemas/coursesSchemas');
+const querySchema = require('../../schemas/querySchema');
 
 router.get('/', async (req, res) => {
-  const total = await coursesController.count();
-  const courses = await coursesController.getAll();
+  const { error, value } = querySchema.validate(req.query, { allowUnknown: true });
+  if (error) return res.status(422).send({ error: error.details[0].message });
+  const { rows, count } = await coursesController.getAll(value);
   res
     .header('Access-Control-Expose-Headers', 'X-Total-Count')
-    .set('X-Total-Count', total)
-    .send(courses);
+    .set('X-Total-Count', count)
+    .send(rows);
 });
 
 router.get('/:id', async (req, res) => {

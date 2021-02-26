@@ -27,6 +27,10 @@ ExerciseUser.init(
         key: 'id',
       },
     },
+    solutionUser: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
   },
   {
     sequelize,
