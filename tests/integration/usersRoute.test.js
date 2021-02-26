@@ -398,7 +398,7 @@ describe('PUT /users/password-reset', () => {
   });
 });
 
-describe('PUT /users/change-data', () => {
+describe('PUT /users', () => {
   it('should return 422 if data is invalid', async () => {
     const body = {};
 

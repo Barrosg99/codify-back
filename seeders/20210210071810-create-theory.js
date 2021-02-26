@@ -15,25 +15,25 @@ module.exports = {
     await queryInterface.bulkInsert('theories', [
       {
         topicId: topic1[0][0].id,
-        youtubeUrl: 'https://www.youtube.com/watch?v=_6orTZEI_Xk',
+        youtubeUrl: 'https://www.youtube.com/watch?v=Ptbk2af68e8&ab_channel=CursoemV%C3%ADdeo',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic2[0][0].id,
-        youtubeUrl: 'https://www.youtube.com/watch?v=_6orTZEI_Xk',
+        youtubeUrl: 'https://www.youtube.com/watch?v=Ptbk2af68e8&ab_channel=CursoemV%C3%ADdeo',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic3[0][0].id,
-        youtubeUrl: 'https://www.youtube.com/watch?v=_6orTZEI_Xk',
+        youtubeUrl: 'https://www.youtube.com/watch?v=Ptbk2af68e8&ab_channel=CursoemV%C3%ADdeo',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         topicId: topic4[0][0].id,
-        youtubeUrl: 'https://www.youtube.com/watch?v=_6orTZEI_Xk',
+        youtubeUrl: 'https://www.youtube.com/watch?v=Ptbk2af68e8&ab_channel=CursoemV%C3%ADdeo',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
