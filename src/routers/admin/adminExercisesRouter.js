@@ -8,6 +8,7 @@ router
     if (error) return res.status(422).send({ error: error.details[0].message });
 
     const { rows, count } = await exercisesController.getAll(value);
+
     res
       .header('Access-Control-Expose-Headers', 'X-Total-Count')
       .set('X-Total-Count', count)

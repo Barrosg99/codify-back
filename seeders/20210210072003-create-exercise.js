@@ -14,6 +14,7 @@ module.exports = {
     await queryInterface.bulkInsert('exercises', [
       {
         topicId: topic1[0][0].id,
+        title: 'Lorem Ipsum',
         enunciated: String(`
           <h3>Exercício 1</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
@@ -58,6 +59,7 @@ function nomeDoExercicio(param) {
       },
       {
         topicId: topic1[0][0].id,
+        title: 'Lorem Ipsum',
         enunciated: String(`
           <h3>Exercício 1</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
@@ -101,6 +103,7 @@ function nomeDoExercicio(param) {
       },
       {
         topicId: topic2[0][0].id,
+        title: 'Lorem Ipsum',
         enunciated: String(`
           <h3>Exercício 1</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
@@ -144,6 +147,7 @@ function nomeDoExercicio(param) {
       },
       {
         topicId: topic3[0][0].id,
+        title: 'Lorem Ipsum',
         enunciated: String(`
           <h3>Exercício 1</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
@@ -187,6 +191,7 @@ function nomeDoExercicio(param) {
       },
       {
         topicId: topic4[0][0].id,
+        title: 'Lorem Ipsum',
         enunciated: String(`
           <h3>Exercício 1</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat vitae in aenean quis quam praesent arcu, orci. Ipsum habitasse proin consectetur vel venenatis. Turpis libero aliquet cras vitae nunc commodo gravida. Sapien eget urna, ante mattis bibendum massa, feugiat.
