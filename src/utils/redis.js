@@ -49,6 +49,12 @@ class Redis {
     await clientInstance.expire(key, process.env.SESSION_EXPIRATION);
   }
 
+  static async resetRedisDB() {
+    const clientInstance = this.getInstance();
+
+    await clientInstance.flushall();
+  }
+
   static async close() {
     const clientInstance = this.getInstance();
     await clientInstance.quit();

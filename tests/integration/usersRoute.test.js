@@ -20,6 +20,7 @@ const Redis = require('../../src/utils/redis');
 const agent = supertest(app);
 let userToken;
 let userId;
+let userEmail;
 let courseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -53,6 +54,7 @@ beforeAll(async () => {
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
+  userEmail = session.userEmail;
 });
 
 afterAll(async () => {
@@ -77,7 +79,7 @@ describe('POST /users/register', () => {
     db.query('INSERT INTO users (name,password,email) VALUES ($1,$2,$3) ', ['gabriel', 'zeze123', 'joao@gmail.com']);
 
     const body = {
-      name: 'joao',
+      name: 'joaooooo',
       email: 'joao@gmail.com',
       password: 'dahoralek123',
       passwordConfirmation: 'dahoralek123',
@@ -89,7 +91,7 @@ describe('POST /users/register', () => {
 
   it('should return 201 and the created user', async () => {
     const body = {
-      name: 'joao',
+      name: 'joaooooo',
       email: 'joao@gmail.com.br',
       password: 'dahoralek123',
       passwordConfirmation: 'dahoralek123',
@@ -98,7 +100,7 @@ describe('POST /users/register', () => {
     expect(response.status).toBe(201);
     expect(response.body).toEqual(expect.objectContaining({
       id: expect.any(Number),
-      name: 'joao',
+      name: 'joaooooo',
       email: 'joao@gmail.com.br',
       avatarUrl: null,
     }));
@@ -108,7 +110,7 @@ describe('POST /users/register', () => {
 describe('POST /users/sign-in', () => {
   it('should create user session if correct email and password is sent', async () => {
     const newUser = {
-      name: 'Osvaldo',
+      name: 'Osvaldooo',
       email: 'o@gmail.com',
       password: 'password',
       passwordConfirmation: 'password',
@@ -124,7 +126,7 @@ describe('POST /users/sign-in', () => {
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({
       userId: id,
-      name: 'Osvaldo',
+      name: 'Osvaldooo',
       avatarUrl: 'https://google.com',
       token: expect.any(String),
       hasInitAnyCourse: false,
@@ -328,7 +330,7 @@ describe('POST /users/topics/:topicId/progress', () => {
 describe('POST /signOut', () => {
   it('Should only return status 204 after ending the users session', async () => {
     const newUser = {
-      name: 'Gina',
+      name: 'Ginaaaaa',
       email: 'gina@gmail.com',
       password: '12345',
       passwordConfirmation: '12345',
@@ -351,7 +353,7 @@ describe('POST /signOut', () => {
 describe('PUT /users/password-reset', () => {
   it('should return status code 204 if password change has been successfully made', async () => {
     const newUser = {
-      name: 'Cuca',
+      name: 'Cucaaaaa',
       email: 'cuca@gmail.com',
       password: '12345',
       passwordConfirmation: '12345',
@@ -388,10 +390,57 @@ describe('PUT /users/password-reset', () => {
     expect(newPasswordAttempt.status).toBe(201);
     expect(newPasswordAttempt.body).toMatchObject({
       userId: user.body.id,
-      name: 'Cuca',
+      name: 'Cucaaaaa',
       avatarUrl: 'https://google.com',
       token: expect.any(String),
       hasInitAnyCourse: expect.any(Boolean),
     });
+  });
+});
+
+describe('PUT /users', () => {
+  it('should return 422 if data is invalid', async () => {
+    const body = {};
+
+    const response = await agent
+      .put('/users')
+      .send(body)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(422);
+  });
+
+  it('should 409 if email already exists', async () => {
+    const body = {
+      email: userEmail,
+    };
+
+    const response = await agent
+      .put('/users')
+      .send(body)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(409);
+  });
+
+  it('should change email, name and password and return 204', async () => {
+    const body = {
+      email: 'gb1999@hotmail.com',
+      name: 'Bananana',
+      password: 'abba',
+      passwordConfirmation: 'abba',
+    };
+
+    const { status } = await agent
+      .put('/users')
+      .send(body)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    const user = await db.query('SELECT * FROM users WHERE id=$1', [userId]);
+    const { email, name } = user.rows[0];
+
+    expect(status).toBe(204);
+    expect(body.email).toBe(email);
+    expect(body.name).toBe(name);
   });
 });

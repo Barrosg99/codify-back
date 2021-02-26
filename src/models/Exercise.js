@@ -39,6 +39,10 @@ Exercise.init(
       type: Sequelize.TEXT,
       allowNull: false,
     },
+    solution: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
     excluded: {
       type: Sequelize.BOOLEAN,
       defaultValue: false,

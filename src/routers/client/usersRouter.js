@@ -1,4 +1,9 @@
 const router = require('express').Router();
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 const usersController = require('../../controllers/usersController');
 const topicsController = require('../../controllers/topicsController');
 const theoriesController = require('../../controllers/theoriesController');
@@ -86,6 +91,18 @@ router.put('/password-reset', verifyJWT, async (req, res) => {
   await usersController.changePassword(req.userId, req.sessionId, req.body.password);
 
   res.sendStatus(204);
+});
+
+router.put('/', verifyJWT, async (req, res) => {
+  const { error } = userSchemas.updateUser.validate(req.body);
+  if (error) return res.status(422).json({ error: error.details[0].message });
+
+  await usersController.changeUserData(req.userId, req.body);
+  res.sendStatus(204);
+});
+
+router.post('/avatar', verifyJWT, upload.single('image'), async (req, res) => {
+  res.send(await usersController.changeAvatar(req.userId, req.file));
 });
 
 module.exports = router;
