@@ -7,7 +7,7 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    // await queryInterface.removeColumn('exercises', 'enunciated');
+    await queryInterface.removeColumn('exercises', 'enunciated');
     await queryInterface.addColumn('exercises', 'description', {
       type: Sequelize.STRING,
     });
