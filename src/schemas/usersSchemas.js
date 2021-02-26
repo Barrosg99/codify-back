@@ -14,4 +14,13 @@ const newPassword = Joi.object({
   passwordConfirmation: Joi.string().valid(Joi.ref('password')).required(),
 });
 
-module.exports = { adminSignIn, recoveryEmail, newPassword };
+const updateUser = Joi.object({
+  email: Joi.string().email(),
+  name: Joi.string(),
+  password: Joi.string(),
+  passwordConfirmation: Joi.string().valid(Joi.ref('password')),
+}).min(1);
+
+module.exports = {
+  adminSignIn, recoveryEmail, newPassword, updateUser,
+};
