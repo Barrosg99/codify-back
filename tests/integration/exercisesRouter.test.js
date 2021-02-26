@@ -65,7 +65,7 @@ describe('GET /admin/exercises', () => {
     expect(body).toEqual(expect.arrayContaining([
       expect.objectContaining({
         topicId,
-        description: 'Teste',
+        enunciated: 'Teste',
       }),
     ]));
   });
@@ -78,7 +78,7 @@ describe('GET /admin/exercises/:id', () => {
     expect(status).toBe(200);
     expect(body).toEqual(expect.objectContaining({
       topicId,
-      description: 'Teste',
+      enunciated: 'Teste',
     }));
   });
 });
@@ -88,7 +88,11 @@ describe('PUT /admin/exercises/:id', () => {
     const exercise = {
       id: exerciseId,
       topicId,
-      description: 'Teste Novo',
+      enunciated: 'Teste Novo',
+      initialCode: 'Teste',
+      tests: 'Teste',
+      language: 'javascript',
+      solution: 'solution',
     };
 
     const { status, body } = await agent.put(`/admin/exercises/${exerciseId}`).set('Authorization', `Bearer ${adminToken}`).send(exercise);
@@ -99,10 +103,14 @@ describe('PUT /admin/exercises/:id', () => {
 });
 
 describe('POST /admin/exercises', () => {
-  it('should return 201 and the theory created', async () => {
+  it('should return 201 and the exercises created', async () => {
     const exercise = {
       topicId,
-      description: 'Teste Criado',
+      enunciated: 'Teste Criado',
+      initialCode: 'Teste',
+      tests: 'Teste',
+      language: 'javascript',
+      solution: 'solution',
     };
 
     const { status, body } = await agent.post('/admin/exercises').set('Authorization', `Bearer ${adminToken}`).send(exercise);

@@ -154,7 +154,7 @@ describe('POST /courses/:courseId/users', () => {
 describe('GET /suggestions', () => {
   it('Should return an array with a maximum of 6 course suggestions', async () => {
     const newUser = {
-      name: 'Minerva',
+      name: 'Minervaa',
       email: 'minerva@gmail.com',
       password: '12345',
       passwordConfirmation: '12345',

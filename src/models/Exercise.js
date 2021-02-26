@@ -19,8 +19,24 @@ Exercise.init(
         key: 'id',
       },
     },
-    description: {
+    enunciated: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    initialCode: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    language: {
       type: Sequelize.STRING,
+      allowNull: false,
+    },
+    tests: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
+    solution: {
+      type: Sequelize.TEXT,
       allowNull: false,
     },
     excluded: {
