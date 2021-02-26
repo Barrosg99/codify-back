@@ -35,7 +35,7 @@ Exercise.init(
       type: Sequelize.TEXT,
       allowNull: false,
     },
-    feedback: {
+    solution: {
       type: Sequelize.TEXT,
       allowNull: false,
     },
