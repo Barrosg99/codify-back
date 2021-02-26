@@ -48,7 +48,7 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
-        feedback: String(`
+        solution: String(`
 function nomeDoExercicio(param) {
   return param
 }`),
@@ -92,7 +92,7 @@ describe('nomeDoExercicio', () => {
 });
         `,
         language: 'javascript',
-        feedback: String(`
+        solution: String(`
 function nomeDoExercicio(param) {
   return param
 }`),
@@ -135,7 +135,7 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
-        feedback: String(`
+        solution: String(`
 function nomeDoExercicio(param) {
   return param
 }`),
@@ -178,7 +178,7 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
-        feedback: String(`
+        solution: String(`
 function nomeDoExercicio(param) {
   return param
 }`),
@@ -221,7 +221,7 @@ describe('nomeDoExercicio', () => {
   });
 });
         `,
-        feedback: String(`
+        solution: String(`
 function nomeDoExercicio(param) {
   return param
 }`),
