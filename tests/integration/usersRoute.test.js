@@ -403,7 +403,7 @@ describe('PUT /users/change-data', () => {
     const body = {};
 
     const response = await agent
-      .put(`/users/${userId}/change-data`)
+      .put('/users')
       .send(body)
       .set('Authorization', `Bearer ${userToken}`);
 
@@ -416,7 +416,7 @@ describe('PUT /users/change-data', () => {
     };
 
     const response = await agent
-      .put(`/users/${userId}/change-data`)
+      .put('/users')
       .send(body)
       .set('Authorization', `Bearer ${userToken}`);
 
@@ -432,7 +432,7 @@ describe('PUT /users/change-data', () => {
     };
 
     const { status } = await agent
-      .put(`/users/${userId}/change-data`)
+      .put('/users')
       .send(body)
       .set('Authorization', `Bearer ${userToken}`);
 

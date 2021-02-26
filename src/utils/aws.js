@@ -22,13 +22,14 @@ async function uploadToS3(key, buffer, mimetype) {
   });
 }
 
-function getSignedUrl(key) {
+function getSignedUrl(key, expires = 604800) {
   return new Promise((resolve, reject) => {
     s3.getSignedUrl(
       'getObject',
       {
         Bucket: S3_BUCKET,
         Key: key,
+        Expires: expires,
       },
       (err, url) => {
         if (err) throw new Error(err);
