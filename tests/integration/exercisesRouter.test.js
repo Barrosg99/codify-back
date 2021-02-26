@@ -65,6 +65,7 @@ describe('GET /admin/exercises', () => {
     expect(body).toEqual(expect.arrayContaining([
       expect.objectContaining({
         topicId,
+        title: 'Teste',
         enunciated: 'Teste',
       }),
     ]));
@@ -78,6 +79,7 @@ describe('GET /admin/exercises/:id', () => {
     expect(status).toBe(200);
     expect(body).toEqual(expect.objectContaining({
       topicId,
+      title: 'Teste',
       enunciated: 'Teste',
     }));
   });
@@ -88,6 +90,7 @@ describe('PUT /admin/exercises/:id', () => {
     const exercise = {
       id: exerciseId,
       topicId,
+      title: 'Teste',
       enunciated: 'Teste Novo',
       initialCode: 'Teste',
       tests: 'Teste',
@@ -106,6 +109,7 @@ describe('POST /admin/exercises', () => {
   it('should return 201 and the exercises created', async () => {
     const exercise = {
       topicId,
+      title: 'Teste',
       enunciated: 'Teste Criado',
       initialCode: 'Teste',
       tests: 'Teste',
