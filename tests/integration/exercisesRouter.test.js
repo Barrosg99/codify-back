@@ -93,6 +93,8 @@ describe('PUT /admin/exercises/:id', () => {
       title: 'Teste',
       enunciated: 'Teste Novo',
       initialCode: 'Teste',
+      tests: 'Teste',
+      language: 'javascript',
     };
 
     const { status, body } = await agent.put(`/admin/exercises/${exerciseId}`).set('Authorization', `Bearer ${adminToken}`).send(exercise);
@@ -109,6 +111,8 @@ describe('POST /admin/exercises', () => {
       title: 'Teste',
       enunciated: 'Teste Criado',
       initialCode: 'Teste',
+      tests: 'Teste',
+      language: 'javascript',
     };
 
     const { status, body } = await agent.post('/admin/exercises').set('Authorization', `Bearer ${adminToken}`).send(exercise);
