@@ -65,6 +65,7 @@ describe('GET /admin/exercises', () => {
     expect(body).toEqual(expect.arrayContaining([
       expect.objectContaining({
         topicId,
+        title: 'Teste',
         enunciated: 'Teste',
       }),
     ]));
@@ -78,6 +79,7 @@ describe('GET /admin/exercises/:id', () => {
     expect(status).toBe(200);
     expect(body).toEqual(expect.objectContaining({
       topicId,
+      title: 'Teste',
       enunciated: 'Teste',
     }));
   });
