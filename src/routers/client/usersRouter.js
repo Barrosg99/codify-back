@@ -54,8 +54,6 @@ router.post('/exercises/:exerciseId/progress', verifyJWT, async (req, res) => {
   const { error } = exerciseSchema.validate(req.body);
   if (error) return res.status(422).send({ error: error.details[0].message });
 
-  console.log(error);
-
   const exerciseId = +req.params.exerciseId;
   const { solutionUser } = req.body;
 
