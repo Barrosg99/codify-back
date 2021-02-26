@@ -60,7 +60,6 @@ class UsersController {
       name: user.name,
       email: user.email,
       avatarUrl: user.avatarUrl,
-      email: user.email,
       token,
       hasInitAnyCourse: user.hasInitAnyCourse,
     };
