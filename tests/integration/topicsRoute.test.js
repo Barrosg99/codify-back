@@ -91,6 +91,11 @@ describe('GET /topics/:topicId/users', () => {
         expect.objectContaining({
           exerciseId,
           enunciated: 'Teste',
+          initialCode: 'Teste',
+          language: 'javascript',
+          tests: 'tests...',
+          solution: 'solution',
+          solutionUser: null,
           userHasFinished: false,
         }),
       ]),
@@ -99,13 +104,13 @@ describe('GET /topics/:topicId/users', () => {
 
   it('should return user progress as true if he/she finished theory or activity', async () => {
     await db.query(
-      'INSERT INTO "theoryUsers" (id, "theoryId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, theoryId, userId, new Date(), new Date()],
+      'INSERT INTO "theoryUsers" ("theoryId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4) RETURNING *',
+      [theoryId, userId, new Date(), new Date()],
     );
 
     await db.query(
-      'INSERT INTO "exerciseUsers" (id, "exerciseId", "userId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [1, exerciseId, userId, new Date(), new Date()],
+      'INSERT INTO "exerciseUsers" ("exerciseId", "userId", "createdAt", "updatedAt", "solutionUser") VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [exerciseId, userId, new Date(), new Date(), 'my solution'],
     );
 
     const response = await agent
@@ -128,6 +133,11 @@ describe('GET /topics/:topicId/users', () => {
         expect.objectContaining({
           exerciseId,
           enunciated: 'Teste',
+          initialCode: 'Teste',
+          language: 'javascript',
+          tests: 'tests...',
+          solution: 'solution',
+          solutionUser: 'my solution',
           userHasFinished: true,
         }),
       ]),

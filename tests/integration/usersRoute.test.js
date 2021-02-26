@@ -444,3 +444,75 @@ describe('PUT /users', () => {
     expect(body.name).toBe(name);
   });
 });
+
+describe('POST /users/exercises/:exerciseId/progress', () => {
+  it('should return status code 201 if user progress has been successfully created', async () => {
+    const response = await agent
+      .post(`/users/exercises/${exerciseId}/progress`)
+      .send({ solutionUser: 'My solution' })
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(201);
+  });
+
+  it('should return status code 204 if user progress has been successfully deleted', async () => {
+    const response = await agent
+      .post(`/users/exercises/${exerciseId}/progress`)
+      .send({ solutionUser: 'My solution' })
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  it('should return status code 404 if sent theory id is invalid', async () => {
+    const response = await agent
+      .post('/users/exercises/5561128/progress')
+      .send({ solutionUser: 'My solution' })
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return status code 401 if sent token is invalid', async () => {
+    const response = await agent
+      .post(`/users/exercises/${exerciseId}/progress`)
+      .send({ solutionUser: 'My solution' })
+      .set('Authorization', 'Bearer invalidToken');
+
+    expect(response.status).toBe(401);
+  });
+});
+
+describe('POST /users/theories/:theoryId/progress', () => {
+  it('should return status code 201 if user progress has been successfully created', async () => {
+    const response = await agent
+      .post(`/users/theories/${theoryId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(201);
+  });
+
+  it('should return status code 204 if user progress has been successfully deleted', async () => {
+    const response = await agent
+      .post(`/users/theories/${theoryId}/progress`)
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  it('should return status code 404 if sent theory id is invalid', async () => {
+    const response = await agent
+      .post('/users/theories/5561128/progress')
+      .set('Authorization', `Bearer ${userToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return status code 401 if sent token is invalid', async () => {
+    const response = await agent
+      .post(`/users/theories/${theoryId}/progress`)
+      .set('Authorization', 'Bearer invalidToken');
+
+    expect(response.status).toBe(401);
+  });
+});
