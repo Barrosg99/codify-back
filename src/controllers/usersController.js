@@ -17,6 +17,7 @@ const {
 } = require('../errors');
 
 const { getEmailMessage } = require('../utils/helpers');
+const { uploadToS3, getSignedUrl } = require('../utils/aws');
 
 class UsersController {
   async create({
@@ -141,6 +142,21 @@ class UsersController {
     }
 
     return user.save();
+  }
+
+  async changeAvatar(userId, file) {
+    const user = await User.findByPk(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    const key = `images/${userId}`;
+
+    await uploadToS3(key, file.buffer, file.mimetype);
+
+    user.avatarUrl = await getSignedUrl(key);
+
+    await user.save();
+
+    return user.avatarUrl;
   }
 }
 
