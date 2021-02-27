@@ -10,6 +10,18 @@ class CoursesController {
     return Course.findAll();
   }
 
+  getAllAdmin({
+    _end, _start, _order, _sort,
+  }) {
+    const limit = _end ? _end - _start : null;
+    const options = {
+      limit,
+      offset: _start,
+      order: [[_sort, _order]],
+    };
+    return Course.findAndCountAll(options);
+  }
+
   async getOne(id) {
     const course = Course.findByPk(id);
 
