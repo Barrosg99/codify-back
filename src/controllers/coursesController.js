@@ -7,7 +7,7 @@ const topicsController = require('./topicsController');
 
 class CoursesController {
   getAll() {
-    return Course.findAll();
+    return Course.findAll({ where: { excluded: false } });
   }
 
   getAllAdmin({
@@ -18,6 +18,7 @@ class CoursesController {
       limit,
       offset: _start,
       order: [[_sort, _order]],
+      where: { excluded: false },
     };
     return Course.findAndCountAll(options);
   }
@@ -32,6 +33,7 @@ class CoursesController {
 
   async getAllTopicsAtChapterFromUser(courseId, userId) {
     const course = await Course.findByPk(courseId, {
+      where: { excluded: false },
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
@@ -98,11 +100,11 @@ class CoursesController {
   }
 
   async deleteCourse(id) {
-    const course = await Course.findByPk(id);
-    if (!course) throw new NotFoundError('Course not found');
-
-    await course.destroy({ where: { id } });
-    return course;
+    return Course.update({ excluded: true }, {
+      where: { id },
+      returning: true,
+      raw: true,
+    });
   }
 
   async getSuggestions(limit = null) {
@@ -148,8 +150,9 @@ class CoursesController {
   async getOngoingCoursesByUser(userId) {
     const courses = await Course.findAll({
       attributes: {
-        exclude: ['createdAt', 'updatedAt'],
+        exclude: ['createdAt', 'updatedAt', 'excluded'],
       },
+      where: { excluded: false },
       include: {
         model: User,
         attributes: ['id', 'hasInitAnyCourse'],

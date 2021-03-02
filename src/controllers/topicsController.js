@@ -30,11 +30,13 @@ class TopicsController {
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
+      where: { excluded: false },
       order: [[{ model: Exercise }, 'id', 'ASC']],
       include: [
         {
           model: Theory,
           attributes: [['id', 'theoryId'], 'youtubeUrl'],
+          where: { excluded: false },
           include: {
             model: User,
             attributes: [['id', 'userId']],
@@ -48,6 +50,7 @@ class TopicsController {
         {
           model: Exercise,
           attributes: [['id', 'exerciseId'], 'enunciated', 'initialCode', 'language', 'tests', 'solution'],
+          where: { excluded: false },
           include: {
             model: User,
             attributes: [['id', 'userId']],
