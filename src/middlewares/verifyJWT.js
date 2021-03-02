@@ -5,8 +5,10 @@ const Redis = require('../utils/redis');
 
 async function verifyJWT(req, res, next) {
   const header = req.header('Authorization');
+  if (!header) throw new AuthError();
+
   const token = header.split(' ')[1];
-  if (!token || !header) throw new AuthError();
+  if (!token) throw new AuthError();
 
   jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) throw new AuthError();
