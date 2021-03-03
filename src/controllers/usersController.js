@@ -144,14 +144,14 @@ class UsersController {
     const user = await User.findByPk(userId);
     if (!user) throw new NotFoundError('User not found');
 
-    if (email) {
+    if (email && email !== user.email) {
       const emailAlredyUsed = await this.findByEmail(email);
       if (emailAlredyUsed) {
         throw new ConflictError();
       }
     }
 
-    if (email) user.email = email;
+    if (email && email !== user.email) user.email = email;
     if (name) user.name = name;
     if (password) {
       const hashPassword = bcrypt.hashSync(password, 10);
