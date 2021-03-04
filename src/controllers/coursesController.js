@@ -1,4 +1,5 @@
 /* eslint-disable no-await-in-loop */
+const { Op } = require('sequelize');
 const {
   CourseUser, User, TopicUser, Topic, Chapter, Course,
 } = require('../models');
@@ -7,7 +8,25 @@ const topicsController = require('./topicsController');
 
 class CoursesController {
   getAll() {
-    return Course.findAll({ where: { excluded: false } });
+    return Course.findAll({
+      where: { excluded: false },
+      include: {
+        model: Chapter,
+        attributes: [],
+        required: true,
+        where: {
+          topicsQuantity: {
+            [Op.gt]: 0,
+          },
+          exercisesQuantity: {
+            [Op.gt]: 0,
+          },
+          theoryQuantity: {
+            [Op.gt]: 0,
+          },
+        },
+      },
+    });
   }
 
   getAllAdmin({
@@ -42,6 +61,17 @@ class CoursesController {
         model: Chapter,
         attributes: {
           exclude: ['courseId', 'createdAt', 'updatedAt'],
+        },
+        where: {
+          topicsQuantity: {
+            [Op.gt]: 0,
+          },
+          exercisesQuantity: {
+            [Op.gt]: 0,
+          },
+          theoryQuantity: {
+            [Op.gt]: 0,
+          },
         },
         include: {
           model: Topic,
@@ -107,8 +137,26 @@ class CoursesController {
     });
   }
 
-  async getSuggestions(limit = null) {
-    return Course.findAll({ limit });
+  async getSuggestions(limit = Infinity) {
+    return Course.findAll({
+      limit,
+      include: {
+        model: Chapter,
+        attributes: [],
+        required: true,
+        where: {
+          topicsQuantity: {
+            [Op.gt]: 0,
+          },
+          exercisesQuantity: {
+            [Op.gt]: 0,
+          },
+          theoryQuantity: {
+            [Op.gt]: 0,
+          },
+        },
+      },
+    });
   }
 
   async initCouserByUserId(courseId, userId) {
@@ -133,7 +181,15 @@ class CoursesController {
     const userCourseData = await CourseUser.findOne({ where: { userId, courseId } });
     if (!userCourseData) userProgress = 0;
     else {
-      const totalTopics = await Chapter.sum('topicsQuantity', { where: { courseId } });
+      const totalExercises = await Chapter.sum(
+        'exercisesQuantity',
+        { where: { courseId } },
+      );
+      const totalTheories = await Chapter.sum(
+        'theoryQuantity',
+        { where: { courseId } },
+      );
+      const totalTopics = totalExercises + totalTheories;
 
       hasStarted = true;
       userProgress = Math.floor((userCourseData.doneActivities / totalTopics) * 100);
@@ -153,21 +209,39 @@ class CoursesController {
         exclude: ['createdAt', 'updatedAt', 'excluded'],
       },
       where: { excluded: false },
-      include: {
-        model: User,
-        attributes: ['id', 'hasInitAnyCourse'],
-        required: true,
-        through: {
-          model: CourseUser,
-          attributes: ['userId'],
-          where: {
-            userId,
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'hasInitAnyCourse'],
+          required: true,
+          through: {
+            model: CourseUser,
+            attributes: ['userId'],
+            where: {
+              userId,
+            },
+            order: [
+              ['updatedAt', 'DESC'],
+            ],
           },
-          order: [
-            ['updatedAt', 'DESC'],
-          ],
         },
-      },
+        {
+          model: Chapter,
+          attributes: [],
+          required: true,
+          where: {
+            topicsQuantity: {
+              [Op.gt]: 0,
+            },
+            exercisesQuantity: {
+              [Op.gt]: 0,
+            },
+            theoryQuantity: {
+              [Op.gt]: 0,
+            },
+          },
+        },
+      ],
     });
 
     if (!courses) {

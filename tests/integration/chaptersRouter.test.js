@@ -33,7 +33,7 @@ beforeAll(async () => {
   );
 
   for (let i = 0; i < 3; i += 1) {
-    chapters.push(await createChapters(db, courseId, 'Apresentação', 1, 2, 3));
+    chapters.push(await createChapters(db, courseId, 'Apresentação', i + 1));
   }
 
   adminToken = await createAdminSession();
@@ -54,28 +54,28 @@ describe('GET /admin/chapters', () => {
     expect(body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: expect.any(Number),
           courseId,
           name: 'Apresentação',
           order: 1,
-          topicsQuantity: 2,
-          exercisesQuantity: 3,
+          topicsQuantity: 0,
+          exercisesQuantity: 0,
+          theoryQuantity: 0,
         }),
         expect.objectContaining({
-          id: expect.any(Number),
           courseId,
           name: 'Apresentação',
-          order: 1,
-          topicsQuantity: 2,
-          exercisesQuantity: 3,
+          order: 2,
+          topicsQuantity: 0,
+          exercisesQuantity: 0,
+          theoryQuantity: 0,
         }),
         expect.objectContaining({
-          id: expect.any(Number),
           courseId,
           name: 'Apresentação',
-          order: 1,
-          topicsQuantity: 2,
-          exercisesQuantity: 3,
+          order: 3,
+          topicsQuantity: 0,
+          exercisesQuantity: 0,
+          theoryQuantity: 0,
         }),
       ]),
     );

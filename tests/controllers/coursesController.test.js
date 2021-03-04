@@ -144,19 +144,21 @@ describe('Testing function getCourseProgress of courseController', () => {
     User.findByPk.mockImplementationOnce(() => true);
     Course.findByPk.mockImplementationOnce(() => true);
     CourseUser.findOne.mockImplementationOnce(() => ({ doneActivities: 5 }));
-    Chapter.sum.mockImplementationOnce(() => 26);
+    Chapter.sum.mockImplementationOnce(() => 10);
+    Chapter.sum.mockImplementationOnce(() => 10);
 
     const response = await coursesController.getCourseProgress(userId, courseId);
 
     expect(CourseUser.findOne).toHaveBeenCalled();
     expect(CourseUser.findOne).toHaveBeenCalledWith({ where: { userId, courseId } });
     expect(Chapter.sum).toHaveBeenCalled();
-    expect(Chapter.sum).toHaveBeenCalledWith('topicsQuantity', { where: { courseId } });
+    expect(Chapter.sum).toHaveBeenCalledWith('exercisesQuantity', { where: { courseId } });
+    expect(Chapter.sum).toHaveBeenCalledWith('theoryQuantity', { where: { courseId } });
     expect(response).toMatchObject({
       userId,
       courseId,
       hasStarted: true,
-      progress: 19,
+      progress: 25,
     });
   });
 
