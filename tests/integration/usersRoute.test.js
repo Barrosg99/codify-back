@@ -20,7 +20,6 @@ const Redis = require('../../src/utils/redis');
 const agent = supertest(app);
 let userToken;
 let userId;
-let userEmail;
 let courseId;
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -54,7 +53,6 @@ beforeAll(async () => {
   const session = await createUserSession(db);
   userToken = session.userToken;
   userId = session.userId;
-  userEmail = session.userEmail;
 });
 
 afterAll(async () => {
@@ -410,9 +408,10 @@ describe('PUT /users', () => {
     expect(response.status).toBe(422);
   });
 
-  it('should 409 if email already exists', async () => {
+  it('should 409 if email already exists and isnt my curretn email', async () => {
+    await createUserSession(db, 'gb1999@hotmail.com');
     const body = {
-      email: userEmail,
+      email: 'gb1999@hotmail.com',
     };
 
     const response = await agent
@@ -425,7 +424,7 @@ describe('PUT /users', () => {
 
   it('should change email, name and password and return 204', async () => {
     const body = {
-      email: 'gb1999@hotmail.com',
+      email: 'bananinha@hotmail.com',
       name: 'Bananana',
       password: 'abba',
       passwordConfirmation: 'abba',

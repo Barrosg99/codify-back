@@ -71,14 +71,14 @@ async function createAdminSession() {
   return Redis.setSession({ id: process.env.ADMIN_ID });
 }
 
-async function createUserSession(db) {
+async function createUserSession(db, email = 'teste@teste.com') {
   const password = bcrypt.hashSync('123456', 10);
 
   const user = await db.query(
     `INSERT INTO users 
     (name, password, email, "createdAt", "updatedAt") VALUES ($1 , $2, $3, $4, $5) 
     RETURNING *`,
-    ['Teste de Teste', password, 'teste@teste.com', new Date(), new Date()],
+    ['Teste de Teste', password, email, new Date(), new Date()],
   );
 
   const userToken = await Redis.setSession({ id: user.rows[0].id });
