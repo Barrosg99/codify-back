@@ -38,13 +38,21 @@ async function createCourseUsersUtils(db, userId) {
   return courseUsers.rows[0];
 }
 
-async function createChapters(db, courseId, name, order, topicsQuantity, exercisesQuantity) {
+async function createChapters(
+  db,
+  courseId,
+  name,
+  order,
+  topicsQuantity = 0,
+  exercisesQuantity = 0,
+  theoryQuantity = 0,
+) {
   const chapter = await db.query(`
     INSERT INTO public.chapters
     ("courseId", name, "order", "topicsQuantity",
-    "exercisesQuantity", "createdAt", "updatedAt")
-    VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *;`, [
-    courseId, name, order, topicsQuantity, exercisesQuantity,
+    "exercisesQuantity", "createdAt", "updatedAt", "theoryQuantity")
+    VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6) RETURNING *;`, [
+    courseId, name, order, topicsQuantity, exercisesQuantity, theoryQuantity,
   ]);
 
   return chapter.rows[0];

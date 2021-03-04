@@ -36,7 +36,7 @@ beforeAll(async () => {
     'https://i.imgur.com/lWUs38z.png',
   );
 
-  const testChapter = await createChapters(db, courseId, 'Teste', 1, 5, 5);
+  const testChapter = await createChapters(db, courseId, 'Teste', 1, 1, 1, 1);
   chapterId = testChapter.id;
 
   const testTopic = await createTopic(db, chapterId);
@@ -188,7 +188,7 @@ describe('GET /users/courses/:courseId/progress', () => {
   it('should return user progress in a course if both exist', async () => {
     await db.query(
       'INSERT INTO "courseUsers" ("userId", "courseId", "doneActivities", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [userId, courseId, 2, new Date(), new Date()],
+      [userId, courseId, 1, new Date(), new Date()],
     );
 
     const response = await agent
@@ -199,7 +199,7 @@ describe('GET /users/courses/:courseId/progress', () => {
       userId,
       courseId,
       hasStarted: true,
-      progress: 40,
+      progress: 50,
     });
   });
 

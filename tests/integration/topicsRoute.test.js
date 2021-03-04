@@ -43,7 +43,7 @@ beforeAll(async () => {
     'https://i.imgur.com/lWUs38z.png',
   );
 
-  const testChapter = await createChapters(db, courseId, 'Teste', 1, 1, 1);
+  const testChapter = await createChapters(db, courseId, 'Teste', 1, 1, 1, 1);
   chapterId = testChapter.id;
 
   const testTopic = await createTopic(db, chapterId);

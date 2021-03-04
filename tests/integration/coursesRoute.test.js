@@ -6,7 +6,14 @@ const supertest = require('supertest');
 const sequelize = require('../../src/utils/database');
 
 const {
-  createCoursesUtils, cleanDataBase, createAdminSession, createUserSession,
+  createCoursesUtils,
+  cleanDataBase,
+  createAdminSession,
+  createUserSession,
+  createChapters,
+  createTopic,
+  createTheory,
+  createExercise,
 } = require('../utils');
 
 const app = require('../../src/app');
@@ -15,6 +22,10 @@ const Redis = require('../../src/utils/redis');
 const agent = supertest(app);
 let adminToken;
 let userToken;
+let courseId;
+let chapterId;
+let topicId;
+
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -22,13 +33,25 @@ const db = new Pool({
 beforeAll(async () => {
   await cleanDataBase(db);
 
-  await createCoursesUtils(
+  courseId = await createCoursesUtils(
     db,
     'JavaScript do zero ao avançado',
     'Curso para vc ficar voando mesmo tipo mostrão no JS',
-    'amarelo',
+    '#FFF',
     'https://i.imgur.com/lWUs38z.png',
   );
+
+  const testChapter = await createChapters(db, courseId, 'Teste', 1, 1, 1, 1);
+  chapterId = testChapter.id;
+
+  const testTopic = await createTopic(db, chapterId);
+  topicId = testTopic.id;
+
+  const testTheory = await createTheory(db, topicId);
+  theoryId = testTheory.id;
+
+  const testExercise = await createExercise(db, topicId);
+  exerciseId = testExercise.id;
 
   adminToken = await createAdminSession(db);
   const session = await createUserSession(db);
@@ -56,7 +79,7 @@ describe('GET /admin/courses', () => {
           id: 1,
           title: 'JavaScript do zero ao avançado',
           description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
-          color: 'amarelo',
+          color: '#FFF',
           imageUrl: 'https://i.imgur.com/lWUs38z.png',
         }),
       ]),
@@ -134,7 +157,7 @@ describe('GET /admin/courses/:id', () => {
       id: 1,
       title: 'JavaScript do zero ao avançado',
       description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
-      color: 'amarelo',
+      color: '#FFF',
       imageUrl: 'https://i.imgur.com/lWUs38z.png',
     });
   });
@@ -176,44 +199,30 @@ describe('GET /suggestions', () => {
 
 describe('GET /courses/:courseId/chapters/:chapterId', () => {
   it('Should return status code 200 with list of topic at chapter without user complet topic', async () => {
-    const result = await db.query('SELECT * FROM courses LIMIT 1');
-    const course = result.rows[0];
-
-    const resultChapter = await db.query(
-      'INSERT INTO chapters ("courseId", name, "order", "topicsQuantity", "exercisesQuantity", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [course.id, 'Teste', 1, 1, 0, new Date(), new Date()],
-    );
-    const chapter = resultChapter.rows[0];
-
-    const resultTopic = await db.query(
-      'INSERT INTO topics ("chapterId", name, "order", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [chapter.id, 'Teste', 1, new Date(), new Date()],
-    );
-    const topic = resultTopic.rows[0];
-
-    const response = await agent.get(`/courses/${course.id}/chapters`).set('Authorization', `Bearer ${userToken}`);
+    const response = await agent.get(`/courses/${courseId}/chapters`).set('Authorization', `Bearer ${userToken}`);
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      color: course.color,
-      imageUrl: course.imageUrl,
+      id: courseId,
+      title: 'JavaScript do zero ao avançado',
+      description: 'Curso para vc ficar voando mesmo tipo mostrão no JS',
+      color: '#FFF',
+      imageUrl: 'https://i.imgur.com/lWUs38z.png',
       chapters: expect.arrayContaining([
         expect.objectContaining({
-          id: chapter.id,
-          name: chapter.name,
-          excluded: chapter.excluded,
-          order: chapter.order,
-          topicsQuantity: chapter.topicsQuantity,
-          exercisesQuantity: chapter.exercisesQuantity,
+          id: chapterId,
+          name: 'Teste',
+          excluded: false,
+          order: 1,
+          topicsQuantity: 1,
+          theoryQuantity: 1,
+          exercisesQuantity: 1,
           topics: [
             {
-              id: topic.id,
-              chapterId: chapter.id,
+              id: topicId,
+              chapterId,
               excluded: false,
-              name: topic.name,
-              order: topic.order,
+              name: 'Teste',
+              order: 1,
               userHasFinished: false,
             },
           ],
